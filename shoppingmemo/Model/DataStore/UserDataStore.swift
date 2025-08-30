@@ -9,5 +9,6 @@ import Foundation
 
 class UserDataStore: ObservableObject {
     static let shared = UserDataStore()
-    
+    @Published var userResult: Result<User?, Error>? = nil
+    @Published var signInUser: User? = nil
 }
