@@ -18,9 +18,10 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     var creationTime: Date
     var lastEditUserId: String
     var lastEditTime: Date
+    var members: [Member]
     
     enum CodingKeys: CodingKey {
-        case roomId, roomName, creationTime, lastEditUserId, lastEditTime
+        case roomId, roomName, creationTime, lastEditUserId, lastEditTime, members
     }
     
     init(from decoder: any Decoder) throws {
@@ -41,6 +42,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         } else {
             throw DecodingError.dataCorruptedError(forKey: .lastEditTime, in: container, debugDescription: "Failed to decode lastEditTime.")
         }
+        self.members = try container.decode([Member].self, forKey: .members)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -53,14 +55,16 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         try container.encode(self.lastEditUserId, forKey: .lastEditUserId)
         let lastEditTimeString = formatter.string(from: self.lastEditTime)
         try container.encode(lastEditTimeString, forKey: .lastEditTime)
+        try container.encode(self.members, forKey: .members)
     }
     
-    init(roomId: String, roomName: String, creationTime: Date, lastEditUserId: String, lastEditTime: Date) {
+    init(roomId: String, roomName: String, creationTime: Date, lastEditUserId: String, lastEditTime: Date, members: [Member]) {
         self.roomId = roomId
         self.roomName = roomName
         self.creationTime = creationTime
         self.lastEditUserId = lastEditUserId
         self.lastEditTime = lastEditTime
+        self.members = []
     }
     
     init() {
@@ -69,5 +73,6 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.creationTime = Date()
         self.lastEditUserId = "unknownUserId"
         self.lastEditTime = Date()
+        self.members = []
     }
 }
