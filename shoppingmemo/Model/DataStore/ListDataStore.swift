@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 class ListDataStore: ObservableObject {
     static let shared = ListDataStore()
     @Published var lists: [List] = []

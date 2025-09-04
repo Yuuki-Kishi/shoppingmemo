@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 class PathDataStore: ObservableObject {
     static let shared = PathDataStore()
     @Published var navigationPath: [path] = []

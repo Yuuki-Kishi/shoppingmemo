@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 class MemoDataStore: ObservableObject {
     static let shared = MemoDataStore()
     @Published var memos: [Memo] = []

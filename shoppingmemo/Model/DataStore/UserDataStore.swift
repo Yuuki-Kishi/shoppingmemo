@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 class UserDataStore: ObservableObject {
     static let shared = UserDataStore()
     @Published var userResult: Result<User?, Error>? = nil
