@@ -64,7 +64,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.creationTime = creationTime
         self.lastEditUserId = lastEditUserId
         self.lastEditTime = lastEditTime
-        self.members = []
+        self.members = members
     }
     
     init() {
