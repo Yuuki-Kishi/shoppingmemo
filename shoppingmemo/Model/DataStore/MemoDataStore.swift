@@ -10,6 +10,6 @@ import Foundation
 @MainActor
 class MemoDataStore: ObservableObject {
     static let shared = MemoDataStore()
-    @Published var memos: [Memo] = []
+    @Published var memoArray: [Memo] = []
     @Published var selectedMemo: Memo? = nil
 }

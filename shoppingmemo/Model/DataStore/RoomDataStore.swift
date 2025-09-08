@@ -10,6 +10,6 @@ import Foundation
 @MainActor
 class RoomDataStore: ObservableObject {
     static let shared = RoomDataStore()
-    @Published var rooms: [Room] = []
+    @Published var roomArray: [Room] = []
     @Published var selectedRoom: Room? = nil
 }
