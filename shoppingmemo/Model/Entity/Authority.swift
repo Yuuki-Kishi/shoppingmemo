@@ -20,7 +20,7 @@ struct Authority: Codable, Hashable, Identifiable, Equatable {
         case administrator, member, guest, unknown
     }
     
-    enum CodingKeys: CodingKey {
+    enum CodingKeys: String, CodingKey {
         case roomId, authority
     }
     

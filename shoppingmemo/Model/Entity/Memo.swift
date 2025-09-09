@@ -22,7 +22,7 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
     var checkedOrder: Int
     var imageUrl: String
     
-    enum CodingKeys: CodingKey {
+    enum CodingKeys: String, CodingKey {
         case memoId, memoName, isChecked, creationTime, checkedTime, nonCheckOrder, checkedOrder, imageUrl
     }
     

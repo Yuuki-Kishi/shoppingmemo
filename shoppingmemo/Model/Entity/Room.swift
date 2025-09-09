@@ -20,7 +20,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     var lastEditTime: Date
     var members: [Member]
     
-    enum CodingKeys: CodingKey {
+    enum CodingKeys: String, CodingKey {
         case roomId, roomName, creationTime, lastEditUserId, lastEditTime, members
     }
     

@@ -21,7 +21,7 @@ struct Member: Codable, Hashable, Identifiable, Equatable {
         case administrator, member, guest, unknwon
     }
     
-    enum CodingKeys: CodingKey {
+    enum CodingKeys: String, CodingKey {
         case userId, email, authority
     }
     

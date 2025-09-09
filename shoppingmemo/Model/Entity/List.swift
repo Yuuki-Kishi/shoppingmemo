@@ -18,7 +18,7 @@ struct List: Codable, Hashable, Identifiable, Equatable {
     var creationTime: Date
     var listOrder: Int
     
-    enum CodingKeys: CodingKey {
+    enum CodingKeys: String, CodingKey {
         case listId, listName, creationTime, listOrder
     }
     

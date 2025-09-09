@@ -60,8 +60,8 @@ class Google {
             }
             guard let userId = authResult?.user.uid else { return }
             guard let creationDate = authResult?.user.metadata.creationDate else { return }
-            UserDataStore.shared.userResult = .success(User())
-            UserDataStore.shared.signInUser = User()
+//            UserDataStore.shared.userResult = .success(User())
+//            UserDataStore.shared.signInUser = User()
         }
     }
 }

@@ -91,8 +91,8 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
                 if result?.user != nil{
                     guard let userId = result?.user.uid else { return }
                     guard let creationDate = result?.user.metadata.creationDate else { return }
-                    UserDataStore.shared.userResult = .success(User())
-                    UserDataStore.shared.signInUser = User()
+//                    UserDataStore.shared.userResult = .success(User())
+//                    UserDataStore.shared.signInUser = User()
                 }
             }
             
