@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct List: Codable, Hashable, Identifiable, Equatable {
-    static func == (lhs: List, rhs: List) -> Bool {
+struct CustomList: Codable, Hashable, Identifiable, Equatable {
+    static func == (lhs: CustomList, rhs: CustomList) -> Bool {
         return lhs.listId == rhs.listId
     }
     
