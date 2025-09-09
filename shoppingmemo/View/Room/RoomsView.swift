@@ -14,7 +14,7 @@ struct RoomsView: View {
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             List(roomDataStore.roomArray) { room in
-                
+                RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
             }
             .navigationDestination(for: PathDataStore.path.self) { path in
                 destination(path: path)

@@ -10,6 +10,6 @@ import Foundation
 @MainActor
 class ListDataStore: ObservableObject {
     static let shared = ListDataStore()
-    @Published var listArray: [List] = []
-    @Published var selectedList: List? = nil
+    @Published var listArray: [CustomList] = []
+    @Published var selectedList: CustomList? = nil
 }
