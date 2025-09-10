@@ -13,18 +13,29 @@ struct RoomsView: View {
     
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
-            List(roomDataStore.roomArray) { room in
-                RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
+            ZStack {
+                plusButton()
+                if roomDataStore.roomArray.isEmpty {
+                    Text("表示できるルームがありません")
+                } else {
+                    List(roomDataStore.roomArray) { room in
+                        RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
+                    }
+                }
             }
+            .padding()
             .navigationDestination(for: PathDataStore.path.self) { path in
                 destination(path: path)
             }
+            .navigationTitle("ホーム")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
+    @ViewBuilder
     func destination(path: PathDataStore.path) -> some View {
         switch path {
         case .lists:
-            EmptyView()
+            ListsView(roomDataStore: roomDataStore, pathDataStore: pathDataStore)
         case .memos:
             EmptyView()
         case .image:
@@ -35,6 +46,23 @@ struct RoomsView: View {
             EmptyView()
         case .notice:
             EmptyView()
+        }
+    }
+    func plusButton() -> some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button(action: {
+                    
+                }, label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 30))
+                        .foregroundStyle(Color.primary)
+                        .background(Circle().frame(width: 70, height: 70))
+                        .frame(width: 70, height: 70)
+                })
+            }
         }
     }
 }
