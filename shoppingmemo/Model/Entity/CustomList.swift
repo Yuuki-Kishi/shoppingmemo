@@ -17,9 +17,11 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
     var listName: String
     var creationTime: Date
     var listOrder: Int
+    var lastUpdateUserId: String
+    var lastUpdateTime: Date
     
     enum CodingKeys: String, CodingKey {
-        case listId, listName, creationTime, listOrder
+        case listId, listName, creationTime, listOrder, lastUpdateUserId, lastUpdateTime
     }
     
     init(from decoder: any Decoder) throws {
@@ -34,6 +36,13 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
             throw DecodingError.dataCorruptedError(forKey: .creationTime, in: container, debugDescription: "Failed to decode creationTime.")
         }
         self.listOrder = try container.decode(Int.self, forKey: .listOrder)
+        self.lastUpdateUserId = try container.decode(String.self, forKey: .lastUpdateUserId)
+        let lastUpdateTimeString = try container.decode(String.self, forKey: .lastUpdateTime)
+        if let date = formatter.date(from: lastUpdateTimeString) {
+            self.lastUpdateTime = date
+        } else {
+            throw DecodingError.dataCorruptedError(forKey: .lastUpdateTime, in: container, debugDescription: "Failed to decode lastUpdateTime.")
+        }
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -44,13 +53,18 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
         let creationTimeString = formatter.string(from: self.creationTime)
         try container.encode(creationTimeString, forKey: .creationTime)
         try container.encode(self.listOrder, forKey: .listOrder)
+        try container.encode(self.lastUpdateUserId, forKey: .lastUpdateUserId)
+        let lastUpdateTimeString = formatter.string(from: self.lastUpdateTime)
+        try container.encode(lastUpdateTimeString, forKey: .lastUpdateTime)
     }
     
-    init(listId: String, listName: String, creationTime: Date, listOrder: Int) {
+    init(listId: String, listName: String, creationTime: Date, listOrder: Int, lastUpdateUserId: String, lastUpdateTime: Date) {
         self.listId = listId
         self.listName = listName
         self.creationTime = creationTime
         self.listOrder = listOrder
+        self.lastUpdateUserId = lastUpdateUserId
+        self.lastUpdateTime = lastUpdateTime
     }
     
     init() {
@@ -58,5 +72,7 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
         self.listName = "unknownListName"
         self.creationTime = Date()
         self.listOrder = 0
+        self.lastUpdateUserId = "unknownUserId"
+        self.lastUpdateTime = Date()
     }
 }

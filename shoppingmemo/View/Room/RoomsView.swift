@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct RoomsView: View {
+    @ObservedObject var userDataStore: UserDataStore
     @StateObject var roomDataStore = RoomDataStore.shared
     @StateObject var pathDataStore = PathDataStore.shared
     
@@ -23,19 +24,24 @@ struct RoomsView: View {
                     }
                 }
             }
-            .padding()
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing, content: {
+                    toolBarMenu()
+                })
+            }
             .navigationDestination(for: PathDataStore.path.self) { path in
                 destination(path: path)
             }
             .navigationTitle("ホーム")
             .navigationBarTitleDisplayMode(.inline)
+            .padding()
         }
     }
     @ViewBuilder
     func destination(path: PathDataStore.path) -> some View {
         switch path {
         case .lists:
-            ListsView(roomDataStore: roomDataStore, pathDataStore: pathDataStore)
+            ListsView(userDataStore: userDataStore, roomDataStore: roomDataStore, pathDataStore: pathDataStore)
         case .memos:
             EmptyView()
         case .image:
@@ -65,8 +71,41 @@ struct RoomsView: View {
             }
         }
     }
+    func toolBarMenu() -> some View {
+        Menu {
+            Button(action: {
+                
+            }, label: {
+                Label("マイページ", systemImage: "info.circle")
+            })
+            Button(action: {
+                
+            }, label: {
+                Label("設定", systemImage: "switch.2")
+            })
+            Button(action: {
+                
+            }, label: {
+                Label("通知一覧", systemImage: "bell")
+            })
+            Button(action: {
+                
+            }, label: {
+                Label("操作説明", systemImage: "questionmark.circle")
+            })
+            Divider()
+            Button(role: .destructive, action: {
+                
+            }, label: {
+                Label("サインアウト", systemImage: "door.right.hand.open")
+            })
+        } label: {
+            Image(systemName: "ellipsis.circle")
+                .foregroundStyle(Color.primary)
+        }
+    }
 }
 
 #Preview {
-    RoomsView()
+    RoomsView(userDataStore: UserDataStore.shared)
 }

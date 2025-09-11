@@ -1,20 +1,20 @@
 //
-//  RoomsViewCell.swift
+//  ListViewCell.swift
 //  shoppingmemo
 //
-//  Created by 岸　優樹 on 2025/09/10.
+//  Created by 岸　優樹 on 2025/09/11.
 //
 
 import SwiftUI
 
-struct RoomsViewCell: View {
-    @ObservedObject var roomDataStore: RoomDataStore
+struct ListViewCell: View {
+    @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var pathDataStore: PathDataStore
-    @State var room: Room
+    @State var list: CustomList
     
     var body: some View {
         VStack {
-            Text(room.roomName)
+            Text(list.listName)
                 .font(.system(size: 25))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .lineLimit(1)
@@ -33,14 +33,14 @@ struct RoomsViewCell: View {
     func lastEditTime() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
-        return dateFormatter.string(from: room.lastUpdateTime)
+        return dateFormatter.string(from: list.lastUpdateTime)
     }
     func lastEditUserName() -> String {
         //MARK: Need Update
-        return room.lastUpdateUserId
+        return list.lastUpdateUserId
     }
 }
 
 #Preview {
-    RoomsViewCell(roomDataStore: RoomDataStore.shared, pathDataStore: PathDataStore.shared, room: Room())
+    ListViewCell(listDataStore: ListDataStore.shared, pathDataStore: PathDataStore.shared, list: CustomList())
 }

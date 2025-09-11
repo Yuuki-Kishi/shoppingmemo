@@ -16,12 +16,12 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     var roomId: String
     var roomName: String
     var creationTime: Date
-    var lastEditUserId: String
-    var lastEditTime: Date
+    var lastUpdateUserId: String
+    var lastUpdateTime: Date
     var members: [Member]
     
     enum CodingKeys: String, CodingKey {
-        case roomId, roomName, creationTime, lastEditUserId, lastEditTime, members
+        case roomId, roomName, creationTime, lastUpdateUserId, lastUpdateTime, members
     }
     
     init(from decoder: any Decoder) throws {
@@ -35,12 +35,12 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         } else {
             throw DecodingError.dataCorruptedError(forKey: .creationTime, in: container, debugDescription: "Failed to decode creationTime.")
         }
-        self.lastEditUserId = try container.decode(String.self, forKey: .lastEditUserId)
-        let lastEditTimeString = try container.decode(String.self, forKey: .lastEditTime)
-        if let date = formatter.date(from: lastEditTimeString) {
-            self.lastEditTime = date
+        self.lastUpdateUserId = try container.decode(String.self, forKey: .lastUpdateUserId)
+        let lastUpdateTimeString = try container.decode(String.self, forKey: .lastUpdateTime)
+        if let date = formatter.date(from: lastUpdateTimeString) {
+            self.lastUpdateTime = date
         } else {
-            throw DecodingError.dataCorruptedError(forKey: .lastEditTime, in: container, debugDescription: "Failed to decode lastEditTime.")
+            throw DecodingError.dataCorruptedError(forKey: .lastUpdateTime, in: container, debugDescription: "Failed to decode lastUpdateTime.")
         }
         self.members = try container.decode([Member].self, forKey: .members)
     }
@@ -52,18 +52,18 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         let formatter = ISO8601DateFormatter()
         let creationTimeString = formatter.string(from: self.creationTime)
         try container.encode(creationTimeString, forKey: .creationTime)
-        try container.encode(self.lastEditUserId, forKey: .lastEditUserId)
-        let lastEditTimeString = formatter.string(from: self.lastEditTime)
-        try container.encode(lastEditTimeString, forKey: .lastEditTime)
+        try container.encode(self.lastUpdateUserId, forKey: .lastUpdateUserId)
+        let lastUpdateTimeString = formatter.string(from: self.lastUpdateTime)
+        try container.encode(lastUpdateTimeString, forKey: .lastUpdateTime)
         try container.encode(self.members, forKey: .members)
     }
     
-    init(roomId: String, roomName: String, creationTime: Date, lastEditUserId: String, lastEditTime: Date, members: [Member]) {
+    init(roomId: String, roomName: String, creationTime: Date, lastUpdateUserId: String, lastUpdateTime: Date, members: [Member]) {
         self.roomId = roomId
         self.roomName = roomName
         self.creationTime = creationTime
-        self.lastEditUserId = lastEditUserId
-        self.lastEditTime = lastEditTime
+        self.lastUpdateUserId = lastUpdateUserId
+        self.lastUpdateTime = lastUpdateTime
         self.members = members
     }
     
@@ -71,8 +71,8 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.roomId = "unknownRoomId"
         self.roomName = "unknownRoomName"
         self.creationTime = Date()
-        self.lastEditUserId = "unknownUserId"
-        self.lastEditTime = Date()
+        self.lastUpdateUserId = "unknownUserId"
+        self.lastUpdateTime = Date()
         self.members = []
     }
 }
