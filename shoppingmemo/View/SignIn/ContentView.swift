@@ -14,7 +14,7 @@ struct ContentView: View {
         if userDataStore.userResult == nil {
             LoadingView()
                 .onAppear() {
-                    
+                    AuthRepository.checkSignIn()
                 }
         } else {
             if userDataStore.signInUser == nil {

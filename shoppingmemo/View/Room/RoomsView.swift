@@ -10,20 +10,28 @@ import SwiftUI
 struct RoomsView: View {
     @ObservedObject var userDataStore: UserDataStore
     @StateObject var roomDataStore = RoomDataStore.shared
+    @StateObject var listDataStore = ListDataStore.shared
+    @StateObject var memoDataStore = MemoDataStore.shared
     @StateObject var pathDataStore = PathDataStore.shared
     
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             ZStack {
-                plusButton()
                 if roomDataStore.roomArray.isEmpty {
-                    Text("表示できるルームがありません")
+                    VStack {
+                        Text("表示できるルームがありません")
+                            .padding()
+                    }
                 } else {
                     List(roomDataStore.roomArray) { room in
-                        RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
+                        Section() {
+                            RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
+                        }
                     }
                 }
+                plusButton()
             }
+            .background(Color(UIColor.systemGray6))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing, content: {
                     toolBarMenu()
@@ -34,16 +42,18 @@ struct RoomsView: View {
             }
             .navigationTitle("ホーム")
             .navigationBarTitleDisplayMode(.inline)
-            .padding()
+            .onAppear() {
+                
+            }
         }
     }
     @ViewBuilder
     func destination(path: PathDataStore.path) -> some View {
         switch path {
         case .lists:
-            ListsView(userDataStore: userDataStore, roomDataStore: roomDataStore, pathDataStore: pathDataStore)
+            ListsView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, pathDataStore: pathDataStore)
         case .memos:
-            EmptyView()
+            MemosView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore)
         case .image:
             EmptyView()
         case .myInfo:
@@ -63,11 +73,12 @@ struct RoomsView: View {
                     
                 }, label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 30))
                         .foregroundStyle(Color.primary)
-                        .background(Circle().frame(width: 70, height: 70))
-                        .frame(width: 70, height: 70)
+                        .font(.system(size: 30))
                 })
+                .frame(width: 70, height: 70)
+                .glassEffect(.regular.tint(.accentColor))
+                .padding(.trailing, 34)
             }
         }
     }

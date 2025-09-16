@@ -18,26 +18,12 @@ struct ListViewCell: View {
                 .font(.system(size: 25))
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .lineLimit(1)
-            HStack {
-                Text(lastEditTime())
-                    .font(.system(size: 15))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .lineLimit(1)
-                Text(lastEditUserName())
-                    .font(.system(size: 15))
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .lineLimit(1)
-            }
+                .draggable(list.id.uuidString)
         }
-    }
-    func lastEditTime() -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
-        return dateFormatter.string(from: list.lastUpdateTime)
-    }
-    func lastEditUserName() -> String {
-        //MARK: Need Update
-        return list.lastUpdateUserId
+        .contentShape(Rectangle())
+        .onTapGesture {
+            pathDataStore.navigationPath.append(.memos)
+        }
     }
 }
 

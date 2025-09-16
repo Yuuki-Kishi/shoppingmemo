@@ -10,20 +10,55 @@ import SwiftUI
 struct ListsView: View {
     @ObservedObject var userDataStore: UserDataStore
     @ObservedObject var roomDataStore: RoomDataStore
-    @StateObject var listDataStore = ListDataStore.shared
+    @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var pathDataStore: PathDataStore
     
     var body: some View {
-        List(listDataStore.listArray) { list in
-            ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+        ZStack {
+            if listDataStore.listArray.isEmpty {
+                Text("表示できるリストがありません")
+                    .padding()
+            } else {
+                List(listDataStore.listArray) { list in
+                    Section {
+                        ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                    }
+                }
+            }
+            plusButton()
         }
+        .background(Color(UIColor.systemGray6))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing, content: {
-                toolBarMenu()
+                HStack {
+                    
+                    toolBarMenu()
+                }
             })
         }
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear() {
+            listDataStore.listArray.append(CustomList())
+        }
+    }
+    func plusButton() -> some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button(action: {
+                    
+                }, label: {
+                    Image(systemName: "plus")
+                        .foregroundStyle(Color.primary)
+                        .font(.system(size: 30))
+                })
+                .frame(width: 70, height: 70)
+                .glassEffect(.regular.tint(.accentColor))
+                .padding(.trailing, 34)
+            }
+        }
     }
     func toolBarMenu() -> some View {
         Menu {
@@ -60,5 +95,5 @@ struct ListsView: View {
 }
 
 #Preview {
-    ListsView(userDataStore: UserDataStore.shared, roomDataStore: RoomDataStore.shared, pathDataStore: PathDataStore.shared)
+    ListsView(userDataStore: UserDataStore.shared, roomDataStore: RoomDataStore.shared, listDataStore: ListDataStore.shared, pathDataStore: PathDataStore.shared)
 }

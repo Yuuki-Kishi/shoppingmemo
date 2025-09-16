@@ -29,6 +29,10 @@ struct RoomsViewCell: View {
                     .lineLimit(1)
             }
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            pathDataStore.navigationPath.append(.lists)
+        }
     }
     func lastEditTime() -> String {
         let dateFormatter = DateFormatter()
