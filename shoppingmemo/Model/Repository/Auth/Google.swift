@@ -10,7 +10,10 @@ import GoogleSignIn
 import FirebaseCore
 import FirebaseAuth
 
+@MainActor
 class Google {
+    static let userDataStore = UserDataStore.shared
+    
     static func handleSignInButton() {
         guard let clientID: String = FirebaseApp.app()?.options.clientID else { return }
         let config:GIDConfiguration = GIDConfiguration(clientID: clientID)
@@ -51,7 +54,6 @@ class Google {
         }
     }
     
-    @MainActor
     static func login(credential: AuthCredential) {
         Auth.auth().signIn(with: credential) { (authResult, error) in
             if let error = error {
@@ -60,8 +62,7 @@ class Google {
             }
             guard let userId = authResult?.user.uid else { return }
             guard let creationDate = authResult?.user.metadata.creationDate else { return }
-//            UserDataStore.shared.userResult = .success(User())
-//            UserDataStore.shared.signInUser = User()
+            //check exist then excute login
         }
     }
 }

@@ -18,9 +18,26 @@ class RoomRepository {
     //check
     
     //get
+    static func getRoom(roomId: String) async -> Room? {
+        do {
+            let document = try await Firestore.firestore().collection("rooms").document(roomId).getDocument()
+            let room = try document.data(as: Room.self)
+            return room
+        } catch {
+            print(error)
+            return nil
+        }
+    }
+    
     static func getBelongRooms() async -> [Room] {
-        guard let authority = userDataStore.signInUser?.authority else { return [] }
-        
+        var rooms: [Room] = []
+        guard let authorities = userDataStore.signInUser?.authority else { return [] }
+        for authority in authorities {
+            let roomId = authority.roomId
+            guard let room = await getRoom(roomId: roomId) else { continue }
+            rooms.append(noDupulicate: room)
+        }
+        return rooms
     }
     
     //update

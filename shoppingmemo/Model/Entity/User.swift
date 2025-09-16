@@ -48,6 +48,8 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         self.authority = authority
     }
     
+    init(userId: String, creationDate)
+    
     init() {
         self.userId = "unknownUserId"
         self.userName = "unknownUserName"

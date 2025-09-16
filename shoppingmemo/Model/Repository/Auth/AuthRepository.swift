@@ -8,18 +8,32 @@
 import Foundation
 import FirebaseAuth
 
+@MainActor
 class AuthRepository {
+    static let userDataStore = UserDataStore.shared
+    
+    //create
+    
     //check
-    @MainActor
-    static func checkSignIn() {
-        //MARK: Tentative
-        if let currentUserId = Auth.auth().currentUser?.uid {
-            UserDataStore.shared.userResult = .success(User())
-            UserDataStore.shared.signInUser = User()
+    static func isSignIn() async {
+        if let currentUser = Auth.auth().currentUser {
+            guard let user = await UserRepository.getUserData(userId: currentUser.uid) else { return }
+            userDataStore.userResult = .success(user)
+            userDataStore.signInUser = user
         } else {
-            UserDataStore.shared.userResult = .success(nil)
-            UserDataStore.shared.signInUser = nil
+            userDataStore.userResult = .success(nil)
+            userDataStore.signInUser = nil
         }
     }
+    
+    //get
+    
+    //check
+    
+    //update
+    
+    //delete
+    
+    //observe
 }
 
