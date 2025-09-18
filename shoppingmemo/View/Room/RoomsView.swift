@@ -43,8 +43,7 @@ struct RoomsView: View {
             .navigationTitle("ホーム")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear() {
-                Task { await RoomRepository.getBelongRooms() }
-                UserRepository.observeUserData()
+                //MARK: How to observe Rooms?
             }
         }
     }

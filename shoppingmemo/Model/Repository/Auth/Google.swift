@@ -56,13 +56,40 @@ class Google {
     
     static func login(credential: AuthCredential) {
         Auth.auth().signIn(with: credential) { (authResult, error) in
-            if let error = error {
-                print("SignInError: \(error.localizedDescription)")
-                return
+            Task {
+                if let error = error {
+                    print("SignInError: \(error.localizedDescription)")
+                    return
+                }
+                guard let userId = authResult?.user.uid else { return }
+                guard let creationTime = authResult?.user.metadata.creationDate else { return }
+                let AppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+                guard let email = authResult?.user.email else { return }
+                let iOSVersion = UIDevice.current.systemVersion
+                let isExist = await UserRepository.isExist(userId: userId)
+                if isExist {
+                    let notExistPropatyKeys = await UserRepository.notExistPropaties(userId: userId)
+                    var notExistPropaties: [String: Any] = [:]
+                    let formatter = ISO8601DateFormatter()
+                    let creationTimeString = formatter.string(from: creationTime)
+                    for notExistPropatyKey in notExistPropatyKeys {
+                        if notExistPropatyKey == "creationTime" { notExistPropaties.updateValue(creationTimeString, forKey: notExistPropatyKey) }
+                        else if notExistPropatyKey == "currentVersion" { notExistPropaties.updateValue(AppVersion, forKey: notExistPropatyKey) }
+                        else if notExistPropatyKey == "email" { notExistPropaties.updateValue(email, forKey: notExistPropatyKey) }
+                        else if notExistPropatyKey == "iOSVersion" { notExistPropaties.updateValue(iOSVersion, forKey: notExistPropatyKey) }
+                        else if notExistPropatyKey == "noticeCheckedTime" { notExistPropaties.updateValue("2025-01-01T00:00:00Z", forKey: notExistPropatyKey) }
+                        else if notExistPropatyKey == "userName" { notExistPropaties.updateValue("未設定", forKey: notExistPropatyKey) }
+                    }
+                    await UserRepository.addPropaties(userId: userId, propaties: notExistPropaties)
+                    guard let user = await UserRepository.getUserData(userId: userId) else { return }
+                    userDataStore.userResult = .success(user)
+                    userDataStore.signInUser = user
+                } else {
+                    guard let user = await UserRepository.create(userId: userId, email: email, creationTime: creationTime) else { return }
+                    userDataStore.userResult = .success(user)
+                    userDataStore.signInUser = user
+                }
             }
-            guard let userId = authResult?.user.uid else { return }
-            guard let creationDate = authResult?.user.metadata.creationDate else { return }
-            //check exist then excute login
         }
     }
 }

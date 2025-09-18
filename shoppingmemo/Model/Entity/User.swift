@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct User: Codable, Hashable, Identifiable, Equatable {
     static func == (lhs: User, rhs: User) -> Bool {
@@ -16,13 +17,14 @@ struct User: Codable, Hashable, Identifiable, Equatable {
     var userId: String
     var userName: String
     var email: String
+    var creationTime: Date
+    var currentVersion: String
+    var iOSVersion: String
+    var noticeCheckedTime: Date
     var authority: [Authority]
     
     enum CodingKeys: String, CodingKey {
-        case userId
-        case userName
-        case email
-        case authority
+        case userId, userName, email, creationTime, currentVersion, iOSVersion, noticeCheckedTime, authority
     }
     
     init(from decoder: any Decoder) throws {
@@ -30,6 +32,21 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         self.userId = try container.decode(String.self, forKey: .userId)
         self.userName = try container.decode(String.self, forKey: .userName)
         self.email = try container.decode(String.self, forKey: .email)
+        let formatter = ISO8601DateFormatter()
+        let creationTimeString = try container.decode(String.self, forKey: .creationTime)
+        if let date = formatter.date(from: creationTimeString) {
+            self.creationTime = date
+        } else {
+            throw DecodingError.dataCorruptedError(forKey: .creationTime, in: container, debugDescription: "Failed to decode creationDate.")
+        }
+        self.currentVersion = try container.decode(String.self, forKey: .currentVersion)
+        self.iOSVersion = try container.decode(String.self, forKey: .iOSVersion)
+        let noticeCheckedTimeString = try container.decode(String.self, forKey: .creationTime)
+        if let date = formatter.date(from: noticeCheckedTimeString) {
+            self.noticeCheckedTime = date
+        } else {
+            throw DecodingError.dataCorruptedError(forKey: .noticeCheckedTime, in: container, debugDescription: "Failed to decode creationDate.")
+        }
         self.authority = try container.decode([Authority].self, forKey: .authority)
     }
     
@@ -37,23 +54,49 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(userId, forKey: .userId)
         try container.encode(userName, forKey: .userName)
+        let formatter = ISO8601DateFormatter()
+        let creationTimeString = formatter.string(from: creationTime)
+        try container.encode(creationTimeString, forKey: .creationTime)
         try container.encode(email, forKey: .email)
+        try container.encode(currentVersion, forKey: .currentVersion)
+        try container.encode(iOSVersion, forKey: .iOSVersion)
+        let noticeCheckedTimeString = formatter.string(from: noticeCheckedTime)
+        try container.encode(noticeCheckedTimeString, forKey: .noticeCheckedTime)
         try container.encode(authority, forKey: .authority)
     }
     
-    init(userId: String, userName: String, email: String, authority: [Authority]) {
+    init(userId: String, userName: String, email: String, creationTime: Date, currentVersion: String, iOSVersion: String, noticeCheckedTime: Date, authority: [Authority]) {
         self.userId = userId
         self.userName = userName
         self.email = email
+        self.creationTime = creationTime
+        self.currentVersion = currentVersion
+        self.iOSVersion = iOSVersion
+        self.noticeCheckedTime = noticeCheckedTime
         self.authority = authority
     }
     
-    init(userId: String, creationDate)
+    init(userId: String, email: String, creationTime: Date) {
+        self.userId = userId
+        self.userName = "未設定"
+        self.email = email
+        self.creationTime = creationTime
+        let AppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "3.0"
+        self.currentVersion = AppVersion
+        let iOSVersion = UIDevice.current.systemVersion
+        self.iOSVersion = iOSVersion
+        self.noticeCheckedTime = ISO8601DateFormatter().date(from: "2001-01-01T00:00:00Z") ?? Date()
+        self.authority = []
+    }
     
     init() {
         self.userId = "unknownUserId"
         self.userName = "unknownUserName"
         self.email = "unknownUserEmail"
+        self.creationTime = Date()
+        self.currentVersion = "unknownVersion"
+        self.iOSVersion = "unknownVersion"
+        self.noticeCheckedTime = Date()
         self.authority = []
     }
 }

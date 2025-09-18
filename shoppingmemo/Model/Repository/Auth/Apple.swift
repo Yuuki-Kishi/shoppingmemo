@@ -10,9 +10,11 @@ import AuthenticationServices
 import FirebaseAuth
 import CryptoKit
 
+@MainActor
 class Apple: NSObject, ASAuthorizationControllerDelegate {
     static let shared = Apple()
     var currentNonce: String?
+    static let userDataStore = UserDataStore.shared
     
     func signInWithApple(request: ASAuthorizationAppleIDRequest) {
         request.requestedScopes = [.email,.fullName]
@@ -65,7 +67,6 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
         return hashString
     }
     
-    @MainActor
     func login(authRequest: Result<ASAuthorization, any Error>) {
         switch authRequest {
         case .success(let authResults):
@@ -87,12 +88,40 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
                 return
             }
             let credential = OAuthProvider.appleCredential(withIDToken: idTokenString, rawNonce: nonce, fullName: appleIDCredential.fullName)
-            Auth.auth().signIn(with: credential) { result, error in
-                if result?.user != nil{
-                    guard let userId = result?.user.uid else { return }
-                    guard let creationDate = result?.user.metadata.creationDate else { return }
-//                    UserDataStore.shared.userResult = .success(User())
-//                    UserDataStore.shared.signInUser = User()
+            Auth.auth().signIn(with: credential) { authResult, error in
+                Task {
+                    if let error = error {
+                        print("SignInError: \(error.localizedDescription)")
+                        return
+                    }
+                    guard let userId = authResult?.user.uid else { return }
+                    guard let creationTime = authResult?.user.metadata.creationDate else { return }
+                    let AppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+                    guard let email = authResult?.user.email else { return }
+                    let iOSVersion = UIDevice.current.systemVersion
+                    let isExist = await UserRepository.isExist(userId: userId)
+                    if isExist {
+                        let notExistPropatyKeys = await UserRepository.notExistPropaties(userId: userId)
+                        var notExistPropaties: [String: Any] = [:]
+                        let formatter = ISO8601DateFormatter()
+                        let creationTimeString = formatter.string(from: creationTime)
+                        for notExistPropatyKey in notExistPropatyKeys {
+                            if notExistPropatyKey == "creationTime" { notExistPropaties.updateValue(creationTimeString, forKey: notExistPropatyKey) }
+                            else if notExistPropatyKey == "currentVersion" { notExistPropaties.updateValue(AppVersion, forKey: notExistPropatyKey) }
+                            else if notExistPropatyKey == "email" { notExistPropaties.updateValue(email, forKey: notExistPropatyKey) }
+                            else if notExistPropatyKey == "iOSVersion" { notExistPropaties.updateValue(iOSVersion, forKey: notExistPropatyKey) }
+                            else if notExistPropatyKey == "noticeCheckedTime" { notExistPropaties.updateValue("2025-01-01T00:00:00Z", forKey: notExistPropatyKey) }
+                            else if notExistPropatyKey == "userName" { notExistPropaties.updateValue("未設定", forKey: notExistPropatyKey) }
+                        }
+                        await UserRepository.addPropaties(userId: userId, propaties: notExistPropaties)
+                        guard let user = await UserRepository.getUserData(userId: userId) else { return }
+                        Apple.userDataStore.userResult = .success(user)
+                        Apple.userDataStore.signInUser = user
+                    } else {
+                        guard let user = await UserRepository.create(userId: userId, email: email, creationTime: creationTime) else { return }
+                        Apple.userDataStore.userResult = .success(user)
+                        Apple.userDataStore.signInUser = user
+                    }
                 }
             }
             
