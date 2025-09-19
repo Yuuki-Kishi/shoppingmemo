@@ -44,7 +44,7 @@ class UserRepository {
             let checkPropaties: [String] = ["creationTime", "currentVersion", "email", "iOSVersion", "noticeCheckedTime", "userName"]
             let document = try await Firestore.firestore().collection("users").document(userId).getDocument()
             for checkPropaty in checkPropaties {
-                if let value = document.get(checkPropaty) { continue }
+                if let _ = document.get(checkPropaty) { continue }
                 else { notExistPropaties.append(checkPropaty) }
             }
             return notExistPropaties
@@ -81,15 +81,16 @@ class UserRepository {
     //delete
     
     //observe
-    static func observeUserData() {
+    static func observeBelongRooms() {
         guard let userId = userDataStore.signInUser?.userId else { return }
         Firestore.firestore().collection("users").document(userId).addSnapshotListener() { documentSnapshot, error in
-            do {
-                let user = try documentSnapshot?.data(as: User.self)
-                userDataStore.userResult = .success(user)
-                userDataStore.signInUser = user
-            } catch {
-                print(error)
+            Task {
+                do {
+                    guard let autorities = try documentSnapshot?.data(as: User.self).authorities else { return }
+                    await RoomRepository.updateRooms(authorities: autorities)
+                } catch {
+                    print(error)
+                }
             }
         }
     }

@@ -17,9 +17,13 @@ class AuthRepository {
     //check
     static func isSignIn() async {
         if let currentUser = Auth.auth().currentUser {
-            guard let user = await UserRepository.getUserData(userId: currentUser.uid) else { return }
-            userDataStore.userResult = .success(user)
-            userDataStore.signInUser = user
+            if let user = await UserRepository.getUserData(userId: currentUser.uid) {
+                userDataStore.userResult = .success(user)
+                userDataStore.signInUser = user
+            } else {
+                userDataStore.userResult = .success(nil)
+                userDataStore.signInUser = nil
+            }
         } else {
             userDataStore.userResult = .success(nil)
             userDataStore.signInUser = nil

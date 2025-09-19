@@ -23,8 +23,8 @@ struct RoomsView: View {
                             .padding()
                     }
                 } else {
-                    List(roomDataStore.roomArray) { room in
-                        Section() {
+                    List(roomDataStore.roomArray, id: \.roomId) { room in
+                        Section {
                             RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
                         }
                     }
@@ -43,7 +43,7 @@ struct RoomsView: View {
             .navigationTitle("ホーム")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear() {
-                //MARK: How to observe Rooms?
+                UserRepository.observeBelongRooms()
             }
         }
     }

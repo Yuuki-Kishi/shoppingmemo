@@ -18,11 +18,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     var creationTime: Date
     var lastUpdateUserId: String
     var lastUpdateTime: Date
-    var ownAuthority: OwnAuthorityEnum
-    
-    enum OwnAuthorityEnum: String {
-        case administrator, member, guest, unknown
-    }
+    var ownAuthority: Authority.AuthorityEnum
     
     enum CodingKeys: String, CodingKey {
         case roomId, roomName, creationTime, lastUpdateUserId, lastUpdateTime, ownAuthority
@@ -61,7 +57,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         try container.encode(lastUpdateTimeString, forKey: .lastUpdateTime)
     }
     
-    init(roomId: String, roomName: String, creationTime: Date, lastUpdateUserId: String, lastUpdateTime: Date, ownAuthority: OwnAuthorityEnum) {
+    init(roomId: String, roomName: String, creationTime: Date, lastUpdateUserId: String, lastUpdateTime: Date, ownAuthority: Authority.AuthorityEnum) {
         self.roomId = roomId
         self.roomName = roomName
         self.creationTime = creationTime
