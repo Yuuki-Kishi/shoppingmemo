@@ -22,6 +22,7 @@ class RoomRepository {
             guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
             try await Firestore.firestore().collection("rooms").document(room.roomId).setData(jsonObject)
             await UserRepository.addMyRoom(roomId: room.roomId, ownAuthority: room.ownAuthority)
+            await MemberRepository.createMember(roomId: room.roomId, authority: .administrator)
         } catch {
             print(error)
         }
