@@ -14,6 +14,10 @@ struct RoomsView: View {
     @StateObject var memoDataStore = MemoDataStore.shared
     @StateObject var pathDataStore = PathDataStore.shared
     
+    @State private var newRoomNameText: String = ""
+    
+    @State private var newRoomCreateAlertIsPresented: Bool = false
+    
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             ZStack {
@@ -37,13 +41,26 @@ struct RoomsView: View {
                     toolBarMenu()
                 })
             }
+            .alert("ルームを新規作成", isPresented: $newRoomCreateAlertIsPresented, actions: {
+                TextField("ルーム名を入力", text: $newRoomNameText)
+                Button(role: .cancel, action: {}, label: {
+                    Text("キャンセル")
+                })
+                Button(action: {
+                    Task { await RoomRepository.createRoom(roomName: newRoomNameText) }
+                }, label: {
+                    Text("作成")
+                })
+            }, message: {
+                Text("新規作成するルームの名前を入力してください。")
+            })
             .navigationDestination(for: PathDataStore.path.self) { path in
                 destination(path: path)
             }
             .navigationTitle("ホーム")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear() {
-                UserRepository.observeBelongRooms()
+                UserRepository.observeMyFieldValue()
             }
         }
     }
@@ -70,7 +87,7 @@ struct RoomsView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    
+                    newRoomCreateAlertIsPresented = true
                 }, label: {
                     Image(systemName: "plus")
                         .foregroundStyle(Color.primary)

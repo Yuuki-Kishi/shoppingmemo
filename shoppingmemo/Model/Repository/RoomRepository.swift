@@ -14,6 +14,18 @@ class RoomRepository {
     static let roomDataStore = RoomDataStore.shared
     
     //create
+    static func createRoom(roomName: String) async {
+        do {
+            guard let userId = userDataStore.signInUser?.userId else { return }
+            let room = Room(roomName: roomName, lastUpdateUserId: userId)
+            let encoded = try JSONEncoder().encode(room)
+            guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
+            try await Firestore.firestore().collection("rooms").document(room.roomId).setData(jsonObject)
+            await UserRepository.addMyRoom(roomId: room.roomId, ownAuthority: room.ownAuthority)
+        } catch {
+            print(error)
+        }
+    }
     
     //check
     
@@ -46,7 +58,7 @@ class RoomRepository {
             for currentRoom in roomDataStore.roomArray {
                 let isContain = authorities.contains(where: { $0.roomId == currentRoom.roomId })
                 if !isContain {
-                    roomDataStore.roomArray.append(noDupulicate: currentRoom)
+                    roomDataStore.roomArray.remove(room: currentRoom)
                 }
             }
         }

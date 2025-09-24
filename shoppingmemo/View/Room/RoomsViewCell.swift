@@ -37,6 +37,7 @@ struct RoomsViewCell: View {
         .contentShape(Rectangle())
         .listRowBackground(cellColor())
         .onTapGesture {
+            roomDataStore.selectedRoom = room
             pathDataStore.navigationPath.append(.lists)
         }
         .task { lastUpdateUserName = await lastUpdateUserName() }

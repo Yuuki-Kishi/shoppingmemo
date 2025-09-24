@@ -66,6 +66,15 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.ownAuthority = ownAuthority
     }
     
+    init(roomName: String, lastUpdateUserId: String) {
+        self.roomId = UUID().uuidString
+        self.roomName = roomName
+        self.creationTime = Date()
+        self.lastUpdateUserId = lastUpdateUserId
+        self.lastUpdateTime = Date()
+        self.ownAuthority = .administrator
+    }
+    
     init() {
         self.roomId = "unknownRoomId"
         self.roomName = "unknownRoomName"

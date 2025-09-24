@@ -39,7 +39,10 @@ struct ListsView: View {
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
-            listDataStore.listArray.append(CustomList())
+            //MARK: Observe Lists
+        }
+        .onDisappear() {
+            roomDataStore.selectedRoom = nil
         }
     }
     func plusButton() -> some View {

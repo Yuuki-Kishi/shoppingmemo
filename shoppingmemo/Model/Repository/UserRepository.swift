@@ -78,16 +78,30 @@ class UserRepository {
         }
     }
     
+    static func addMyRoom(roomId: String, ownAuthority: Authority.AuthorityEnum) async {
+        do {
+            guard let userId = userDataStore.signInUser?.userId else { return }
+            let authority = Authority(roomId: roomId, authority: ownAuthority)
+            let encoded = try JSONEncoder().encode(authority)
+            guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
+            try await Firestore.firestore().collection("users").document(userId).updateData(["authorities": FieldValue.arrayUnion([jsonObject])])
+        } catch {
+            print(error)
+        }
+    }
+    
     //delete
     
     //observe
-    static func observeBelongRooms() {
+    static func observeMyFieldValue() {
         guard let userId = userDataStore.signInUser?.userId else { return }
         Firestore.firestore().collection("users").document(userId).addSnapshotListener() { documentSnapshot, error in
             Task {
                 do {
-                    guard let autorities = try documentSnapshot?.data(as: User.self).authorities else { return }
-                    await RoomRepository.updateRooms(authorities: autorities)
+                    guard let user = try documentSnapshot?.data(as: User.self) else { return }
+                    await RoomRepository.updateRooms(authorities: user.authorities)
+                    userDataStore.userResult = .success(user)
+                    userDataStore.signInUser = user
                 } catch {
                     print(error)
                 }
