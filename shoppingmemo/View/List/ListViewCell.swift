@@ -13,15 +13,20 @@ struct ListViewCell: View {
     @State var list: CustomList
     
     var body: some View {
-        VStack {
-            Text(list.listName)
-                .font(.system(size: 25))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .lineLimit(1)
-                .draggable(list.id.uuidString)
+        HStack {
+            VStack {
+                Text(list.listName)
+                    .font(.system(size: 25))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(1)
+                    .draggable(list.id.uuidString)
+            }
+            Image(systemName: "chevron.forward")
+                .foregroundStyle(.gray)
         }
         .contentShape(Rectangle())
         .onTapGesture {
+            listDataStore.selectedList = list
             pathDataStore.navigationPath.append(.memos)
         }
     }

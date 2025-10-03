@@ -21,7 +21,7 @@ class MemberRepository {
             let member = Member(userId: userId, email: email, authority: authority)
             let encoded = try JSONEncoder().encode(member)
             guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
-            try await Firestore.firestore().collection("rooms").document(roomId).collection("members").document(userId).setData(jsonObject)
+            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Members").document(userId).setData(jsonObject)
         } catch {
             print(error)
         }

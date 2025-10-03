@@ -13,6 +13,10 @@ struct ListsView: View {
     @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var pathDataStore: PathDataStore
     
+    @State private var newListNameText: String = ""
+    
+    @State private var newListCreateAlertIsPresent: Bool = false
+    
     var body: some View {
         ZStack {
             if listDataStore.listArray.isEmpty {
@@ -36,13 +40,25 @@ struct ListsView: View {
                 }
             })
         }
+        .alert("リストを追加", isPresented: $newListCreateAlertIsPresent, actions: {
+            TextField("リストの名前を入力", text: $newListNameText)
+            Button(role: .cancel, action: {
+                newListNameText = ""
+            }, label: {
+                Text("キャンセル")
+            })
+            Button(action: {
+                Task { await CustomListRepository.createList(listName: newListNameText) }
+            }, label: {
+                Text("追加")
+            })
+        }, message: {
+            Text("追加するリストの名前を入力してください。")
+        })
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
-            //MARK: Observe Lists
-        }
-        .onDisappear() {
-            roomDataStore.selectedRoom = nil
+            CustomListRepository.observeLists()
         }
     }
     func plusButton() -> some View {
@@ -51,7 +67,7 @@ struct ListsView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    
+                    newListCreateAlertIsPresent = true
                 }, label: {
                     Image(systemName: "plus")
                         .foregroundStyle(Color.primary)

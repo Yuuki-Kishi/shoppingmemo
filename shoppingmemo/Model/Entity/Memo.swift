@@ -75,6 +75,17 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
         self.imageUrl = imageUrl
     }
     
+    init(memoName: String) {
+        self.memoId = UUID().uuidString
+        self.memoName = memoName
+        self.isChecked = false
+        self.creationTime = Date()
+        self.checkedTime = Date()
+        self.nonCheckOrder = 0
+        self.checkedOrder = 0
+        self.imageUrl = "default"
+    }
+    
     init() {
         self.memoId = "unknownMemoId"
         self.memoName = "unknownMemoName"
@@ -84,5 +95,20 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
         self.nonCheckOrder = 0
         self.checkedOrder = 0
         self.imageUrl = "default"
+    }
+}
+
+extension Array where Element == Memo {
+    mutating func append(noDupulicate memo: Element) {
+        if let index = self.firstIndex(of: memo) {
+            self[index] = memo
+        } else {
+            self.append(memo)
+        }
+    }
+    mutating func remove(memo: Element) {
+        if let index = self.firstIndex(of: memo) {
+            self.remove(at: index)
+        }
     }
 }

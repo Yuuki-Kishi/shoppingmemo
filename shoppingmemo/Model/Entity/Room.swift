@@ -86,14 +86,14 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
 }
 
 extension Array where Element == Room {
-    mutating func append(noDupulicate room: Room) {
+    mutating func append(noDupulicate room: Element) {
         if let index = self.firstIndex(of: room) {
             self[index] = room
         } else {
             self.append(room)
         }
     }
-    mutating func remove(room: Room) {
+    mutating func remove(room: Element) {
         if let index = self.firstIndex(of: room) {
             self.remove(at: index)
         }

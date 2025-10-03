@@ -42,7 +42,7 @@ struct RoomsView: View {
                 })
             }
             .alert("ルームを新規作成", isPresented: $newRoomCreateAlertIsPresented, actions: {
-                TextField("ルーム名を入力", text: $newRoomNameText)
+                TextField("ルームの名前を入力", text: $newRoomNameText)
                 Button(role: .cancel, action: {}, label: {
                     Text("キャンセル")
                 })

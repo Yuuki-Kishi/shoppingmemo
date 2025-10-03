@@ -67,6 +67,15 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
         self.lastUpdateTime = lastUpdateTime
     }
     
+    init(listName: String, lastUpdateUserId: String) {
+        self.listId = UUID().uuidString
+        self.listName = listName
+        self.creationTime = Date()
+        self.listOrder = 0
+        self.lastUpdateUserId = lastUpdateUserId
+        self.lastUpdateTime = Date()
+    }
+    
     init() {
         self.listId = "unknownListId"
         self.listName = "unknownListName"
@@ -74,5 +83,20 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
         self.listOrder = 0
         self.lastUpdateUserId = "unknownUserId"
         self.lastUpdateTime = Date()
+    }
+}
+
+extension Array where Element == CustomList {
+    mutating func append(noDupulicate list: Element) {
+        if let index = self.firstIndex(of: list) {
+            self[index] = list
+        } else {
+            self.append(list)
+        }
+    }
+    mutating func remove(list: Element) {
+        if let index = self.firstIndex(of: list) {
+            self.remove(at: index)
+        }
     }
 }

@@ -20,7 +20,7 @@ class RoomRepository {
             let room = Room(roomName: roomName, lastUpdateUserId: userId)
             let encoded = try JSONEncoder().encode(room)
             guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
-            try await Firestore.firestore().collection("rooms").document(room.roomId).setData(jsonObject)
+            try await Firestore.firestore().collection("Rooms").document(room.roomId).setData(jsonObject)
             await UserRepository.addMyRoom(roomId: room.roomId, ownAuthority: room.ownAuthority)
             await MemberRepository.createMember(roomId: room.roomId, authority: .administrator)
         } catch {
@@ -33,7 +33,7 @@ class RoomRepository {
     //get
     static func getRoom(roomId: String) async -> Room? {
         do {
-            let document = try await Firestore.firestore().collection("rooms").document(roomId).getDocument()
+            let document = try await Firestore.firestore().collection("Rooms").document(roomId).getDocument()
             let room = try document.data(as: Room.self)
             return room
         } catch {

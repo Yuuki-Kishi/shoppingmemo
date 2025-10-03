@@ -12,7 +12,8 @@ struct MemosView: View {
     @ObservedObject var roomDataStore: RoomDataStore
     @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var memoDataStore: MemoDataStore
-    @State private var text: String = ""
+    
+    @State private var newMemoNameText: String = ""
     
     var body: some View {
         ZStack {
@@ -28,6 +29,8 @@ struct MemosView: View {
                         Text("未完了")
                             .padding(.top, 55)
                     }
+                }
+                if !memoDataStore.checkedMemoArray.isEmpty {
                     Section {
                         ForEach(memoDataStore.checkedMemoArray, id:\.id) { memo in
                             MemosViewCell(roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, memo: memo)
@@ -40,7 +43,11 @@ struct MemosView: View {
                 }
             }
             VStack {
-                TextField("アイテムを追加", text: $text, onCommit: {
+                TextField("アイテムを追加", text: $newMemoNameText, onCommit: {
+                    Task {
+                        await MemoRepository.createMemo(memoName: newMemoNameText)
+                        newMemoNameText = ""
+                    }
                     
                 })
                 .padding()
@@ -57,10 +64,7 @@ struct MemosView: View {
         .navigationTitle(listDataStore.selectedList?.listName ?? "不明なリスト")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
-            memoDataStore.nonCheckMemoArray.append(Memo())
-            memoDataStore.nonCheckMemoArray.append(Memo())
-            memoDataStore.checkedMemoArray.append(Memo())
-            memoDataStore.checkedMemoArray.append(Memo())
+            MemoRepository.obserbeMemos()
         }
     }
     func nonCheckMove(fromSources: IndexSet, toDestination: Int) {
