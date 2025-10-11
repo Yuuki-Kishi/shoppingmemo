@@ -14,6 +14,7 @@ class MemoRepository {
     static let roomDataStore: RoomDataStore = .shared
     static let listDataStore: ListDataStore = .shared
     static let memoDataStore: MemoDataStore = .shared
+    static let imageDataStore: ImageDataStore = .shared
     
     //create
     static func createMemo(memoName: String) async {
@@ -99,6 +100,11 @@ class MemoRepository {
     }
     
     //delete
+    static func clearMemos() {
+        memoDataStore.selectedMemo = nil
+        memoDataStore.nonCheckMemoArray.removeAll()
+        memoDataStore.checkedMemoArray.removeAll()
+    }
     
     //observe
     static func obserbeMemos() {
@@ -128,6 +134,10 @@ class MemoRepository {
                             memoDataStore.checkedMemoArray.remove(memo: memo)
                         } else {
                             memoDataStore.nonCheckMemoArray.remove(memo: memo)
+                        }
+                        if memo.memoId == memoDataStore.selectedMemo?.memoId {
+                            memoDataStore.selectedMemo = nil
+                            NavigationRepository.removeViews(numberOfLeave: 2)
                         }
                     }
                 } catch {

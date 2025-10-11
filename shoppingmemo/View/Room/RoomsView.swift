@@ -12,6 +12,7 @@ struct RoomsView: View {
     @StateObject var roomDataStore = RoomDataStore.shared
     @StateObject var listDataStore = ListDataStore.shared
     @StateObject var memoDataStore = MemoDataStore.shared
+    @StateObject var imageDataStore = ImageDataStore.shared
     @StateObject var pathDataStore = PathDataStore.shared
     
     @State private var newRoomNameText: String = ""
@@ -27,7 +28,7 @@ struct RoomsView: View {
                             .padding()
                     }
                 } else {
-                    List(roomDataStore.roomArray, id: \.roomId) { room in
+                    List($roomDataStore.roomArray, id: \.roomId) { room in
                         Section {
                             RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
                         }
@@ -60,7 +61,9 @@ struct RoomsView: View {
             .navigationTitle("ホーム")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear() {
-                UserRepository.observeMyFieldValue()
+                UserRepository.observeUserData()
+                RoomRepository.observeRooms()
+                CustomListRepository.clearLists()
             }
         }
     }
@@ -70,9 +73,9 @@ struct RoomsView: View {
         case .lists:
             ListsView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, pathDataStore: pathDataStore)
         case .memos:
-            MemosView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore)
+            MemosView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore)
         case .image:
-            EmptyView()
+            ImageView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, imageDataStore: imageDataStore, pathDataStore: pathDataStore)
         case .myInfo:
             EmptyView()
         case .noticeList:
@@ -135,5 +138,5 @@ struct RoomsView: View {
 }
 
 #Preview {
-    RoomsView(userDataStore: UserDataStore.shared)
+    RoomsView(userDataStore: .shared)
 }

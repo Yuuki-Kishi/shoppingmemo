@@ -38,7 +38,10 @@ class CustomListRepository {
     
     
     //delete
-    
+    static func clearLists() {
+        listDataStore.selectedList = nil
+        listDataStore.listArray.removeAll()
+    }
     
     //observe
     static func observeLists() {
@@ -56,6 +59,10 @@ class CustomListRepository {
                         listDataStore.listArray.append(noDupulicate: list)
                     case .removed:
                         listDataStore.listArray.remove(list: list)
+                        if list.listId == listDataStore.selectedList?.listId {
+                            listDataStore.selectedList = nil
+                            NavigationRepository.removeViews(numberOfLeave: 1)
+                        }
                     }
                 } catch {
                     print(error)

@@ -17,6 +17,9 @@ class AuthRepository {
     //check
     static func isSignIn() async {
         if let currentUser = Auth.auth().currentUser {
+            if await UserRepository.isNeedCompensate() {
+                await UserRepository.compensatePropaties()
+            }
             if let user = await UserRepository.getUserData(userId: currentUser.uid) {
                 userDataStore.userResult = .success(user)
                 userDataStore.signInUser = user

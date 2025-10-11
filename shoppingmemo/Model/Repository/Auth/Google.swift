@@ -68,19 +68,9 @@ class Google {
                 let iOSVersion = UIDevice.current.systemVersion
                 let isExist = await UserRepository.isExist(userId: userId)
                 if isExist {
-                    let notExistPropatyKeys = await UserRepository.notExistPropaties(userId: userId)
-                    var notExistPropaties: [String: Any] = [:]
-                    let formatter = ISO8601DateFormatter()
-                    let creationTimeString = formatter.string(from: creationTime)
-                    for notExistPropatyKey in notExistPropatyKeys {
-                        if notExistPropatyKey == "creationTime" { notExistPropaties.updateValue(creationTimeString, forKey: notExistPropatyKey) }
-                        else if notExistPropatyKey == "currentVersion" { notExistPropaties.updateValue(AppVersion, forKey: notExistPropatyKey) }
-                        else if notExistPropatyKey == "email" { notExistPropaties.updateValue(email, forKey: notExistPropatyKey) }
-                        else if notExistPropatyKey == "iOSVersion" { notExistPropaties.updateValue(iOSVersion, forKey: notExistPropatyKey) }
-                        else if notExistPropatyKey == "noticeCheckedTime" { notExistPropaties.updateValue("2025-01-01T00:00:00Z", forKey: notExistPropatyKey) }
-                        else if notExistPropatyKey == "userName" { notExistPropaties.updateValue("未設定", forKey: notExistPropatyKey) }
+                    if await UserRepository.isNeedCompensate() {
+                        await UserRepository.compensatePropaties()
                     }
-                    await UserRepository.addPropaties(userId: userId, propaties: notExistPropaties)
                     guard let user = await UserRepository.getUserData(userId: userId) else { return }
                     userDataStore.userResult = .success(user)
                     userDataStore.signInUser = user

@@ -14,8 +14,10 @@ struct ListsView: View {
     @ObservedObject var pathDataStore: PathDataStore
     
     @State private var newListNameText: String = ""
+    @State private var newRoomNameText: String = ""
     
-    @State private var newListCreateAlertIsPresent: Bool = false
+    @State private var createNewListAlertIsPresent: Bool = false
+    @State private var updateRoomNameAlertIsPresent: Bool = false
     
     var body: some View {
         ZStack {
@@ -23,10 +25,14 @@ struct ListsView: View {
                 Text("表示できるリストがありません")
                     .padding()
             } else {
-                List(listDataStore.listArray) { list in
-                    Section {
-                        ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                List {
+                    ForEach($listDataStore.listArray, id: \.listId) { list in
+                        Section {
+                            ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                        }
                     }
+                    .onMove(perform: move)
+                    .onDelete(perform: delete)
                 }
             }
             plusButton()
@@ -40,7 +46,7 @@ struct ListsView: View {
                 }
             })
         }
-        .alert("リストを追加", isPresented: $newListCreateAlertIsPresent, actions: {
+        .alert("リストを追加", isPresented: $createNewListAlertIsPresent, actions: {
             TextField("リストの名前を入力", text: $newListNameText)
             Button(role: .cancel, action: {
                 newListNameText = ""
@@ -55,11 +61,34 @@ struct ListsView: View {
         }, message: {
             Text("追加するリストの名前を入力してください。")
         })
+        .alert("ルーム名を変更", isPresented: $updateRoomNameAlertIsPresent, actions: {
+            TextField("新しいルーム名を入力", text: $newRoomNameText)
+            Button(role: .cancel, action: {
+                newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
+            }, label: {
+                Text("キャンセル")
+            })
+            Button(action: {
+                Task { await RoomRepository.updateRoomName(newName: newRoomNameText) }
+            }, label: {
+                Text("変更")
+            })
+        }, message: {
+            Text("新しく設定するルーム名を入力してください。")
+        })
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             CustomListRepository.observeLists()
+            MemoRepository.clearMemos()
+            newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
         }
+    }
+    func move(fromSources: IndexSet, toDestination: Int) {
+        CustomListRepository.listDataStore.listArray.move(fromOffsets: fromSources, toOffset: toDestination)
+    }
+    func delete(at offsets: IndexSet) {
+        
     }
     func plusButton() -> some View {
         VStack {
@@ -67,7 +96,7 @@ struct ListsView: View {
             HStack {
                 Spacer()
                 Button(action: {
-                    newListCreateAlertIsPresent = true
+                    createNewListAlertIsPresent = true
                 }, label: {
                     Image(systemName: "plus")
                         .foregroundStyle(Color.primary)
@@ -82,7 +111,7 @@ struct ListsView: View {
     func toolBarMenu() -> some View {
         Menu {
             Button(action: {
-                
+                updateRoomNameAlertIsPresent = true
             }, label: {
                 Label("ルーム名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
             })
@@ -114,5 +143,5 @@ struct ListsView: View {
 }
 
 #Preview {
-    ListsView(userDataStore: UserDataStore.shared, roomDataStore: RoomDataStore.shared, listDataStore: ListDataStore.shared, pathDataStore: PathDataStore.shared)
+    ListsView(userDataStore: .shared, roomDataStore: .shared, listDataStore: .shared, pathDataStore: .shared)
 }

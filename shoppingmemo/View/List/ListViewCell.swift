@@ -10,7 +10,7 @@ import SwiftUI
 struct ListViewCell: View {
     @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var pathDataStore: PathDataStore
-    @State var list: CustomList
+    @Binding var list: CustomList
     
     var body: some View {
         HStack {
@@ -33,5 +33,5 @@ struct ListViewCell: View {
 }
 
 #Preview {
-    ListViewCell(listDataStore: ListDataStore.shared, pathDataStore: PathDataStore.shared, list: CustomList())
+    ListViewCell(listDataStore: .shared, pathDataStore: .shared, list: Binding(get: { CustomList() }, set: {_ in}))
 }

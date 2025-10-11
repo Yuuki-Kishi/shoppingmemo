@@ -12,6 +12,7 @@ struct MemosView: View {
     @ObservedObject var roomDataStore: RoomDataStore
     @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var memoDataStore: MemoDataStore
+    @ObservedObject var pathDataStore: PathDataStore
     
     @State private var newMemoNameText: String = ""
     
@@ -20,8 +21,8 @@ struct MemosView: View {
             List {
                 if !memoDataStore.nonCheckMemoArray.isEmpty {
                     Section {
-                        ForEach(memoDataStore.nonCheckMemoArray, id:\.id) { memo in
-                            MemosViewCell(roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, memo: memo)
+                        ForEach($memoDataStore.nonCheckMemoArray, id:\.id) { memo in
+                            MemosViewCell(roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
                         }
                         .onMove(perform: nonCheckMove)
                         .onDelete(perform: nonCheckDelete)
@@ -32,8 +33,8 @@ struct MemosView: View {
                 }
                 if !memoDataStore.checkedMemoArray.isEmpty {
                     Section {
-                        ForEach(memoDataStore.checkedMemoArray, id:\.id) { memo in
-                            MemosViewCell(roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, memo: memo)
+                        ForEach($memoDataStore.checkedMemoArray, id:\.id) { memo in
+                            MemosViewCell(roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
                         }
                         .onMove(perform: checkedMove)
                         .onDelete(perform: checkedDelete)
@@ -65,6 +66,7 @@ struct MemosView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             MemoRepository.obserbeMemos()
+            CustomImageRepository.clearImage()
         }
     }
     func nonCheckMove(fromSources: IndexSet, toDestination: Int) {
@@ -152,5 +154,5 @@ struct MemosView: View {
 }
 
 #Preview {
-    MemosView(userDataStore: UserDataStore.shared, roomDataStore: RoomDataStore.shared, listDataStore: ListDataStore.shared, memoDataStore: MemoDataStore.shared)
+    MemosView(userDataStore: .shared, roomDataStore: .shared, listDataStore: .shared, memoDataStore: .shared, pathDataStore: .shared)
 }

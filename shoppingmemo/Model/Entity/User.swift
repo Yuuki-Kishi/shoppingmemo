@@ -21,10 +21,9 @@ struct User: Codable, Hashable, Identifiable, Equatable {
     var currentVersion: String
     var iOSVersion: String
     var noticeCheckedTime: Date
-    var authorities: [Authority]
     
     enum CodingKeys: String, CodingKey {
-        case userId, userName, email, creationTime, currentVersion, iOSVersion, noticeCheckedTime, authorities
+        case userId, userName, email, creationTime, currentVersion, iOSVersion, noticeCheckedTime
     }
     
     init(from decoder: any Decoder) throws {
@@ -47,7 +46,6 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         } else {
             throw DecodingError.dataCorruptedError(forKey: .noticeCheckedTime, in: container, debugDescription: "Failed to decode creationDate.")
         }
-        self.authorities = try container.decode([Authority].self, forKey: .authorities)
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -62,7 +60,6 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         try container.encode(iOSVersion, forKey: .iOSVersion)
         let noticeCheckedTimeString = formatter.string(from: noticeCheckedTime)
         try container.encode(noticeCheckedTimeString, forKey: .noticeCheckedTime)
-        try container.encode(authorities, forKey: .authorities)
     }
     
     init(userId: String, userName: String, email: String, creationTime: Date, currentVersion: String, iOSVersion: String, noticeCheckedTime: Date, authorities: [Authority]) {
@@ -73,7 +70,6 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         self.currentVersion = currentVersion
         self.iOSVersion = iOSVersion
         self.noticeCheckedTime = noticeCheckedTime
-        self.authorities = authorities
     }
     
     init(userId: String, email: String, creationTime: Date) {
@@ -86,7 +82,6 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         let iOSVersion = UIDevice.current.systemVersion
         self.iOSVersion = iOSVersion
         self.noticeCheckedTime = ISO8601DateFormatter().date(from: "2001-01-01T00:00:00Z") ?? Date()
-        self.authorities = []
     }
     
     init() {
@@ -97,6 +92,5 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         self.currentVersion = "unknownVersion"
         self.iOSVersion = "unknownVersion"
         self.noticeCheckedTime = Date()
-        self.authorities = []
     }
 }

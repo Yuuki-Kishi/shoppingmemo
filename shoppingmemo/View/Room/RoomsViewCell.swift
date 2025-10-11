@@ -10,7 +10,7 @@ import SwiftUI
 struct RoomsViewCell: View {
     @ObservedObject var roomDataStore: RoomDataStore
     @ObservedObject var pathDataStore: PathDataStore
-    @State var room: Room
+    @Binding var room: Room
     @State var lastUpdateUserName: String = "取得中..."
     
     var body: some View {
@@ -43,7 +43,7 @@ struct RoomsViewCell: View {
         .task { lastUpdateUserName = await lastUpdateUserName() }
     }
     func roomName() -> String {
-        if room.ownAuthority == .guest {
+        if room.authorities.mine == .guest {
             return room.roomName + " (招待されています)"
         } else {
             return room.roomName
@@ -62,11 +62,11 @@ struct RoomsViewCell: View {
         }
     }
     func cellColor() -> Color? {
-        if room.ownAuthority == .guest { return .orange }
+        if room.authorities.mine == .guest { return .orange }
         return nil
     }
 }
 
 #Preview {
-    RoomsViewCell(roomDataStore: RoomDataStore.shared, pathDataStore: PathDataStore.shared, room: Room())
+    RoomsViewCell(roomDataStore: .shared, pathDataStore: .shared, room: Binding(get: { Room() }, set: {_ in}))
 }

@@ -38,19 +38,19 @@ class UserRepository {
         }
     }
     
-    static func notExistPropaties(userId: String) async -> [String] {
+    static func isNeedCompensate() async -> Bool {
         do {
-            var notExistPropaties: [String] = []
-            let checkPropaties: [String] = ["creationTime", "currentVersion", "email", "iOSVersion", "noticeCheckedTime", "userName"]
+            guard let userId = Auth.auth().currentUser?.uid else { return false }
             let document = try await Firestore.firestore().collection("Users").document(userId).getDocument()
-            for checkPropaty in checkPropaties {
-                if let _ = document.get(checkPropaty) { continue }
-                else { notExistPropaties.append(checkPropaty) }
-            }
-            return notExistPropaties
+            guard let creationTime = document["creationTime"] as? String else { return true }
+            guard let currentVersion = document["currentVersion"] as? String else { return true}
+            guard let email = document["email"] as? String else { return true }
+            guard let iOSVersion = document["iOSVersion"] as? String else { return true }
+            guard let noticeCheckedTime = document["noticeCheckedTime"] as? String else { return true }
+            return false
         } catch {
             print(error)
-            return []
+            return false
         }
     }
     
@@ -67,44 +67,35 @@ class UserRepository {
     }
     
     //update
-    static func addPropaties(userId: String, propaties: [String: Any]) async {
+    static func compensatePropaties() async {
         do {
-            for propaty in propaties {
-                try await Firestore.firestore().collection("Users").document(userId).updateData([propaty.key: propaty.value])
-            }
+            let formatter = ISO8601DateFormatter()
+            guard let creationTime = Auth.auth().currentUser?.metadata.creationDate else { return }
+            let creationTimeString = formatter.string(from: creationTime)
+            guard let currentVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else { return }
+            guard let email = Auth.auth().currentUser?.email else { return }
+            let iOSVersion = UIDevice.current.systemVersion
+            let noticeCheckedTime: String = "2025-01-01T00:00:00Z"
+            guard let userId = Auth.auth().currentUser?.uid else { return }
+            try await Firestore.firestore().collection("Users").document(userId).updateData(["creationTime": creationTimeString, "currentVersion": currentVersion, "email": email, "iOSVersion": iOSVersion, "noticeCheckedTime": noticeCheckedTime, "userId": userId])
         } catch {
             print(error)
             return
         }
     }
     
-    static func addMyRoom(roomId: String, ownAuthority: Authority.AuthorityEnum) async {
-        do {
-            guard let userId = userDataStore.signInUser?.userId else { return }
-            let authority = Authority(roomId: roomId, authority: ownAuthority)
-            let encoded = try JSONEncoder().encode(authority)
-            guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
-            try await Firestore.firestore().collection("Users").document(userId).updateData(["authorities": FieldValue.arrayUnion([jsonObject])])
-        } catch {
-            print(error)
-        }
-    }
-    
     //delete
     
     //observe
-    static func observeMyFieldValue() {
+    static func observeUserData() {
         guard let userId = userDataStore.signInUser?.userId else { return }
-        Firestore.firestore().collection("Users").document(userId).addSnapshotListener() { documentSnapshot, error in
-            Task {
-                do {
-                    guard let user = try documentSnapshot?.data(as: User.self) else { return }
-                    await RoomRepository.updateRooms(authorities: user.authorities)
-                    userDataStore.userResult = .success(user)
-                    userDataStore.signInUser = user
-                } catch {
-                    print(error)
-                }
+        Firestore.firestore().collection("Users").document(userId).addSnapshotListener { documentSnapshot, error in
+            do {
+                let user = try documentSnapshot?.data(as: User.self)
+                userDataStore.userResult = .success(user)
+                userDataStore.signInUser = user
+            } catch {
+                print(error)
             }
         }
     }

@@ -18,10 +18,11 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     var creationTime: Date
     var lastUpdateUserId: String
     var lastUpdateTime: Date
-    var ownAuthority: Authority.AuthorityEnum
+    var memberIds: [String]
+    var authorities: [Authority]
     
     enum CodingKeys: String, CodingKey {
-        case roomId, roomName, creationTime, lastUpdateUserId, lastUpdateTime, ownAuthority
+        case roomId, roomName, creationTime, lastUpdateUserId, lastUpdateTime, memberIds, authorities
     }
     
     init(from decoder: any Decoder) throws {
@@ -42,7 +43,8 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         } else {
             throw DecodingError.dataCorruptedError(forKey: .lastUpdateTime, in: container, debugDescription: "Failed to decode lastUpdateTime.")
         }
-        self.ownAuthority = .unknown
+        self.memberIds = try container.decode([String].self, forKey: .memberIds)
+        self.authorities = try container.decode([Authority].self, forKey: .authorities)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -55,24 +57,29 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         try container.encode(self.lastUpdateUserId, forKey: .lastUpdateUserId)
         let lastUpdateTimeString = formatter.string(from: self.lastUpdateTime)
         try container.encode(lastUpdateTimeString, forKey: .lastUpdateTime)
+        try container.encode(self.memberIds, forKey: .memberIds)
+        try container.encode(self.authorities, forKey: .authorities)
     }
     
-    init(roomId: String, roomName: String, creationTime: Date, lastUpdateUserId: String, lastUpdateTime: Date, ownAuthority: Authority.AuthorityEnum) {
+    init(roomId: String, roomName: String, creationTime: Date, lastUpdateUserId: String, lastUpdateTime: Date, memberIds: [String], authorities: [Authority]) {
         self.roomId = roomId
         self.roomName = roomName
         self.creationTime = creationTime
         self.lastUpdateUserId = lastUpdateUserId
         self.lastUpdateTime = lastUpdateTime
-        self.ownAuthority = ownAuthority
+        self.memberIds = memberIds
+        self.authorities = authorities
     }
     
-    init(roomName: String, lastUpdateUserId: String) {
-        self.roomId = UUID().uuidString
+    init(roomName: String, userId: String) {
+        let roomId = UUID().uuidString
+        self.roomId = roomId
         self.roomName = roomName
         self.creationTime = Date()
-        self.lastUpdateUserId = lastUpdateUserId
+        self.lastUpdateUserId = userId
         self.lastUpdateTime = Date()
-        self.ownAuthority = .administrator
+        self.memberIds = [lastUpdateUserId]
+        self.authorities = [Authority(userId: userId, authority: .administrator)]
     }
     
     init() {
@@ -81,7 +88,8 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.creationTime = Date()
         self.lastUpdateUserId = "unknownUserId"
         self.lastUpdateTime = Date()
-        self.ownAuthority = .unknown
+        self.memberIds = ["unknownUserId"]
+        self.authorities = [Authority(userId: "unknownRoomId", authority: .administrator)]
     }
 }
 

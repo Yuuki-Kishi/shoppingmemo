@@ -36,12 +36,15 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
             throw DecodingError.dataCorruptedError(forKey: .creationTime, in: container, debugDescription: "Failed to decode creationTime.")
         }
         self.listOrder = try container.decode(Int.self, forKey: .listOrder)
-        self.lastUpdateUserId = try container.decode(String.self, forKey: .lastUpdateUserId)
-        let lastUpdateTimeString = try container.decode(String.self, forKey: .lastUpdateTime)
-        if let date = formatter.date(from: lastUpdateTimeString) {
-            self.lastUpdateTime = date
+        self.lastUpdateUserId = try container.decodeIfPresent(String.self, forKey: .lastUpdateUserId) ?? "unknownUserId"
+        if let lastUpdateTimeString = try container.decodeIfPresent(String.self, forKey: .lastUpdateTime) {
+            if let date = formatter.date(from: lastUpdateTimeString) {
+                self.lastUpdateTime = date
+            } else {
+                throw DecodingError.dataCorruptedError(forKey: .lastUpdateTime, in: container, debugDescription: "Failed to decode lastUpdateTime.")
+            }
         } else {
-            throw DecodingError.dataCorruptedError(forKey: .lastUpdateTime, in: container, debugDescription: "Failed to decode lastUpdateTime.")
+            self.lastUpdateTime = Date()
         }
     }
     
