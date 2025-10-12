@@ -19,6 +19,7 @@ struct ImageView: View {
     @State private var selectedImage: PhotosPickerItem?
     
     @State private var photosPickerIsPresented: Bool = false
+    @State private var imageInfoViewIsPresented: Bool = false
     
     var body: some View {
         VStack {
@@ -38,6 +39,10 @@ struct ImageView: View {
         .photosPicker(isPresented: $photosPickerIsPresented, selection: $selectedImage)
         .onChange(of: selectedImage) {
             
+        }
+        .sheet(isPresented: $imageInfoViewIsPresented) {
+            ImageInfoView(memoDataStore: memoDataStore, imageDataStore: imageDataStore)
+                .presentationDetents([.height(250)])
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing, content: {
@@ -77,7 +82,7 @@ struct ImageView: View {
             } else {
                 Menu {
                     Button(action: {
-                        
+                        imageInfoViewIsPresented = true
                     }, label: {
                         Label("情報", systemImage: "info.circle")
                     })

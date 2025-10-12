@@ -66,6 +66,17 @@ class UserRepository {
         }
     }
     
+//    static func getUserName(userId: String) async -> String? {
+//        do {
+//            let document = try await Firestore.firestore().collection("Users").document(userId).getDocument()
+//            guard let userName = document["userName"] as? String else { return nil }
+//            return userName
+//        } catch {
+//            print(error)
+//            return nil
+//        }
+//    }
+    
     //update
     static func compensatePropaties() async {
         do {

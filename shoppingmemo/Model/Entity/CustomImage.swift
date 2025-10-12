@@ -13,25 +13,22 @@ struct CustomImage: Hashable, Identifiable, Equatable {
     }
     
     var id = UUID()
-    var roomId: String
-    var listId: String
     var memoId: String
     var imageData: Data
-    var lastUpdateTime: Date
+    var uploadTime: Date
+    var uploadUserId: String
     
-    init(roomId: String, listId: String, memoId: String, imageData: Data, lastUpdateTime: Date) {
-        self.roomId = roomId
-        self.listId = listId
+    init(memoId: String, imageData: Data, uploadTime: Date, uploadUserId: String) {
         self.memoId = memoId
         self.imageData = imageData
-        self.lastUpdateTime = lastUpdateTime
+        self.uploadTime = uploadTime
+        self.uploadUserId = uploadUserId
     }
     
-    init() {
-        self.roomId = "unknownRoomId"
-        self.listId = "unknownListId"
+    init(){
         self.memoId = "unknownMemoId"
         self.imageData = Data()
-        self.lastUpdateTime = Date()
+        self.uploadTime = Date()
+        self.uploadUserId = "unknownUserId"
     }
 }
