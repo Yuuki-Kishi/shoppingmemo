@@ -23,16 +23,21 @@ class CustomImageRepository {
     static func getImage(imageUrl: String) {
         if imageUrl == "default" { return }
         guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
-        storage.reference(forURL: imageUrl).getData(maxSize: 1 * 1024 * 1024) { data, error in
-            if let error = error {
+        storage.reference(forURL: imageUrl).getData(maxSize: 1 * 1024 * 1024) { dataResult in
+            switch dataResult {
+            case .success(let imageData):
+                storage.reference(forURL: imageUrl).getMetadata() { metadataResult in
+                    switch metadataResult {
+                    case .success(let metadata):
+                        guard let uploadTime = metadata.updated else { return }
+                        let uploadUserId = metadata.customMetadata?["uploadUserId"] ?? "unknownUserId"
+                        imageDataStore.selectedMemoImage = CustomImage(memoId: memoId, imageData: imageData, uploadTime: uploadTime, uploadUserId: uploadUserId)
+                    case .failure(let error):
+                        print(error)
+                    }
+                }
+            case .failure(let error):
                 print(error)
-                return
-            }
-            guard let imageData = data else { return }
-            storage.reference(forURL: imageUrl).getMetadata { metadata, error in
-                guard let uploadTime = metadata?.updated else { return }
-                let uploadUserId = metadata?.customMetadata?["uploadUserId"] ?? "unknownUserId"
-                imageDataStore.selectedMemoImage = CustomImage(memoId: memoId, imageData: imageData, uploadTime: uploadTime, uploadUserId: uploadUserId, uploadUserName: nil)
             }
         }
     }

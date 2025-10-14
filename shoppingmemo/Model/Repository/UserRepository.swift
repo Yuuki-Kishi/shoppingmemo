@@ -12,6 +12,7 @@ import FirebaseFirestore
 @MainActor
 class UserRepository {
     static let userDataStore = UserDataStore.shared
+    static let imageDataStore = ImageDataStore.shared
     
     //create
     static func create(userId: String, email: String, creationTime: Date) async -> User? {
@@ -107,6 +108,18 @@ class UserRepository {
                 userDataStore.signInUser = user
             } catch {
                 print(error)
+            }
+        }
+    }
+    static func observeImageUploadUserName() {
+        guard let userId = imageDataStore.selectedMemoImage?.uploadUserId else { return }
+        Firestore.firestore().collection("Users").document(userId).addSnapshotListener() { documentSnapshot, error in
+            if let userName = documentSnapshot?["userName"] as? String {
+                imageDataStore.userNameResult = .success(userName)
+                imageDataStore.uploadUserName = userName
+            } else {
+                imageDataStore.userNameResult = .success(nil)
+                imageDataStore.uploadUserName = nil
             }
         }
     }
