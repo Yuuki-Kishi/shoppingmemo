@@ -99,6 +99,17 @@ class MemoRepository {
         memoDataStore.checkedSort = sortMode
     }
     
+    static func updateImageUrl(newImageUrl: String) async {
+        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+        guard let listId = listDataStore.selectedList?.listId else { return }
+        guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
+        do {
+            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["imageUrl": newImageUrl])
+        } catch {
+            print(error)
+        }
+    }
+    
     //delete
     static func clearMemos() {
         memoDataStore.selectedMemo = nil
@@ -129,6 +140,12 @@ class MemoRepository {
                         } else {
                             memoDataStore.nonCheckMemoArray.append(noDupulicate: memo)
                         }
+                        if memo.imageUrl == "default" {
+                            CustomImageRepository.clearImage()
+                            NavigationRepository.removeViews(numberOfLeave: 3)
+                        } else {
+                            CustomImageRepository.getImage(imageUrl: memo.imageUrl)
+                        }
                     case .removed:
                         if memo.isChecked {
                             memoDataStore.checkedMemoArray.remove(memo: memo)
@@ -137,6 +154,7 @@ class MemoRepository {
                         }
                         if memo.memoId == memoDataStore.selectedMemo?.memoId {
                             memoDataStore.selectedMemo = nil
+                            CustomImageRepository.clearImage()
                             NavigationRepository.removeViews(numberOfLeave: 2)
                         }
                     }

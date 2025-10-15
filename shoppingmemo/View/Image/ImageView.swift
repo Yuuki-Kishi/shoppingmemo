@@ -20,6 +20,7 @@ struct ImageView: View {
     
     @State private var photosPickerIsPresented: Bool = false
     @State private var imageInfoViewIsPresented: Bool = false
+    @State private var deleteImageAlertIsPresented: Bool = false
     
     var body: some View {
         VStack {
@@ -38,17 +39,30 @@ struct ImageView: View {
         }
         .photosPicker(isPresented: $photosPickerIsPresented, selection: $selectedImage)
         .onChange(of: selectedImage) {
-            
+            Task { await CustomImageRepository.createImage(selectedImage: selectedImage) }
         }
         .sheet(isPresented: $imageInfoViewIsPresented) {
             ImageInfoView(memoDataStore: memoDataStore, imageDataStore: imageDataStore)
-                .presentationDetents([.height(250)])
+                .presentationDetents([.height(230)])
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing, content: {
                 toolBarMenu()
             })
         }
+        .alert("画像を削除しますか？", isPresented: $deleteImageAlertIsPresented, actions: {
+            Button(role: .cancel, action: {}, label: {
+                Text("キャンセル")
+            })
+            Button(role: .destructive, action: {
+                guard let imageUrl = memoDataStore.selectedMemo?.imageUrl else { return }
+                Task { await CustomImageRepository.deleteImage(imageUrl: imageUrl) }
+            }, label: {
+                Text("削除")
+            })
+        }, message: {
+            Text("この操作は取り消すことができません。")
+        })
         .navigationTitle(memoDataStore.selectedMemo?.memoName ?? "不明なメモ")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
@@ -88,7 +102,7 @@ struct ImageView: View {
                     })
                     Divider()
                     Button(role: .destructive, action: {
-                        
+                        deleteImageAlertIsPresented = true
                     }, label: {
                         Label("画像を削除", systemImage: "trash")
                     })

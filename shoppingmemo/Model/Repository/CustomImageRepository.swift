@@ -8,6 +8,8 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseStorage
+import SwiftUI
+import PhotosUI
 
 @MainActor
 class CustomImageRepository {
@@ -18,6 +20,34 @@ class CustomImageRepository {
     static let imageDataStore: ImageDataStore = .shared
     static let storage = Storage.storage()
     
+    //create
+    static func createImage(selectedImage: PhotosPickerItem?) async {
+        guard let data = try? await selectedImage?.loadTransferable(type: Data.self) else { return }
+        guard let uiImage = UIImage(data: data) else { return }
+        guard let imageData = uiImage.jpegData(compressionQuality: 0.3) else { return }
+        guard let userId = userDataStore.signInUser?.userId else { return }
+        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+        guard let listId = listDataStore.selectedList?.listId else { return }
+        guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
+        let imageRef = storage.reference().child(roomId).child(listId).child(memoId + ".jpg")
+        let attachedMetadata = StorageMetadata()
+        attachedMetadata.customMetadata = ["uploadUserId": userId]
+        imageRef.putData(imageData, metadata: attachedMetadata) { putDataResult in
+            switch putDataResult {
+            case .success(_):
+                imageRef.downloadURL { urlResult in
+                    switch urlResult {
+                    case .success(let imageUrl):
+                        Task { await MemoRepository.updateImageUrl(newImageUrl: imageUrl.absoluteString) }
+                    case .failure(let error):
+                        print(error)
+                    }
+                }
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
     
     //get
     static func getImage(imageUrl: String) {
@@ -45,5 +75,16 @@ class CustomImageRepository {
     //delete
     static func clearImage() {
         imageDataStore.selectedMemoImage = nil
+        imageDataStore.userNameResult = nil
+        imageDataStore.uploadUserName = nil
+    }
+    
+    static func deleteImage(imageUrl: String) async {
+        do {
+            try await storage.reference(forURL: imageUrl).delete()
+            await MemoRepository.updateImageUrl(newImageUrl: "default")
+        } catch {
+            print(error)
+        }
     }
 }
