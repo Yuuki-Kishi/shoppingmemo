@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct MemosView: View {
-    @ObservedObject var userDataStore: UserDataStore
-    @ObservedObject var roomDataStore: RoomDataStore
     @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var memoDataStore: MemoDataStore
     @ObservedObject var pathDataStore: PathDataStore
@@ -18,28 +16,36 @@ struct MemosView: View {
     
     var body: some View {
         ZStack {
-            List {
-                if !memoDataStore.nonCheckMemoArray.isEmpty {
-                    Section {
-                        ForEach($memoDataStore.nonCheckMemoArray, id:\.id) { memo in
-                            MemosViewCell(roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
+            if memoDataStore.isLoading {
+                Text("データ取得中...")
+            } else {
+                if memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.checkedMemoArray.isEmpty {
+                    Text("表示できるメモがありません")
+                } else {
+                    List {
+                        if !memoDataStore.nonCheckMemoArray.isEmpty {
+                            Section {
+                                ForEach($memoDataStore.nonCheckMemoArray, id:\.id) { memo in
+                                    MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
+                                }
+                                .onMove(perform: nonCheckMove)
+                                .onDelete(perform: nonCheckDelete)
+                            } header: {
+                                Text("未完了")
+                                    .padding(.top, 55)
+                            }
                         }
-                        .onMove(perform: nonCheckMove)
-                        .onDelete(perform: nonCheckDelete)
-                    } header: {
-                        Text("未完了")
-                            .padding(.top, 55)
-                    }
-                }
-                if !memoDataStore.checkedMemoArray.isEmpty {
-                    Section {
-                        ForEach($memoDataStore.checkedMemoArray, id:\.id) { memo in
-                            MemosViewCell(roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
+                        if !memoDataStore.checkedMemoArray.isEmpty {
+                            Section {
+                                ForEach($memoDataStore.checkedMemoArray, id:\.id) { memo in
+                                    MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
+                                }
+                                .onMove(perform: checkedMove)
+                                .onDelete(perform: checkedDelete)
+                            } header: {
+                                Text("完了済")
+                            }
                         }
-                        .onMove(perform: checkedMove)
-                        .onDelete(perform: checkedDelete)
-                    } header: {
-                        Text("完了済")
                     }
                 }
             }
@@ -49,14 +55,11 @@ struct MemosView: View {
                         await MemoRepository.createMemo(memoName: newMemoNameText)
                         newMemoNameText = ""
                     }
-                    
                 })
                 .padding()
-                .glassEffect(.regular.tint(.accentColor))
                 Spacer()
             }
         }
-        .background(Color(UIColor.systemGroupedBackground))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing, content: {
                 toolBarMenu()
@@ -154,5 +157,5 @@ struct MemosView: View {
 }
 
 #Preview {
-    MemosView(userDataStore: .shared, roomDataStore: .shared, listDataStore: .shared, memoDataStore: .shared, pathDataStore: .shared)
+    MemosView(listDataStore: .shared, memoDataStore: .shared, pathDataStore: .shared)
 }

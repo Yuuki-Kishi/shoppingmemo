@@ -12,9 +12,10 @@ struct ImageInfoViewCell: View {
     @ObservedObject var imageDataStore: ImageDataStore
     
     @State var cellContent: CellContentEnum
+    @State var userName: String = "取得中..."
     
     enum CellContentEnum: String {
-        case memoName, userName, imageSize, uploadTime
+        case userName, imageSize, uploadTime
     }
     
     var body: some View {
@@ -25,13 +26,15 @@ struct ImageInfoViewCell: View {
                 .foregroundStyle(.gray)
         }
         .onAppear() {
-            if cellContent == .userName { UserRepository.observeImageUploadUserName() }
+            Task {
+                if cellContent == .userName {
+                    userName = await getUserName()
+                }
+            }
         }
     }
     func keyString() -> String {
         switch cellContent {
-        case .memoName:
-            return "添付元メモ"
         case .userName:
             return "登録ユーザー"
         case .imageSize:
@@ -42,34 +45,22 @@ struct ImageInfoViewCell: View {
     }
     func valueString() -> String {
         switch cellContent {
-        case .memoName:
-            return memoName()
         case .userName:
-            return userName()
+            return userName
         case .imageSize:
             return imageSize()
         case .uploadTime:
             return uploadTime()
         }
     }
-    func memoName() -> String {
-        if let memoId = imageDataStore.selectedMemoImage?.memoId {
-            if memoDataStore.selectedMemo?.memoId == memoId {
-                return memoDataStore.selectedMemo?.memoName ?? "不明なメモ"
-            }
-        }
-        return "不明なメモ"
-    }
-    func userName() -> String {
-        guard let _ = imageDataStore.userNameResult else { return "取得中" }
-        if let userName = imageDataStore.uploadUserName {
-            return userName
-        } else {
-            return "不明なユーザー"
-        }
+    func getUserName() async -> String {
+        guard let uploadUserId = imageDataStore.attachedImage?.uploadUserId else { return "----" }
+        if uploadUserId == "unknownUserId" { return "----" }
+        guard let userName = await UserRepository.getUserName(userId: uploadUserId) else { return "----" }
+        return userName
     }
     func imageSize() -> String{
-        if let imageData = imageDataStore.selectedMemoImage?.imageData {
+        if let imageData = imageDataStore.attachedImage?.imageData {
             if imageData.count > 1000 * 1000 {
                 return String(Double(imageData.count) / (1000 * 1000)) + "MB"
             } else if imageData.count > 1000 {
@@ -81,7 +72,7 @@ struct ImageInfoViewCell: View {
         return "不明なサイズ"
     }
     func uploadTime() -> String {
-        if let uploadTime = imageDataStore.selectedMemoImage?.uploadTime {
+        if let uploadTime = imageDataStore.attachedImage?.uploadTime {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
             return formatter.string(from: uploadTime)
@@ -91,5 +82,5 @@ struct ImageInfoViewCell: View {
 }
 
 #Preview {
-    ImageInfoViewCell(memoDataStore: .shared, imageDataStore: .shared, cellContent: .memoName)
+    ImageInfoViewCell(memoDataStore: .shared, imageDataStore: .shared, cellContent: .userName)
 }

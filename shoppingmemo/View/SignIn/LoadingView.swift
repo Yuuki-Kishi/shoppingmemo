@@ -8,21 +8,23 @@
 import SwiftUI
 
 struct LoadingView: View {
-    let iconHeight = UIScreen.main.bounds.height / 4
     
     var body: some View {
-        VStack {
-            Spacer()
-            Image("Icon")
-                .resizable()
-                .frame(width: iconHeight, height: iconHeight)
-                .clipShape(RoundedRectangle(cornerRadius: iconHeight * 0.1675))
-            Spacer()
-            Text("ログインデータを確認中...")
-            Spacer()
-            HStack {
+        GeometryReader { geometry in
+            let height = geometry.size.height / 4
+            VStack {
                 Spacer()
-                Text(AppVersion())
+                Image("Icon")
+                    .resizable()
+                    .frame(width: height, height: height)
+                    .clipShape(RoundedRectangle(cornerRadius: height / 10))
+                Spacer()
+                Text("ログインデータを確認中...")
+                Spacer()
+                HStack {
+                    Spacer()
+                    Text(AppVersion())
+                }
             }
         }
     }

@@ -78,7 +78,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.creationTime = Date()
         self.lastUpdateUserId = userId
         self.lastUpdateTime = Date()
-        self.memberIds = [lastUpdateUserId]
+        self.memberIds = [userId]
         self.authorities = [Authority(userId: userId, authority: .administrator)]
     }
     

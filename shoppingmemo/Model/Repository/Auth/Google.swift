@@ -27,7 +27,7 @@ class Google {
             }
             guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
             let credential = GoogleAuthProvider.credential(withIDToken: idToken,accessToken: user.accessToken.tokenString)
-            self.login(credential: credential)
+            Task { await self.login(credential: credential) }
         }
     }
     
@@ -63,9 +63,7 @@ class Google {
                 }
                 guard let userId = authResult?.user.uid else { return }
                 guard let creationTime = authResult?.user.metadata.creationDate else { return }
-                let AppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
                 guard let email = authResult?.user.email else { return }
-                let iOSVersion = UIDevice.current.systemVersion
                 let isExist = await UserRepository.isExist(userId: userId)
                 if isExist {
                     if await UserRepository.isNeedCompensate() {

@@ -11,8 +11,8 @@ import FirebaseFirestore
 
 @MainActor
 class UserRepository {
-    static let userDataStore = UserDataStore.shared
-    static let imageDataStore = ImageDataStore.shared
+    static let userDataStore: UserDataStore = .shared
+//    static let imageDataStore = ImageDataStore.shared
     
     //create
     static func create(userId: String, email: String, creationTime: Date) async -> User? {
@@ -43,11 +43,11 @@ class UserRepository {
         do {
             guard let userId = Auth.auth().currentUser?.uid else { return false }
             let document = try await Firestore.firestore().collection("Users").document(userId).getDocument()
-            guard let creationTime = document["creationTime"] as? String else { return true }
-            guard let currentVersion = document["currentVersion"] as? String else { return true}
-            guard let email = document["email"] as? String else { return true }
-            guard let iOSVersion = document["iOSVersion"] as? String else { return true }
-            guard let noticeCheckedTime = document["noticeCheckedTime"] as? String else { return true }
+            guard let _ = document["creationTime"] as? String else { return true }
+            guard let _ = document["currentVersion"] as? String else { return true }
+            guard let _ = document["email"] as? String else { return true }
+            guard let _ = document["iOSVersion"] as? String else { return true }
+            guard let _ = document["noticeCheckedTime"] as? String else { return true }
             return false
         } catch {
             print(error)
@@ -67,16 +67,16 @@ class UserRepository {
         }
     }
     
-//    static func getUserName(userId: String) async -> String? {
-//        do {
-//            let document = try await Firestore.firestore().collection("Users").document(userId).getDocument()
-//            guard let userName = document["userName"] as? String else { return nil }
-//            return userName
-//        } catch {
-//            print(error)
-//            return nil
-//        }
-//    }
+    static func getUserName(userId: String) async -> String? {
+        do {
+            let document = try await Firestore.firestore().collection("Users").document(userId).getDocument()
+            guard let userName = document["userName"] as? String else { return nil }
+            return userName
+        } catch {
+            print(error)
+            return nil
+        }
+    }
     
     //update
     static func compensatePropaties() async {
@@ -111,16 +111,16 @@ class UserRepository {
             }
         }
     }
-    static func observeImageUploadUserName() {
-        guard let userId = imageDataStore.selectedMemoImage?.uploadUserId else { return }
-        Firestore.firestore().collection("Users").document(userId).addSnapshotListener() { documentSnapshot, error in
-            if let userName = documentSnapshot?["userName"] as? String {
-                imageDataStore.userNameResult = .success(userName)
-                imageDataStore.uploadUserName = userName
-            } else {
-                imageDataStore.userNameResult = .success(nil)
-                imageDataStore.uploadUserName = nil
-            }
-        }
-    }
+//    static func observeImageUploadUserName() {
+//        guard let userId = imageDataStore.selectedMemoImage?.uploadUserId else { return }
+//        Firestore.firestore().collection("Users").document(userId).addSnapshotListener() { documentSnapshot, error in
+//            if let userName = documentSnapshot?["userName"] as? String {
+//                imageDataStore.userNameResult = .success(userName)
+//                imageDataStore.uploadUserName = userName
+//            } else {
+//                imageDataStore.userNameResult = .success(nil)
+//                imageDataStore.uploadUserName = nil
+//            }
+//        }
+//    }
 }

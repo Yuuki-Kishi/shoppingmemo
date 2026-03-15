@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var userDataStore = UserDataStore.shared
+    @StateObject var userDataStore: UserDataStore = .shared
     
     var body: some View {
         if userDataStore.userResult == nil {
@@ -20,7 +20,7 @@ struct ContentView: View {
             if userDataStore.signInUser == nil {
                 SignInView()
             } else {
-                RoomsView(userDataStore: userDataStore)
+                RoomsView()
             }
         }
     }

@@ -68,6 +68,7 @@ class CustomListRepository {
                     print(error)
                 }
             }
+            listDataStore.isLoading = false
         }
     }
 }

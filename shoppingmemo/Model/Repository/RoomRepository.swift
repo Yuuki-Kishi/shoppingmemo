@@ -10,8 +10,8 @@ import FirebaseFirestore
 
 @MainActor
 class RoomRepository {
-    static let userDataStore = UserDataStore.shared
-    static let roomDataStore = RoomDataStore.shared
+    static let userDataStore: UserDataStore = .shared
+    static let roomDataStore: RoomDataStore = .shared
     
     //create
     static func createRoom(roomName: String) async {
@@ -67,6 +67,7 @@ class RoomRepository {
                         }
                     }
                 }
+                roomDataStore.isLoading = false
             } catch {
                 print(error)
             }

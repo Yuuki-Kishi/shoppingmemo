@@ -13,7 +13,6 @@ struct ImageInfoView: View {
         
     var body: some View {
         List {
-            ImageInfoViewCell(memoDataStore: memoDataStore, imageDataStore: imageDataStore, cellContent: .memoName)
             ImageInfoViewCell(memoDataStore: memoDataStore, imageDataStore: imageDataStore, cellContent: .userName)
             ImageInfoViewCell(memoDataStore: memoDataStore, imageDataStore: imageDataStore, cellContent: .imageSize)
             ImageInfoViewCell(memoDataStore: memoDataStore, imageDataStore: imageDataStore, cellContent: .uploadTime)

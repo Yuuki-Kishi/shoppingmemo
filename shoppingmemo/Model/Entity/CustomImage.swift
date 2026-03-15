@@ -9,24 +9,24 @@ import Foundation
 
 struct CustomImage: Hashable, Identifiable, Equatable {
     static func == (lhs: CustomImage, rhs: CustomImage) -> Bool {
-        lhs.memoId == rhs.memoId
+        lhs.imageUrl == rhs.imageUrl
     }
     
     var id = UUID()
-    var memoId: String
+    var imageUrl: String
     var imageData: Data
     var uploadTime: Date
     var uploadUserId: String
     
-    init(memoId: String, imageData: Data, uploadTime: Date, uploadUserId: String) {
-        self.memoId = memoId
+    init(imageUrl: String, imageData: Data, uploadTime: Date, uploadUserId: String) {
+        self.imageUrl = imageUrl
         self.imageData = imageData
         self.uploadTime = uploadTime
         self.uploadUserId = uploadUserId
     }
     
-    init(){
-        self.memoId = "unknownMemoId"
+    init() {
+        self.imageUrl = "unknownImageUrl"
         self.imageData = Data()
         self.uploadTime = Date()
         self.uploadUserId = "unknownUserId"

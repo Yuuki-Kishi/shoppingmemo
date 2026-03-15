@@ -40,6 +40,14 @@ class AuthRepository {
     //update
     
     //delete
+    static func signOut() async {
+        do {
+            try Auth.auth().signOut()
+             userDataStore.signInUser = nil
+        } catch let signOutError as NSError {
+            print("Error signing out: %@", signOutError)
+        }
+    }
     
     //observe
 }

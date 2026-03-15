@@ -14,7 +14,6 @@ class MemoRepository {
     static let roomDataStore: RoomDataStore = .shared
     static let listDataStore: ListDataStore = .shared
     static let memoDataStore: MemoDataStore = .shared
-    static let imageDataStore: ImageDataStore = .shared
     
     //create
     static func createMemo(memoName: String) async {
@@ -144,7 +143,7 @@ class MemoRepository {
                             CustomImageRepository.clearImage()
                             NavigationRepository.removeViews(numberOfLeave: 3)
                         } else {
-                            CustomImageRepository.getImage(imageUrl: memo.imageUrl)
+//                            CustomImageRepository.getImage(imageUrl: memo.imageUrl)
                         }
                     case .removed:
                         if memo.isChecked {
@@ -164,6 +163,7 @@ class MemoRepository {
             }
             sortNonCheckMemoArray(sortMode: memoDataStore.nonCheckSort)
             sortNonCheckMemoArray(sortMode: memoDataStore.checkedSort)
+            memoDataStore.isLoading = false
         }
     }
 }

@@ -8,36 +8,36 @@
 import SwiftUI
 
 struct ListsView: View {
-    @ObservedObject var userDataStore: UserDataStore
     @ObservedObject var roomDataStore: RoomDataStore
     @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var pathDataStore: PathDataStore
     
     @State private var newListNameText: String = ""
     @State private var newRoomNameText: String = ""
-    
     @State private var createNewListAlertIsPresent: Bool = false
     @State private var updateRoomNameAlertIsPresent: Bool = false
     
     var body: some View {
         ZStack {
-            if listDataStore.listArray.isEmpty {
-                Text("表示できるリストがありません")
-                    .padding()
+            if listDataStore.isLoading {
+                Text("データ取得中...")
             } else {
-                List {
-                    ForEach($listDataStore.listArray, id: \.listId) { list in
-                        Section {
-                            ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                if listDataStore.listArray.isEmpty {
+                    Text("表示できるリストがありません")
+                } else {
+                    List {
+                        ForEach($listDataStore.listArray, id: \.listId) { list in
+                            Section {
+                                ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                            }
                         }
+                        .onMove(perform: move)
+                        .onDelete(perform: delete)
                     }
-                    .onMove(perform: move)
-                    .onDelete(perform: delete)
                 }
+                plusButton()
             }
-            plusButton()
         }
-        .background(Color(UIColor.systemGray6))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing, content: {
                 HStack {
@@ -81,7 +81,6 @@ struct ListsView: View {
         .onAppear() {
             CustomListRepository.observeLists()
             MemoRepository.clearMemos()
-            newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
         }
     }
     func move(fromSources: IndexSet, toDestination: Int) {
@@ -96,6 +95,7 @@ struct ListsView: View {
             HStack {
                 Spacer()
                 Button(action: {
+                    newListNameText = ""
                     createNewListAlertIsPresent = true
                 }, label: {
                     Image(systemName: "plus")
@@ -111,6 +111,7 @@ struct ListsView: View {
     func toolBarMenu() -> some View {
         Menu {
             Button(action: {
+                newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
                 updateRoomNameAlertIsPresent = true
             }, label: {
                 Label("ルーム名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
@@ -143,5 +144,5 @@ struct ListsView: View {
 }
 
 #Preview {
-    ListsView(userDataStore: .shared, roomDataStore: .shared, listDataStore: .shared, pathDataStore: .shared)
+    ListsView(roomDataStore: .shared, listDataStore: .shared, pathDataStore: .shared)
 }

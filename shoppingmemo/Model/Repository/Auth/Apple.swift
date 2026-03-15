@@ -41,19 +41,16 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
                 }
                 return random
             }
-            
             randoms.forEach { random in
                 if remainingLength == 0 {
                     return
                 }
-                
                 if random < charset.count {
                     result.append(charset[Int(random)])
                     remainingLength -= 1
                 }
             }
         }
-        
         return result
     }
     
@@ -63,7 +60,6 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
         let hashString = hashedData.compactMap {
             String(format: "%02x", $0)
         }.joined()
-        
         return hashString
     }
     
@@ -72,16 +68,12 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
         case .success(let authResults):
             guard let appleIDCredential = authResults.credential as? ASAuthorizationAppleIDCredential else {
                 fatalError("Invalid state: A login callback was received, but no login request was sent.")
-                return
             }
-            
             guard let nonce = currentNonce else {
                 fatalError("Invalid state: A login callback was received, but no login request was sent.")
-                return
             }
             guard let appleIDToken = appleIDCredential.identityToken else {
                 fatalError("Invalid state: A login callback was received, but no login request was sent.")
-                return
             }
             guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
                 print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")
@@ -96,9 +88,7 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
                     }
                     guard let userId = authResult?.user.uid else { return }
                     guard let creationTime = authResult?.user.metadata.creationDate else { return }
-                    let AppVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
                     guard let email = authResult?.user.email else { return }
-                    let iOSVersion = UIDevice.current.systemVersion
                     let isExist = await UserRepository.isExist(userId: userId)
                     if isExist {
                         if await UserRepository.isNeedCompensate() {
@@ -114,7 +104,6 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
                     }
                 }
             }
-            
         case .failure(let error):
             print("Authentication failed: \(error.localizedDescription)")
             break
@@ -134,16 +123,12 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
             fatalError("Invalid state: A login callback was received, but no login request was sent.")
-            return
         }
-        
         guard let nonce = currentNonce else {
             fatalError("Invalid state: A login callback was received, but no login request was sent.")
-            return
         }
         guard let appleIDToken = appleIDCredential.identityToken else {
             fatalError("Invalid state: A login callback was received, but no login request was sent.")
-            return
         }
         guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
             print("Unable to serialize token string from data: \(appleIDToken.debugDescription)")

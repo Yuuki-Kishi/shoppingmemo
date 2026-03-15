@@ -12,4 +12,5 @@ class ListDataStore: ObservableObject {
     static let shared = ListDataStore()
     @Published var listArray: [CustomList] = []
     @Published var selectedList: CustomList? = nil
+    @Published var isLoading: Bool = true
 }

@@ -9,9 +9,6 @@ import SwiftUI
 import PhotosUI
 
 struct ImageView: View {
-    @ObservedObject var userDataStore: UserDataStore
-    @ObservedObject var roomDataStore: RoomDataStore
-    @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var memoDataStore: MemoDataStore
     @ObservedObject var imageDataStore: ImageDataStore
     @ObservedObject var pathDataStore: PathDataStore
@@ -24,17 +21,16 @@ struct ImageView: View {
     
     var body: some View {
         VStack {
-            if let uiImage = getUIImage() {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
+            if imageDataStore.isLoading {
+                Text("データ取得中...")
             } else {
-                Spacer()
-                Image(systemName: "photo")
-                    .font(.system(size: 100))
-                Text("No Image")
-                    .font(.system(size: 40))
-                Spacer()
+                if let uiImage = getUIImage() {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Text("表示できる画像がありません")
+                }
             }
         }
         .photosPicker(isPresented: $photosPickerIsPresented, selection: $selectedImage)
@@ -43,7 +39,7 @@ struct ImageView: View {
         }
         .sheet(isPresented: $imageInfoViewIsPresented) {
             ImageInfoView(memoDataStore: memoDataStore, imageDataStore: imageDataStore)
-                .presentationDetents([.height(230)])
+                .presentationDetents([.height(190)])
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing, content: {
@@ -66,11 +62,15 @@ struct ImageView: View {
         .navigationTitle(memoDataStore.selectedMemo?.memoName ?? "不明なメモ")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
-            CustomImageRepository.getImage(imageUrl: memoDataStore.selectedMemo?.imageUrl ?? "default")
+            Task {
+                imageDataStore.isLoading = true
+                await CustomImageRepository.getImage(imageUrl: memoDataStore.selectedMemo?.imageUrl ?? "default")
+                imageDataStore.isLoading = false
+            }
         }
     }
     func getUIImage() -> UIImage? {
-        if let imageData = imageDataStore.selectedMemoImage?.imageData {
+        if let imageData = imageDataStore.attachedImage?.imageData {
             return UIImage(data: imageData)
         } else {
             return nil
@@ -78,7 +78,7 @@ struct ImageView: View {
     }
     func toolBarMenu() -> some View {
         ZStack {
-            if imageDataStore.selectedMemoImage == nil {
+            if imageDataStore.attachedImage == nil {
                 Menu {
                     Button(action: {
                         photosPickerIsPresented = true
@@ -115,5 +115,5 @@ struct ImageView: View {
 }
 
 #Preview {
-    ImageView(userDataStore: .shared, roomDataStore: .shared, listDataStore: .shared, memoDataStore: .shared, imageDataStore: .shared, pathDataStore: .shared)
+    ImageView(memoDataStore: .shared, imageDataStore: .shared, pathDataStore: .shared)
 }

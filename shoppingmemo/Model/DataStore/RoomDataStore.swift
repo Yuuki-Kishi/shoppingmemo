@@ -12,4 +12,5 @@ class RoomDataStore: ObservableObject {
     static let shared = RoomDataStore()
     @Published var roomArray: [Room] = []
     @Published var selectedRoom: Room? = nil
+    @Published var isLoading: Bool = true
 }

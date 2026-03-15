@@ -10,7 +10,6 @@ import Foundation
 @MainActor
 class ImageDataStore: ObservableObject {
     static let shared = ImageDataStore()
-    @Published var selectedMemoImage: CustomImage? = nil
-    @Published var userNameResult: Result<String?, Error>? = nil
-    @Published var uploadUserName: String? = nil
+    @Published var attachedImage: CustomImage? = nil
+    @Published var isLoading: Bool = false
 }

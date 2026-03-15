@@ -50,33 +50,22 @@ class CustomImageRepository {
     }
     
     //get
-    static func getImage(imageUrl: String) {
+    static func getImage(imageUrl: String) async {
         if imageUrl == "default" { return }
-        guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
-        storage.reference(forURL: imageUrl).getData(maxSize: 1 * 1024 * 1024) { dataResult in
-            switch dataResult {
-            case .success(let imageData):
-                storage.reference(forURL: imageUrl).getMetadata() { metadataResult in
-                    switch metadataResult {
-                    case .success(let metadata):
-                        guard let uploadTime = metadata.updated else { return }
-                        let uploadUserId = metadata.customMetadata?["uploadUserId"] ?? "unknownUserId"
-                        imageDataStore.selectedMemoImage = CustomImage(memoId: memoId, imageData: imageData, uploadTime: uploadTime, uploadUserId: uploadUserId)
-                    case .failure(let error):
-                        print(error)
-                    }
-                }
-            case .failure(let error):
-                print(error)
-            }
+        do {
+            let imageData = try await storage.reference(forURL: imageUrl).data(maxSize: 1 * 1024 * 1024)
+            let metadata = try await storage.reference(forURL: imageUrl).getMetadata()
+            guard let uploadTime = metadata.updated else { return }
+            let uploadUserId = metadata.customMetadata?["uploadUserId"] ?? "unknownUserId"
+            imageDataStore.attachedImage = CustomImage(imageUrl: imageUrl, imageData: imageData, uploadTime: uploadTime, uploadUserId: uploadUserId)
+        } catch {
+            print(error)
         }
     }
     
     //delete
     static func clearImage() {
-        imageDataStore.selectedMemoImage = nil
-        imageDataStore.userNameResult = nil
-        imageDataStore.uploadUserName = nil
+        imageDataStore.attachedImage = nil
     }
     
     static func deleteImage(imageUrl: String) async {

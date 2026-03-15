@@ -8,35 +8,34 @@
 import SwiftUI
 
 struct RoomsView: View {
-    @ObservedObject var userDataStore: UserDataStore
-    @StateObject var roomDataStore = RoomDataStore.shared
-    @StateObject var listDataStore = ListDataStore.shared
-    @StateObject var memoDataStore = MemoDataStore.shared
-    @StateObject var imageDataStore = ImageDataStore.shared
-    @StateObject var pathDataStore = PathDataStore.shared
+    @StateObject var roomDataStore: RoomDataStore = .shared
+    @StateObject var listDataStore: ListDataStore = .shared
+    @StateObject var memoDataStore: MemoDataStore = .shared
+    @StateObject var imageDataStore: ImageDataStore = .shared
+    @StateObject var pathDataStore: PathDataStore = .shared
     
     @State private var newRoomNameText: String = ""
-    
     @State private var newRoomCreateAlertIsPresented: Bool = false
+    @State private var signOutAlertIsPresented: Bool = false
     
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             ZStack {
-                if roomDataStore.roomArray.isEmpty {
-                    VStack {
-                        Text("表示できるルームがありません")
-                            .padding()
-                    }
+                if roomDataStore.isLoading {
+                    Text("データ取得中...")
                 } else {
-                    List($roomDataStore.roomArray, id: \.roomId) { room in
-                        Section {
-                            RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
+                    if roomDataStore.roomArray.isEmpty {
+                        Text("表示できるルームがありません")
+                    } else {
+                        List($roomDataStore.roomArray, id: \.roomId) { room in
+                            Section {
+                                RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
+                            }
                         }
                     }
+                    plusButton()
                 }
-                plusButton()
             }
-            .background(Color(UIColor.systemGray6))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing, content: {
                     toolBarMenu()
@@ -55,6 +54,18 @@ struct RoomsView: View {
             }, message: {
                 Text("新規作成するルームの名前を入力してください。")
             })
+            .alert("本当にサインアウトしますか？", isPresented: $signOutAlertIsPresented, actions: {
+                Button(role: .cancel, action: {}, label: {
+                    Text("キャンセル")
+                })
+                Button(role: .destructive, action: {
+                    Task { await AuthRepository.signOut() }
+                }, label: {
+                    Text("サインアウト")
+                })
+            }, message: {
+                Text("サインアウトすると、再度利用する際にサインインが必要になります。")
+            })
             .navigationDestination(for: PathDataStore.path.self) { path in
                 destination(path: path)
             }
@@ -71,11 +82,11 @@ struct RoomsView: View {
     func destination(path: PathDataStore.path) -> some View {
         switch path {
         case .lists:
-            ListsView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, pathDataStore: pathDataStore)
+            ListsView(roomDataStore: roomDataStore, listDataStore: listDataStore, pathDataStore: pathDataStore)
         case .memos:
-            MemosView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore)
+            MemosView(listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore)
         case .image:
-            ImageView(userDataStore: userDataStore, roomDataStore: roomDataStore, listDataStore: listDataStore, memoDataStore: memoDataStore, imageDataStore: imageDataStore, pathDataStore: pathDataStore)
+            ImageView(memoDataStore: memoDataStore, imageDataStore: imageDataStore, pathDataStore: pathDataStore)
         case .myInfo:
             EmptyView()
         case .noticeList:
@@ -92,12 +103,15 @@ struct RoomsView: View {
                 Button(action: {
                     newRoomCreateAlertIsPresented = true
                 }, label: {
-                    Image(systemName: "plus")
-                        .foregroundStyle(Color.primary)
-                        .font(.system(size: 30))
+                    ZStack {
+                        Circle()
+                            .foregroundStyle(Color("AccentColor"))
+                            .frame(width: 70, height: 70)
+                        Image(systemName: "plus")
+                            .foregroundStyle(Color.primary)
+                            .font(.system(size: 30))
+                    }
                 })
-                .frame(width: 70, height: 70)
-                .glassEffect(.regular.tint(.accentColor))
                 .padding(.trailing, 34)
             }
         }
@@ -126,7 +140,7 @@ struct RoomsView: View {
             })
             Divider()
             Button(role: .destructive, action: {
-                
+                signOutAlertIsPresented = true
             }, label: {
                 Label("サインアウト", systemImage: "door.right.hand.open")
             })
@@ -138,5 +152,5 @@ struct RoomsView: View {
 }
 
 #Preview {
-    RoomsView(userDataStore: .shared)
+    RoomsView()
 }

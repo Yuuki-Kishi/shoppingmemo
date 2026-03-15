@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct MemosViewCell: View {
-    @ObservedObject var roomDataStore: RoomDataStore
-    @ObservedObject var listDataStore: ListDataStore
     @ObservedObject var memoDataStore: MemoDataStore
     @ObservedObject var pathDataStore: PathDataStore
     @Binding var memo: Memo
@@ -62,5 +60,5 @@ struct MemosViewCell: View {
 }
 
 #Preview {
-    MemosViewCell(roomDataStore: .shared, listDataStore: .shared, memoDataStore: .shared, pathDataStore: .shared, memo: Binding(get: { Memo() }, set: {_ in}))
+    MemosViewCell(memoDataStore: .shared, pathDataStore: .shared, memo: Binding(get: { Memo() }, set: {_ in}))
 }
