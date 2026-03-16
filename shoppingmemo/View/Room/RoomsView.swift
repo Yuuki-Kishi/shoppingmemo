@@ -28,10 +28,9 @@ struct RoomsView: View {
                         Text("表示できるルームがありません")
                     } else {
                         List($roomDataStore.roomArray, id: \.roomId) { room in
-                            Section {
-                                RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
-                            }
+                            RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
                         }
+                        .listRowSpacing(35)
                     }
                     plusButton()
                 }
@@ -72,7 +71,7 @@ struct RoomsView: View {
             .navigationTitle("ホーム")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear() {
-                UserRepository.observeUserData()
+                roomDataStore.isLoading = true
                 RoomRepository.observeRooms()
                 CustomListRepository.clearLists()
             }

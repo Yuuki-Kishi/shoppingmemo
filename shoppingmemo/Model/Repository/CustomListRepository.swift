@@ -14,6 +14,8 @@ class CustomListRepository {
     static let roomDataStore: RoomDataStore = .shared
     static let listDataStore: ListDataStore = .shared
     
+    static let userDefaults: UserDefaults = .standard
+    
     //create
     static func createList(listName: String) async {
         do {
@@ -35,7 +37,34 @@ class CustomListRepository {
     
     
     //update
+    static func updateListOrders(from: IndexSet, to: Int) async {
+        do {
+            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            var listArray = listDataStore.listArray
+            listArray.move(fromOffsets: from, toOffset: to)
+            for (index, list) in listArray.enumerated() {
+                try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(list.listId).updateData(["listOrder": index])
+            }
+            sortLists(basedOn: .custom)
+        } catch {
+            print(error)
+        }
+    }
     
+    static func sortLists(basedOn: ListDataStore.SortModeEnum) {
+        switch basedOn {
+        case .ascending:
+            listDataStore.listArray.sort { $0.listName < $1.listName }
+        case .descending:
+            listDataStore.listArray.sort { $0.listName > $1.listName }
+        case .newest:
+            listDataStore.listArray.sort { $0.lastUpdateTime > $1.lastUpdateTime }
+        case .custom:
+            listDataStore.listArray.sort { $0.listOrder < $1.listOrder }
+        }
+        listDataStore.listSort = basedOn
+        userDefaults.set(basedOn.rawValue, forKey: "listSort")
+    }
     
     //delete
     static func clearLists() {
@@ -68,6 +97,9 @@ class CustomListRepository {
                     print(error)
                 }
             }
+            let sortModeString = userDefaults.string(forKey: "listSort") ?? "ascending"
+            let sortMode = ListDataStore.SortModeEnum(rawValue: sortModeString) ?? .ascending
+            sortLists(basedOn: sortMode)
             listDataStore.isLoading = false
         }
     }

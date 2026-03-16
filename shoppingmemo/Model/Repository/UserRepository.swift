@@ -99,18 +99,18 @@ class UserRepository {
     //delete
     
     //observe
-    static func observeUserData() {
-        guard let userId = userDataStore.signInUser?.userId else { return }
-        Firestore.firestore().collection("Users").document(userId).addSnapshotListener { documentSnapshot, error in
-            do {
-                let user = try documentSnapshot?.data(as: User.self)
-                userDataStore.userResult = .success(user)
-                userDataStore.signInUser = user
-            } catch {
-                print(error)
-            }
-        }
-    }
+//    static func observeUserData() {
+//        guard let userId = userDataStore.signInUser?.userId else { return }
+//        Firestore.firestore().collection("Users").document(userId).addSnapshotListener { documentSnapshot, error in
+//            do {
+//                let user = try documentSnapshot?.data(as: User.self)
+//                userDataStore.userResult = .success(user)
+//                userDataStore.signInUser = user
+//            } catch {
+//                print(error)
+//            }
+//        }
+//    }
 //    static func observeImageUploadUserName() {
 //        guard let userId = imageDataStore.selectedMemoImage?.uploadUserId else { return }
 //        Firestore.firestore().collection("Users").document(userId).addSnapshotListener() { documentSnapshot, error in

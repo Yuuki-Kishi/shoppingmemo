@@ -14,13 +14,10 @@ struct ListViewCell: View {
     
     var body: some View {
         HStack {
-            VStack {
-                Text(list.listName)
-                    .font(.system(size: 25))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .lineLimit(1)
-                    .draggable(list.id.uuidString)
-            }
+            Text(list.listName)
+                .font(.system(size: 25))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
             Image(systemName: "chevron.forward")
                 .foregroundStyle(.gray)
         }

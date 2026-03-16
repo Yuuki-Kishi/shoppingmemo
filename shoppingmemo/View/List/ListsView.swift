@@ -27,13 +27,12 @@ struct ListsView: View {
                 } else {
                     List {
                         ForEach($listDataStore.listArray, id: \.listId) { list in
-                            Section {
-                                ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
-                            }
+                            ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
                         }
                         .onMove(perform: move)
                         .onDelete(perform: delete)
                     }
+                    .listRowSpacing(35)
                 }
                 plusButton()
             }
@@ -79,12 +78,13 @@ struct ListsView: View {
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
+            listDataStore.isLoading = true
             CustomListRepository.observeLists()
             MemoRepository.clearMemos()
         }
     }
     func move(fromSources: IndexSet, toDestination: Int) {
-        CustomListRepository.listDataStore.listArray.move(fromOffsets: fromSources, toOffset: toDestination)
+        Task { await CustomListRepository.updateListOrders(from: fromSources, to: toDestination) }
     }
     func delete(at offsets: IndexSet) {
         
@@ -121,11 +121,30 @@ struct ListsView: View {
             }, label: {
                 Label("メンバーリスト", systemImage: "person.2")
             })
-            Button(action: {
-                
-            }, label: {
+            Menu {
+                Button(action: {
+                    CustomListRepository.sortLists(basedOn: .ascending)
+                }, label: {
+                    Label("名前昇順", systemImage: "a.circle")
+                })
+                Button(action: {
+                    CustomListRepository.sortLists(basedOn: .descending)
+                }, label: {
+                    Label("名前降順", systemImage: "z.circle")
+                })
+                Button(action: {
+                    CustomListRepository.sortLists(basedOn: .newest)
+                }, label: {
+                    Label("更新日時", systemImage: "clock")
+                })
+                Button(action: {
+                    CustomListRepository.sortLists(basedOn: .custom)
+                }, label: {
+                    Label("カスタム", systemImage: "hand.point.up")
+                })
+            } label: {
                 Label("並び替え", systemImage: "arrow.up.arrow.down")
-            })
+            }
             Divider()
             Button(role: .destructive, action: {
                 

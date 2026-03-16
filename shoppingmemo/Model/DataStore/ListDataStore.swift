@@ -12,5 +12,10 @@ class ListDataStore: ObservableObject {
     static let shared = ListDataStore()
     @Published var listArray: [CustomList] = []
     @Published var selectedList: CustomList? = nil
-    @Published var isLoading: Bool = true
+    @Published var isLoading: Bool = false
+    @Published var listSort: SortModeEnum = .ascending
+    
+    enum SortModeEnum: String {
+        case ascending, descending, newest, custom
+    }
 }

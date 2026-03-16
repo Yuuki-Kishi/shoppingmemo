@@ -57,6 +57,8 @@ struct MemosView: View {
                     }
                 })
                 .padding()
+                .glassEffect(.regular.tint(.accentColor))
+                .padding(.horizontal)
                 Spacer()
             }
         }
