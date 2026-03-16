@@ -7,11 +7,14 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseFunctions
 
 @MainActor
 class RoomRepository {
     static let userDataStore: UserDataStore = .shared
     static let roomDataStore: RoomDataStore = .shared
+    static let functions = Functions.functions(region: "asia-northeast1")
+
     
     //create
     static func createRoom(roomName: String) async {
@@ -41,6 +44,14 @@ class RoomRepository {
     }
     
     //delete
+    static func deleteRoom() async {
+        do {
+            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            let _ = try await functions.httpsCallable("recursiveDelete").call(["path": "Rooms/\(roomId)"])
+        } catch {
+            print(error)
+        }
+    }
     
     //observe
     static func observeRooms() {
@@ -67,6 +78,7 @@ class RoomRepository {
                         }
                     }
                 }
+                roomDataStore.roomArray.sort { $0.lastUpdateTime > $1.lastUpdateTime }
                 roomDataStore.isLoading = false
             } catch {
                 print(error)

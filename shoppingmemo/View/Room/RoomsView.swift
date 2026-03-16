@@ -73,7 +73,6 @@ struct RoomsView: View {
             .onAppear() {
                 roomDataStore.isLoading = true
                 RoomRepository.observeRooms()
-                CustomListRepository.clearLists()
             }
         }
     }

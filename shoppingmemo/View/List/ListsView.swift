@@ -16,6 +16,7 @@ struct ListsView: View {
     @State private var newRoomNameText: String = ""
     @State private var createNewListAlertIsPresent: Bool = false
     @State private var updateRoomNameAlertIsPresent: Bool = false
+    @State private var deleteRoomAlertIsPresent: Bool = false
     
     var body: some View {
         ZStack {
@@ -74,6 +75,18 @@ struct ListsView: View {
             })
         }, message: {
             Text("新しく設定するルーム名を入力してください。")
+        })
+        .alert("本当にルームを削除しますか？", isPresented: $deleteRoomAlertIsPresent, actions: {
+            Button(role: .cancel, action: {}, label: {
+                Text("キャンセル")
+            })
+            Button(role: .destructive, action: {
+                Task { await RoomRepository.deleteRoom() }
+            }, label: {
+                Text("削除")
+            })
+        }, message: {
+            Text("この操作は取り消すことができません。")
         })
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
@@ -152,7 +165,7 @@ struct ListsView: View {
                 Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
             })
             Button(role: .destructive, action: {
-                
+                deleteRoomAlertIsPresent = true
             }, label: {
                 Label("ルーム削除", systemImage: "trash")
             })

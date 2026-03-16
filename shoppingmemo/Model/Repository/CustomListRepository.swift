@@ -76,9 +76,9 @@ class CustomListRepository {
     static func observeLists() {
         guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
         Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").addSnapshotListener() { querySnapshot, error in
-            guard let documentChanges = querySnapshot?.documentChanges else { return }
-            for documentChange in documentChanges {
-                do {
+            do {
+                guard let documentChanges = querySnapshot?.documentChanges else { return }
+                for documentChange in documentChanges {
                     let document = documentChange.document
                     let list = try document.data(as: CustomList.self)
                     switch documentChange.type {
@@ -93,14 +93,14 @@ class CustomListRepository {
                             NavigationRepository.removeViews(numberOfLeave: 1)
                         }
                     }
-                } catch {
-                    print(error)
                 }
+                let sortModeString = userDefaults.string(forKey: "listSort") ?? "ascending"
+                let sortMode = ListDataStore.SortModeEnum(rawValue: sortModeString) ?? .ascending
+                sortLists(basedOn: sortMode)
+                listDataStore.isLoading = false
+            } catch {
+                print(error)
             }
-            let sortModeString = userDefaults.string(forKey: "listSort") ?? "ascending"
-            let sortMode = ListDataStore.SortModeEnum(rawValue: sortModeString) ?? .ascending
-            sortLists(basedOn: sortMode)
-            listDataStore.isLoading = false
         }
     }
 }
