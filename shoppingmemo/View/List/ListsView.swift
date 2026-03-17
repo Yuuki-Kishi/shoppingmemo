@@ -68,7 +68,7 @@ struct ListsView: View {
             }, label: {
                 Text("キャンセル")
             })
-            Button(action: {
+            Button(role: .confirm, action: {
                 Task { await RoomRepository.updateRoomName(newName: newRoomNameText) }
             }, label: {
                 Text("変更")
@@ -93,7 +93,6 @@ struct ListsView: View {
         .onAppear() {
             listDataStore.isLoading = true
             CustomListRepository.observeLists()
-            MemoRepository.clearMemos()
         }
     }
     func move(fromSources: IndexSet, toDestination: Int) {

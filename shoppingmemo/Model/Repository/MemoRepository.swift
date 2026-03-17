@@ -36,13 +36,6 @@ class MemoRepository {
     //get
     
     //update
-    static func incrementNonCheckOrder() async {
-        let memoIds = memoDataStore.nonCheckMemoArray.map { $0.memoId }
-        for (index, memoId) in memoIds.enumerated() {
-            await updateNonCheckOrder(memoId: memoId, newOrder: index + 1)
-        }
-    }
-    
     static func updateNonCheckOrder(memoId: String, newOrder: Int) async {
         do {
             guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
@@ -53,10 +46,19 @@ class MemoRepository {
         }
     }
     
-    static func incrementCheckedOrder() async {
-        let memoIds = memoDataStore.checkedMemoArray.map { $0.memoId }
+    static func updateNonCheckOrders(from: IndexSet, to: Int) async {
+        var nonCheckMemoArray = memoDataStore.nonCheckMemoArray
+        nonCheckMemoArray.move(fromOffsets: from, toOffset: to)
+        for (index, memo) in nonCheckMemoArray.enumerated() {
+            await updateNonCheckOrder(memoId: memo.memoId, newOrder: index)
+        }
+        sortNonCheckMemos(basedOn: .custom)
+    }
+    
+    static func incrementNonCheckOrder() async {
+        let memoIds = memoDataStore.nonCheckMemoArray.map { $0.memoId }
         for (index, memoId) in memoIds.enumerated() {
-            await updateCheckedOrder(memoId: memoId, newOrder: index + 1)
+            await updateNonCheckOrder(memoId: memoId, newOrder: index + 1)
         }
     }
     
@@ -70,8 +72,25 @@ class MemoRepository {
         }
     }
     
-    static func sortNonCheckMemoArray(sortMode: MemoDataStore.SortModeEnum) {
-        switch sortMode {
+    static func updateCheckOrders(from: IndexSet, to: Int) async {
+        var checkedMemoArray = memoDataStore.checkedMemoArray
+        checkedMemoArray.move(fromOffsets: from, toOffset: to)
+        for (index, memo) in checkedMemoArray.enumerated() {
+            await updateCheckedOrder(memoId: memo.memoId, newOrder: index)
+        }
+        sortCheckedMemos(basedOn: .custom)
+    }
+    
+    static func incrementCheckedOrder() async {
+        let memoIds = memoDataStore.checkedMemoArray.map { $0.memoId }
+        for (index, memoId) in memoIds.enumerated() {
+            await updateCheckedOrder(memoId: memoId, newOrder: index + 1)
+        }
+    }
+
+    
+    static func sortNonCheckMemos(basedOn: MemoDataStore.SortModeEnum) {
+        switch basedOn {
         case .ascending:
             memoDataStore.nonCheckMemoArray.sort { $0.memoName < $1.memoName }
         case .descending:
@@ -81,11 +100,12 @@ class MemoRepository {
         case .custom:
             memoDataStore.nonCheckMemoArray.sort { $0.nonCheckOrder < $1.nonCheckOrder }
         }
-        memoDataStore.nonCheckSort = sortMode
+        memoDataStore.nonCheckSort = basedOn
+        UserDefaultsRepository.save(data: basedOn.rawValue, key: "nonCheckSort")
     }
     
-    static func sortCheckedMemoArray(sortMode: MemoDataStore.SortModeEnum) {
-        switch sortMode {
+    static func sortCheckedMemos(basedOn: MemoDataStore.SortModeEnum) {
+        switch basedOn {
         case .ascending:
             memoDataStore.checkedMemoArray.sort { $0.memoName < $1.memoName }
         case .descending:
@@ -95,7 +115,8 @@ class MemoRepository {
         case .custom:
             memoDataStore.checkedMemoArray.sort { $0.checkedOrder < $1.checkedOrder }
         }
-        memoDataStore.checkedSort = sortMode
+        memoDataStore.checkedSort = basedOn
+        UserDefaultsRepository.save(data: basedOn.rawValue, key: "checkedSort")
     }
     
     static func updateImageUrl(newImageUrl: String) async {
@@ -121,9 +142,9 @@ class MemoRepository {
         guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
         guard let listId = listDataStore.selectedList?.listId else { return }
         Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").addSnapshotListener() { querySnapshot, error in
-            guard let documentChanges = querySnapshot?.documentChanges else { return }
-            for documentChange in documentChanges {
-                do {
+            do {
+                guard let documentChanges = querySnapshot?.documentChanges else { return }
+                for documentChange in documentChanges {
                     let document = documentChange.document
                     let memo = try document.data(as: Memo.self)
                     switch documentChange.type {
@@ -139,11 +160,8 @@ class MemoRepository {
                         } else {
                             memoDataStore.nonCheckMemoArray.append(noDupulicate: memo)
                         }
-                        if memo.imageUrl == "default" {
-                            CustomImageRepository.clearImage()
-                            NavigationRepository.removeViews(numberOfLeave: 3)
-                        } else {
-//                            CustomImageRepository.getImage(imageUrl: memo.imageUrl)
+                        if memo.memoId == memoDataStore.selectedMemo?.memoId {
+                            memoDataStore.selectedMemo = memo
                         }
                     case .removed:
                         if memo.isChecked {
@@ -157,13 +175,17 @@ class MemoRepository {
                             NavigationRepository.removeViews(numberOfLeave: 2)
                         }
                     }
-                } catch {
-                    print(error)
                 }
+                let nonCheckSortString = UserDefaultsRepository.get(String.self, key: "nonCheckSort") ?? "ascending"
+                let nonCheckSort = MemoDataStore.SortModeEnum(rawValue: nonCheckSortString) ?? .ascending
+                sortNonCheckMemos(basedOn: nonCheckSort)
+                let checkedSortString = UserDefaultsRepository.get(String.self, key: "checkedSort") ?? "ascending"
+                let checkedSort = MemoDataStore.SortModeEnum(rawValue: checkedSortString) ?? .ascending
+                sortNonCheckMemos(basedOn: checkedSort)
+                memoDataStore.isLoading = false
+            } catch {
+                print(error)
             }
-            sortNonCheckMemoArray(sortMode: memoDataStore.nonCheckSort)
-            sortNonCheckMemoArray(sortMode: memoDataStore.checkedSort)
-            memoDataStore.isLoading = false
         }
     }
 }

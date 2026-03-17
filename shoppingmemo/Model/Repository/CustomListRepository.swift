@@ -35,6 +35,16 @@ class CustomListRepository {
     
     
     //update
+    static func updateListName(newName: String) async {
+        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+        guard let listId = listDataStore.selectedList?.listId else { return }
+        do {
+            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).updateData(["listName": newName])
+        } catch {
+            print(error)
+        }
+    }
+    
     static func updateListOrders(from: IndexSet, to: Int) async {
         do {
             guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
@@ -61,7 +71,7 @@ class CustomListRepository {
             listDataStore.listArray.sort { $0.listOrder < $1.listOrder }
         }
         listDataStore.listSort = basedOn
-        UserDefaultsRepository.save(data: basedOn, key: "listSort")
+        UserDefaultsRepository.save(data: basedOn.rawValue, key: "listSort")
     }
     
     //delete
@@ -84,6 +94,9 @@ class CustomListRepository {
                         listDataStore.listArray.append(noDupulicate: list)
                     case .modified:
                         listDataStore.listArray.append(noDupulicate: list)
+                        if list.listId == listDataStore.selectedList?.listId {
+                            listDataStore.selectedList = list
+                        }
                     case .removed:
                         listDataStore.listArray.remove(list: list)
                         if list.listId == listDataStore.selectedList?.listId {
@@ -92,9 +105,9 @@ class CustomListRepository {
                         }
                     }
                 }
-                let sortModeString = UserDefaultsRepository.get(String.self, key: "listSort") ?? "ascending"
-                let sortMode = ListDataStore.SortModeEnum(rawValue: sortModeString) ?? .ascending
-                sortLists(basedOn: sortMode)
+                let listSortString = UserDefaultsRepository.get(String.self, key: "listSort") ?? "ascending"
+                let listSort = ListDataStore.SortModeEnum(rawValue: listSortString) ?? .ascending
+                sortLists(basedOn: listSort)
                 listDataStore.isLoading = false
             } catch {
                 print(error)

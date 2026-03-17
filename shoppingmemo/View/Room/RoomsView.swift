@@ -45,7 +45,7 @@ struct RoomsView: View {
                 Button(role: .cancel, action: {}, label: {
                     Text("キャンセル")
                 })
-                Button(action: {
+                Button(role: .confirm, action: {
                     Task { await RoomRepository.createRoom(roomName: newRoomNameText) }
                 }, label: {
                     Text("作成")
