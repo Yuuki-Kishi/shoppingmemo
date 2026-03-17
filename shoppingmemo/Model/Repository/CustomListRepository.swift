@@ -13,9 +13,7 @@ class CustomListRepository {
     static let userDataStore: UserDataStore = .shared
     static let roomDataStore: RoomDataStore = .shared
     static let listDataStore: ListDataStore = .shared
-    
-    static let userDefaults: UserDefaults = .standard
-    
+        
     //create
     static func createList(listName: String) async {
         do {
@@ -63,7 +61,7 @@ class CustomListRepository {
             listDataStore.listArray.sort { $0.listOrder < $1.listOrder }
         }
         listDataStore.listSort = basedOn
-        userDefaults.set(basedOn.rawValue, forKey: "listSort")
+        UserDefaultsRepository.save(data: basedOn, key: "listSort")
     }
     
     //delete
@@ -94,7 +92,7 @@ class CustomListRepository {
                         }
                     }
                 }
-                let sortModeString = userDefaults.string(forKey: "listSort") ?? "ascending"
+                let sortModeString = UserDefaultsRepository.get(String.self, key: "listSort") ?? "ascending"
                 let sortMode = ListDataStore.SortModeEnum(rawValue: sortModeString) ?? .ascending
                 sortLists(basedOn: sortMode)
                 listDataStore.isLoading = false
