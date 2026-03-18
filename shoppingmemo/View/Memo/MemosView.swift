@@ -22,7 +22,7 @@ struct MemosView: View {
             if memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading {
                 Text("データ取得中...")
             } else {
-                if memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.checkedMemoArray.isEmpty {
+                if isShowNoDataLabel() {
                     Text("表示できるメモがありません")
                 } else {
                     List {
@@ -35,7 +35,7 @@ struct MemosView: View {
                                 .onDelete(perform: nonCheckDelete)
                             } header: {
                                 Text("未完了")
-                                    .padding(.top, 55)
+                                    .frame(height: 80, alignment: .bottom)
                             }
                         }
                         if !memoDataStore.checkedMemoArray.isEmpty && memoDataStore.isShowChecked {
@@ -47,6 +47,7 @@ struct MemosView: View {
                                 .onDelete(perform: checkedDelete)
                             } header: {
                                 Text("完了済")
+                                    .frame(height: checkedMemosHeight(), alignment: .bottom)
                             }
                         }
                     }
@@ -195,6 +196,14 @@ struct MemosView: View {
         } label: {
             Image(systemName: "ellipsis.circle")
         }
+    }
+    func isShowNoDataLabel() -> Bool {
+        if memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.checkedMemoArray.isEmpty { return true }
+        if memoDataStore.nonCheckMemoArray.isEmpty && !memoDataStore.isShowChecked { return true }
+        return false
+    }
+    func checkedMemosHeight() -> CGFloat {
+        memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.isShowChecked ? 80 : 0
     }
 }
 

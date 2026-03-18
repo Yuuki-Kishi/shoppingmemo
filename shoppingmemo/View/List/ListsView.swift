@@ -28,7 +28,7 @@ struct ListsView: View {
                 } else {
                     List {
                         ForEach($listDataStore.listArray, id: \.listId) { list in
-                            ListViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                            ListsViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
                         }
                         .onMove(perform: move)
                         .onDelete(perform: delete)
@@ -86,23 +86,23 @@ struct ListsView: View {
                 Text("削除")
             })
         }, message: {
-            Text("この操作は取り消すことができません。")
+            Text("中に含まれる全てのリスト、メモも削除されます。\nこの操作は取り消すことができません。")
         })
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             listDataStore.isLoading = true
             CustomListRepository.observeLists()
-        }
-        .onDisappear() {
-            CustomListRepository.clearLists()
+            MemoRepository.clearMemos()
         }
     }
     func move(fromSources: IndexSet, toDestination: Int) {
         Task { await CustomListRepository.updateListOrders(from: fromSources, to: toDestination) }
     }
     func delete(at offsets: IndexSet) {
-        
+        guard let index = offsets.first else { return }
+        let listId = listDataStore.listArray[index].listId
+        Task { await CustomListRepository.deleteList(listId: listId) }
     }
     func plusButton() -> some View {
         VStack {

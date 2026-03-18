@@ -13,8 +13,7 @@ import FirebaseFunctions
 class RoomRepository {
     static let userDataStore: UserDataStore = .shared
     static let roomDataStore: RoomDataStore = .shared
-    static let functions = Functions.functions(region: "asia-northeast1")
-
+    static let functions: Functions = .functions(region: "asia-northeast1")
     
     //create
     static func createRoom(roomName: String) async {
@@ -47,7 +46,8 @@ class RoomRepository {
     static func deleteRoom() async {
         do {
             guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            let _ = try await functions.httpsCallable("recursiveDelete").call(["path": "Rooms/\(roomId)"])
+            let path = "Rooms/\(roomId)"
+            let _ = try await functions.httpsCallable("recursiveDelete").call(["path": path])
         } catch {
             print(error)
         }

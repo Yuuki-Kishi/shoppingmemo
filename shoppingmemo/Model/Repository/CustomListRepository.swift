@@ -7,12 +7,14 @@
 
 import Foundation
 import FirebaseFirestore
+import FirebaseFunctions
 
 @MainActor
 class CustomListRepository {
     static let userDataStore: UserDataStore = .shared
     static let roomDataStore: RoomDataStore = .shared
     static let listDataStore: ListDataStore = .shared
+    static let functions: Functions = .functions(region: "asia-northeast1")
         
     //create
     static func createList(listName: String) async {
@@ -75,6 +77,16 @@ class CustomListRepository {
     }
     
     //delete
+    static func deleteList(listId: String) async {
+        do {
+            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            let path = "Rooms/\(roomId)/Lists/\(listId)"
+            let _ = try await functions.httpsCallable("recursiveDelete").call(["path": path])
+        } catch {
+            print(error)
+        }
+    }
+    
     static func clearLists() {
         listDataStore.selectedList = nil
         listDataStore.listArray.removeAll()
@@ -101,7 +113,6 @@ class CustomListRepository {
                         listDataStore.listArray.remove(list: list)
                         if list.listId == listDataStore.selectedList?.listId {
                             listDataStore.selectedList = nil
-                            CustomListRepository.clearLists()
                             NavigationRepository.removeViews(dest: .lists)
                         }
                     }
