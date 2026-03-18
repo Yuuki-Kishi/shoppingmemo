@@ -21,29 +21,29 @@ struct ListsView: View {
     
     var body: some View {
         ZStack {
-            if listDataStore.isLoading {
-                Text("データ取得中...")
+            if listDataStore.listArray.isEmpty {
+                Text("表示できるリストがありません")
             } else {
-                if listDataStore.listArray.isEmpty {
-                    Text("表示できるリストがありません")
-                } else {
-                    List {
-                        ForEach($listDataStore.listArray, id: \.listId) { list in
-                            ListsViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
-                                    Button(role: .destructive, action: {
-                                        listDataStore.selectedList = list.wrappedValue
-                                        deleteListAlertIsPresent = true
-                                    }, label: {
-                                        Image(systemName: "trash")
-                                    })
+                List {
+                    ForEach($listDataStore.listArray, id: \.listId) { list in
+                        ListsViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
+                                Button(role: .destructive, action: {
+                                    listDataStore.selectedList = list.wrappedValue
+                                    deleteListAlertIsPresent = true
+                                }, label: {
+                                    Image(systemName: "trash")
                                 })
-                        }
-                        .onMove(perform: move)
+                            })
                     }
-                    .listRowSpacing(35)
+                    .onMove(perform: move)
                 }
-                plusButton()
+                .listRowSpacing(35)
+            }
+            plusButton()
+            if listDataStore.isLoading {
+                ProgressView()
+                    .scaleEffect(2)
             }
         }
         .toolbar {
@@ -86,6 +86,7 @@ struct ListsView: View {
                 Text("キャンセル")
             })
             Button(role: .destructive, action: {
+                listDataStore.isLoading = true
                 Task { await CustomListRepository.deleteList() }
             }, label: {
                 Text("削除")
@@ -98,6 +99,7 @@ struct ListsView: View {
                 Text("キャンセル")
             })
             Button(role: .destructive, action: {
+                listDataStore.isLoading = true
                 Task { await RoomRepository.deleteRoom() }
             }, label: {
                 Text("削除")

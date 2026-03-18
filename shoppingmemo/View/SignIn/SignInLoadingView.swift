@@ -1,5 +1,5 @@
 //
-//  LoadingView.swift
+//  SignInLoadingView.swift
 //  shoppingmemo
 //
 //  Created by 岸　優樹 on 2025/09/11.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LoadingView: View {
+struct SignInLoadingView: View {
     
     var body: some View {
         GeometryReader { geometry in
@@ -35,5 +35,5 @@ struct LoadingView: View {
 }
 
 #Preview {
-    LoadingView()
+    SignInLoadingView()
 }

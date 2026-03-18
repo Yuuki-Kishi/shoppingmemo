@@ -21,18 +21,18 @@ struct RoomsView: View {
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             ZStack {
-                if roomDataStore.isLoading {
-                    Text("データ取得中...")
+                if roomDataStore.roomArray.isEmpty {
+                    Text("表示できるルームがありません")
                 } else {
-                    if roomDataStore.roomArray.isEmpty {
-                        Text("表示できるルームがありません")
-                    } else {
-                        List($roomDataStore.roomArray, id: \.roomId) { room in
-                            RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
-                        }
-                        .listRowSpacing(35)
+                    List($roomDataStore.roomArray, id: \.roomId) { room in
+                        RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
                     }
-                    plusButton()
+                    .listRowSpacing(35)
+                }
+                plusButton()
+                if roomDataStore.isLoading {
+                    ProgressView()
+                        .scaleEffect(2)
                 }
             }
             .toolbar {

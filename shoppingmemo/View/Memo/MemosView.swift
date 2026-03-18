@@ -19,36 +19,32 @@ struct MemosView: View {
     
     var body: some View {
         ZStack {
-            if memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading {
-                Text("データ取得中...")
+            if isShowNoDataLabel() {
+                Text("表示できるメモがありません")
             } else {
-                if isShowNoDataLabel() {
-                    Text("表示できるメモがありません")
-                } else {
-                    List {
-                        if !memoDataStore.nonCheckMemoArray.isEmpty {
-                            Section {
-                                ForEach($memoDataStore.nonCheckMemoArray, id:\.id) { memo in
-                                    MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
-                                }
-                                .onMove(perform: nonCheckMove)
-                                .onDelete(perform: nonCheckDelete)
-                            } header: {
-                                Text("未完了")
-                                    .frame(height: 80, alignment: .bottom)
+                List {
+                    if !memoDataStore.nonCheckMemoArray.isEmpty {
+                        Section {
+                            ForEach($memoDataStore.nonCheckMemoArray, id:\.id) { memo in
+                                MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
                             }
+                            .onMove(perform: nonCheckMove)
+                            .onDelete(perform: nonCheckDelete)
+                        } header: {
+                            Text("未完了")
+                                .frame(height: 80, alignment: .bottom)
                         }
-                        if !memoDataStore.checkedMemoArray.isEmpty && memoDataStore.isShowChecked {
-                            Section {
-                                ForEach($memoDataStore.checkedMemoArray, id:\.id) { memo in
-                                    MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
-                                }
-                                .onMove(perform: checkedMove)
-                                .onDelete(perform: checkedDelete)
-                            } header: {
-                                Text("完了済")
-                                    .frame(height: checkedMemosHeight(), alignment: .bottom)
+                    }
+                    if !memoDataStore.checkedMemoArray.isEmpty && memoDataStore.isShowChecked {
+                        Section {
+                            ForEach($memoDataStore.checkedMemoArray, id:\.id) { memo in
+                                MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
                             }
+                            .onMove(perform: checkedMove)
+                            .onDelete(perform: checkedDelete)
+                        } header: {
+                            Text("完了済")
+                                .frame(height: checkedMemosHeight(), alignment: .bottom)
                         }
                     }
                 }
@@ -64,6 +60,10 @@ struct MemosView: View {
                 .glassEffect(.regular.tint(.accentColor))
                 .padding(.horizontal)
                 Spacer()
+            }
+            if memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading {
+                ProgressView()
+                    .scaleEffect(2)
             }
         }
         .toolbar {
@@ -94,6 +94,7 @@ struct MemosView: View {
                 Text("キャンセル")
             })
             Button(role: .destructive, action: {
+                memoDataStore.checkedMemoIsLoading = true
                 Task { await MemoRepository.deleteCheckedMemos() }
             }, label: {
                 Text("削除")

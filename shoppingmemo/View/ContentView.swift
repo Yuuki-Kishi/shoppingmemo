@@ -12,7 +12,7 @@ struct ContentView: View {
     
     var body: some View {
         if userDataStore.userResult == nil {
-            LoadingView()
+            SignInLoadingView()
                 .onAppear() {
                     Task { await AuthRepository.isSignIn() }
                 }
