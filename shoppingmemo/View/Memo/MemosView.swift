@@ -14,8 +14,8 @@ struct MemosView: View {
     
     @State private var newMemoNameText: String = ""
     @State private var newListNameText: String = ""
-    
     @State private var renameListAlertIsPresent: Bool = false
+    @State private var deleteCheckedMemosAlertIsPresent: Bool = false
     
     var body: some View {
         ZStack {
@@ -89,6 +89,18 @@ struct MemosView: View {
         }, message: {
             Text("新しいリスト名を入力してください。")
         })
+        .alert("本当に完了済を全て削除しますか？", isPresented: $deleteCheckedMemosAlertIsPresent, actions: {
+            Button(role: .cancel, action: {}, label: {
+                Text("キャンセル")
+            })
+            Button(role: .destructive, action: {
+                Task { await MemoRepository.deleteCheckedMemos() }
+            }, label: {
+                Text("削除")
+            })
+        }, message: {
+            Text("この操作は取り消すことができません。")
+        })
         .navigationTitle(listDataStore.selectedList?.listName ?? "不明なリスト")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
@@ -106,13 +118,17 @@ struct MemosView: View {
         Task { await MemoRepository.updateNonCheckOrders(from: fromSources, to: toDestination) }
     }
     func nonCheckDelete(at offsets: IndexSet) {
-        
+        guard let index = offsets.first else { return }
+        let memoId = memoDataStore.nonCheckMemoArray[index].memoId
+        Task { await MemoRepository.deleteMemo(memoId: memoId) }
     }
     func checkedMove(fromSources: IndexSet, toDestination: Int) {
         Task { await MemoRepository.updateCheckOrders(from: fromSources, to: toDestination) }
     }
     func checkedDelete(at offsets: IndexSet) {
-        
+        guard let index = offsets.first else { return }
+        let memoId = memoDataStore.checkedMemoArray[index].memoId
+        Task { await MemoRepository.deleteMemo(memoId: memoId) }
     }
     func toolBarMenu() -> some View {
         Menu {
@@ -189,7 +205,7 @@ struct MemosView: View {
             }
             Divider()
             Button(role: .destructive, action: {
-                
+                deleteCheckedMemosAlertIsPresent = true
             }, label: {
                 Label("完了項目を削除", systemImage: "trash")
             })

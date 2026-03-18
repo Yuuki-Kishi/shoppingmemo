@@ -130,10 +130,10 @@ class MemoRepository {
     }
     
     static func updateImageUrl(newImageUrl: String) async {
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-        guard let listId = listDataStore.selectedList?.listId else { return }
-        guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
         do {
+            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let listId = listDataStore.selectedList?.listId else { return }
+            guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["imageUrl": newImageUrl])
         } catch {
             print(error)
@@ -141,6 +141,22 @@ class MemoRepository {
     }
     
     //delete
+    static func deleteMemo(memoId: String) async {
+        do {
+            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let listId = listDataStore.selectedList?.listId else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).delete()
+        } catch {
+            print(error)
+        }
+    }
+    
+    static func deleteCheckedMemos() async {
+        for memo in memoDataStore.checkedMemoArray {
+            await deleteMemo(memoId: memo.memoId)
+        }
+    }
+    
     static func clearMemos() {
         memoDataStore.selectedMemo = nil
         memoDataStore.nonCheckMemoArray.removeAll()
@@ -167,7 +183,6 @@ class MemoRepository {
                         if memoDataStore.selectedMemo?.memoId == memo.memoId {
                             memoDataStore.selectedMemo = nil
                             CustomImageRepository.clearImage()
-                            MemoRepository.clearMemos()
                             NavigationRepository.removeViews(dest: .memos)
                         }
                     }
@@ -201,7 +216,6 @@ class MemoRepository {
                         if memoDataStore.selectedMemo?.memoId == memo.memoId {
                             memoDataStore.selectedMemo = nil
                             CustomImageRepository.clearImage()
-                            MemoRepository.clearMemos()
                             NavigationRepository.removeViews(dest: .memos)
                         }
                     }
