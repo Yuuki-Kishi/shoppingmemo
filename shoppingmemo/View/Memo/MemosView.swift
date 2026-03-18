@@ -25,11 +25,17 @@ struct MemosView: View {
                 List {
                     if !memoDataStore.nonCheckMemoArray.isEmpty {
                         Section {
-                            ForEach($memoDataStore.nonCheckMemoArray, id:\.id) { memo in
+                            ForEach($memoDataStore.nonCheckMemoArray, id:\.memoId) { memo in
                                 MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
+                                        Button(role: .destructive, action: {
+                                            nonCheckDelete(memoId: memo.memoId.wrappedValue)
+                                        }, label: {
+                                            Image(systemName: "trash")
+                                        })
+                                    })
                             }
                             .onMove(perform: nonCheckMove)
-                            .onDelete(perform: nonCheckDelete)
                         } header: {
                             Text("未完了")
                                 .frame(height: 80, alignment: .bottom)
@@ -39,9 +45,15 @@ struct MemosView: View {
                         Section {
                             ForEach($memoDataStore.checkedMemoArray, id:\.id) { memo in
                                 MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true, content: {
+                                        Button(role: .destructive, action: {
+                                            checkedDelete(memoId: memo.memoId.wrappedValue)
+                                        }, label: {
+                                            Image(systemName: "trash")
+                                        })
+                                    })
                             }
                             .onMove(perform: checkedMove)
-                            .onDelete(perform: checkedDelete)
                         } header: {
                             Text("完了済")
                                 .frame(height: checkedMemosHeight(), alignment: .bottom)
@@ -111,24 +123,19 @@ struct MemosView: View {
             MemoRepository.observeNonCheckMemos()
             MemoRepository.observeCheckedMemos()
         }
-        .onDisappear() {
-            MemoRepository.clearMemos()
-        }
     }
     func nonCheckMove(fromSources: IndexSet, toDestination: Int) {
         Task { await MemoRepository.updateNonCheckOrders(from: fromSources, to: toDestination) }
     }
-    func nonCheckDelete(at offsets: IndexSet) {
-        guard let index = offsets.first else { return }
-        let memoId = memoDataStore.nonCheckMemoArray[index].memoId
+    func nonCheckDelete(memoId: String) {
+        memoDataStore.nonCheckMemoIsLoading = true
         Task { await MemoRepository.deleteMemo(memoId: memoId) }
     }
     func checkedMove(fromSources: IndexSet, toDestination: Int) {
         Task { await MemoRepository.updateCheckOrders(from: fromSources, to: toDestination) }
     }
-    func checkedDelete(at offsets: IndexSet) {
-        guard let index = offsets.first else { return }
-        let memoId = memoDataStore.checkedMemoArray[index].memoId
+    func checkedDelete(memoId: String) {
+        memoDataStore.checkedMemoIsLoading = true
         Task { await MemoRepository.deleteMemo(memoId: memoId) }
     }
     func toolBarMenu() -> some View {
