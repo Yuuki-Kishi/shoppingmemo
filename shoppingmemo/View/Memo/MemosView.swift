@@ -19,7 +19,7 @@ struct MemosView: View {
     
     var body: some View {
         ZStack {
-            if memoDataStore.isLoading {
+            if memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading {
                 Text("データ取得中...")
             } else {
                 if memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.checkedMemoArray.isEmpty {
@@ -92,7 +92,13 @@ struct MemosView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             memoDataStore.isShowChecked = UserDefaultsRepository.get(Bool.self, key: "isShowChecked") ?? true
-            MemoRepository.obserbeMemos()
+            memoDataStore.nonCheckMemoIsLoading = true
+            memoDataStore.checkedMemoIsLoading = true
+            MemoRepository.observeNonCheckMemos()
+            MemoRepository.observeCheckedMemos()
+        }
+        .onDisappear() {
+            MemoRepository.clearMemos()
         }
     }
     func nonCheckMove(fromSources: IndexSet, toDestination: Int) {

@@ -94,6 +94,9 @@ struct ListsView: View {
             listDataStore.isLoading = true
             CustomListRepository.observeLists()
         }
+        .onDisappear() {
+            CustomListRepository.clearLists()
+        }
     }
     func move(fromSources: IndexSet, toDestination: Int) {
         Task { await CustomListRepository.updateListOrders(from: fromSources, to: toDestination) }

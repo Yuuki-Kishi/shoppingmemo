@@ -14,7 +14,8 @@ class MemoDataStore: ObservableObject {
     @Published var checkedMemoArray: [Memo] = []
     @Published var selectedMemo: Memo? = nil
     @Published var isShowChecked: Bool = false
-    @Published var isLoading: Bool = true
+    @Published var nonCheckMemoIsLoading: Bool = false
+    @Published var checkedMemoIsLoading: Bool = false
     @Published var nonCheckSort: SortModeEnum = .ascending
     @Published var checkedSort: SortModeEnum = .ascending
     

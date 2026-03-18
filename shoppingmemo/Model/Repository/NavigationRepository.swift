@@ -11,8 +11,13 @@ import Foundation
 class NavigationRepository {
     static let pathDataStore: PathDataStore = .shared
     
-    static func removeViews(numberOfLeave: Int) {
-        let maxLoop = pathDataStore.navigationPath.count - numberOfLeave
+    static func removeAllViews() {
+        pathDataStore.navigationPath.removeAll()
+    }
+    
+    static func removeViews(dest: PathDataStore.path) {
+        guard let index = pathDataStore.navigationPath.firstIndex(of: dest) else { return }
+        let maxLoop = pathDataStore.navigationPath.count - index - 1
         for _ in 0 ..< maxLoop {
             pathDataStore.navigationPath.removeLast()
         }

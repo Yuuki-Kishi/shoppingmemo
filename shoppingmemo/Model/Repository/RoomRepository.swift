@@ -74,7 +74,7 @@ class RoomRepository {
                         roomDataStore.roomArray.remove(room: room)
                         if room.roomId == roomDataStore.selectedRoom?.roomId {
                             roomDataStore.selectedRoom = nil
-                            NavigationRepository.removeViews(numberOfLeave: 0)
+                            NavigationRepository.removeAllViews()
                         }
                     }
                 }

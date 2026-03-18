@@ -15,7 +15,7 @@ struct MemosViewCell: View {
     var body: some View {
         HStack {
             Button(action: {
-                print("checked")
+                Task { await MemoRepository.updateIsChecked(memo: memo) }
             }, label: {
                 Image(systemName: checkMarkImageName())
                     .font(.system(size: 20))

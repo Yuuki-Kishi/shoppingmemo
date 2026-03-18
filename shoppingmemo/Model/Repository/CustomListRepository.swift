@@ -101,7 +101,8 @@ class CustomListRepository {
                         listDataStore.listArray.remove(list: list)
                         if list.listId == listDataStore.selectedList?.listId {
                             listDataStore.selectedList = nil
-                            NavigationRepository.removeViews(numberOfLeave: 1)
+                            CustomListRepository.clearLists()
+                            NavigationRepository.removeViews(dest: .lists)
                         }
                     }
                 }

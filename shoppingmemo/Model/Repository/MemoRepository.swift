@@ -36,6 +36,16 @@ class MemoRepository {
     //get
     
     //update
+    static func updateIsChecked(memo: Memo) async {
+        do {
+            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let listId = listDataStore.selectedList?.listId else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memo.memoId).updateData(["isChecked": !memo.isChecked])
+        } catch {
+            print(error)
+        }
+    }
+    
     static func updateNonCheckOrder(memoId: String, newOrder: Int) async {
         do {
             guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
@@ -138,10 +148,10 @@ class MemoRepository {
     }
     
     //observe
-    static func obserbeMemos() {
+    static func observeNonCheckMemos() {
         guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
         guard let listId = listDataStore.selectedList?.listId else { return }
-        Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").addSnapshotListener() { querySnapshot, error in
+        Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").whereField("isChecked", isEqualTo: false).addSnapshotListener() { querySnapshot, error in
             do {
                 guard let documentChanges = querySnapshot?.documentChanges else { return }
                 for documentChange in documentChanges {
@@ -149,40 +159,57 @@ class MemoRepository {
                     let memo = try document.data(as: Memo.self)
                     switch documentChange.type {
                     case .added:
-                        if memo.isChecked {
-                            memoDataStore.checkedMemoArray.append(noDupulicate: memo)
-                        } else {
-                            memoDataStore.nonCheckMemoArray.append(noDupulicate: memo)
-                        }
+                        memoDataStore.nonCheckMemoArray.append(noDupulicate: memo)
                     case .modified:
-                        if memo.isChecked {
-                            memoDataStore.checkedMemoArray.append(noDupulicate: memo)
-                        } else {
-                            memoDataStore.nonCheckMemoArray.append(noDupulicate: memo)
-                        }
-                        if memo.memoId == memoDataStore.selectedMemo?.memoId {
-                            memoDataStore.selectedMemo = memo
-                        }
+                        memoDataStore.nonCheckMemoArray.append(noDupulicate: memo)
                     case .removed:
-                        if memo.isChecked {
-                            memoDataStore.checkedMemoArray.remove(memo: memo)
-                        } else {
-                            memoDataStore.nonCheckMemoArray.remove(memo: memo)
-                        }
-                        if memo.memoId == memoDataStore.selectedMemo?.memoId {
+                        memoDataStore.nonCheckMemoArray.remove(memo: memo)
+                        if memoDataStore.selectedMemo?.memoId == memo.memoId {
                             memoDataStore.selectedMemo = nil
                             CustomImageRepository.clearImage()
-                            NavigationRepository.removeViews(numberOfLeave: 2)
+                            MemoRepository.clearMemos()
+                            NavigationRepository.removeViews(dest: .memos)
                         }
                     }
                 }
                 let nonCheckSortString = UserDefaultsRepository.get(String.self, key: "nonCheckSort") ?? "ascending"
                 let nonCheckSort = MemoDataStore.SortModeEnum(rawValue: nonCheckSortString) ?? .ascending
                 sortNonCheckMemos(basedOn: nonCheckSort)
+                memoDataStore.nonCheckMemoIsLoading = false
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    static func observeCheckedMemos() {
+        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+        guard let listId = listDataStore.selectedList?.listId else { return }
+        Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").whereField("isChecked", isEqualTo: true).addSnapshotListener() { querySnapshot, error in
+            do {
+                guard let documentChanges = querySnapshot?.documentChanges else { return }
+                for documentChange in documentChanges {
+                    let document = documentChange.document
+                    let memo = try document.data(as: Memo.self)
+                    switch documentChange.type {
+                    case .added:
+                        memoDataStore.checkedMemoArray.append(noDupulicate: memo)
+                    case .modified:
+                        memoDataStore.checkedMemoArray.append(noDupulicate: memo)
+                    case .removed:
+                        memoDataStore.checkedMemoArray.remove(memo: memo)
+                        if memoDataStore.selectedMemo?.memoId == memo.memoId {
+                            memoDataStore.selectedMemo = nil
+                            CustomImageRepository.clearImage()
+                            MemoRepository.clearMemos()
+                            NavigationRepository.removeViews(dest: .memos)
+                        }
+                    }
+                }
                 let checkedSortString = UserDefaultsRepository.get(String.self, key: "checkedSort") ?? "ascending"
                 let checkedSort = MemoDataStore.SortModeEnum(rawValue: checkedSortString) ?? .ascending
                 sortNonCheckMemos(basedOn: checkedSort)
-                memoDataStore.isLoading = false
+                memoDataStore.checkedMemoIsLoading = false
             } catch {
                 print(error)
             }
