@@ -77,9 +77,10 @@ class CustomListRepository {
     }
     
     //delete
-    static func deleteList(listId: String) async {
+    static func deleteList() async {
         do {
             guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let listId = listDataStore.selectedList?.listId else { return }
             let path = "Rooms/\(roomId)/Lists/\(listId)"
             let _ = try await functions.httpsCallable("recursiveDelete").call(["path": path])
         } catch {

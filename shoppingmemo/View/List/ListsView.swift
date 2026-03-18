@@ -16,6 +16,7 @@ struct ListsView: View {
     @State private var newRoomNameText: String = ""
     @State private var createNewListAlertIsPresent: Bool = false
     @State private var updateRoomNameAlertIsPresent: Bool = false
+    @State private var deleteListAlertIsPresent: Bool = false
     @State private var deleteRoomAlertIsPresent: Bool = false
     
     var body: some View {
@@ -29,9 +30,16 @@ struct ListsView: View {
                     List {
                         ForEach($listDataStore.listArray, id: \.listId) { list in
                             ListsViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
+                                    Button(role: .destructive, action: {
+                                        listDataStore.selectedList = list.wrappedValue
+                                        deleteListAlertIsPresent = true
+                                    }, label: {
+                                        Image(systemName: "trash")
+                                    })
+                                })
                         }
                         .onMove(perform: move)
-                        .onDelete(perform: delete)
                     }
                     .listRowSpacing(35)
                 }
@@ -40,10 +48,7 @@ struct ListsView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing, content: {
-                HStack {
-                    
-                    toolBarMenu()
-                }
+                toolBarMenu()
             })
         }
         .alert("リストを追加", isPresented: $createNewListAlertIsPresent, actions: {
@@ -76,7 +81,19 @@ struct ListsView: View {
         }, message: {
             Text("新しく設定するルーム名を入力してください。")
         })
-        .alert("本当にルームを削除しますか？", isPresented: $deleteRoomAlertIsPresent, actions: {
+        .alert("本当に\(listDataStore.selectedList?.listName ?? "リスト")を削除しますか？", isPresented: $deleteListAlertIsPresent, actions: {
+            Button(role: .cancel, action: {}, label: {
+                Text("キャンセル")
+            })
+            Button(role: .destructive, action: {
+                Task { await CustomListRepository.deleteList() }
+            }, label: {
+                Text("削除")
+            })
+        }, message: {
+            Text("このルームに含まれる全てのメモも削除されます。\nこの操作は取り消すことができません。")
+        })
+        .alert("本当に\(roomDataStore.selectedRoom?.roomName ?? "ルーム")を削除しますか？", isPresented: $deleteRoomAlertIsPresent, actions: {
             Button(role: .cancel, action: {}, label: {
                 Text("キャンセル")
             })
@@ -86,7 +103,7 @@ struct ListsView: View {
                 Text("削除")
             })
         }, message: {
-            Text("中に含まれる全てのリスト、メモも削除されます。\nこの操作は取り消すことができません。")
+            Text("このルームに含まれる全てのリスト、メモも削除されます。\nこの操作は取り消すことができません。")
         })
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
@@ -98,11 +115,6 @@ struct ListsView: View {
     }
     func move(fromSources: IndexSet, toDestination: Int) {
         Task { await CustomListRepository.updateListOrders(from: fromSources, to: toDestination) }
-    }
-    func delete(at offsets: IndexSet) {
-        guard let index = offsets.first else { return }
-        let listId = listDataStore.listArray[index].listId
-        Task { await CustomListRepository.deleteList(listId: listId) }
     }
     func plusButton() -> some View {
         VStack {
