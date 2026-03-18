@@ -41,27 +41,12 @@ struct RoomsView: View {
                 })
             }
             .alert("ルームを新規作成", isPresented: $newRoomCreateAlertIsPresented, actions: {
-                TextField("ルームの名前を入力", text: $newRoomNameText)
-                Button(role: .cancel, action: {}, label: {
-                    Text("キャンセル")
-                })
-                Button(role: .confirm, action: {
-                    Task { await RoomRepository.createRoom(roomName: newRoomNameText) }
-                }, label: {
-                    Text("作成")
-                })
+                newRoomCreateAlertActions()
             }, message: {
                 Text("新規作成するルームの名前を入力してください。")
             })
             .alert("本当にサインアウトしますか？", isPresented: $signOutAlertIsPresented, actions: {
-                Button(role: .cancel, action: {}, label: {
-                    Text("キャンセル")
-                })
-                Button(role: .destructive, action: {
-                    Task { await AuthRepository.signOut() }
-                }, label: {
-                    Text("サインアウト")
-                })
+                signOutAlertActions()
             }, message: {
                 Text("サインアウトすると、再度利用する際にサインインが必要になります。")
             })
@@ -102,14 +87,12 @@ struct RoomsView: View {
                 Button(action: {
                     newRoomCreateAlertIsPresented = true
                 }, label: {
-                    ZStack {
-                        Circle()
-                            .foregroundStyle(Color("AccentColor"))
-                            .frame(width: 70, height: 70)
-                        Image(systemName: "plus")
-                            .foregroundStyle(Color.primary)
-                            .font(.system(size: 30))
-                    }
+                    Image(systemName: "plus")
+                        .foregroundStyle(Color.primary)
+                        .font(.system(size: 30))
+                        .frame(width: 70, height: 70)
+                        .background(Color("AccentColor"))
+                        .clipShape(Circle())
                 })
                 .padding(.trailing, 34)
             }
@@ -147,6 +130,29 @@ struct RoomsView: View {
             Image(systemName: "ellipsis.circle")
                 .foregroundStyle(Color.primary)
         }
+    }
+    @ViewBuilder
+    func newRoomCreateAlertActions() -> some View {
+        TextField("ルームの名前を入力", text: $newRoomNameText)
+        Button(role: .cancel, action: {}, label: {
+            Text("キャンセル")
+        })
+        Button(role: .confirm, action: {
+            Task { await RoomRepository.createRoom(roomName: newRoomNameText) }
+        }, label: {
+            Text("作成")
+        })
+    }
+    @ViewBuilder
+    func signOutAlertActions() -> some View {
+        Button(role: .cancel, action: {}, label: {
+            Text("キャンセル")
+        })
+        Button(role: .destructive, action: {
+            Task { await AuthRepository.signOut() }
+        }, label: {
+            Text("サインアウト")
+        })
     }
 }
 

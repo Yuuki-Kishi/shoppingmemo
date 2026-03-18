@@ -63,10 +63,7 @@ struct MemosView: View {
             }
             VStack {
                 TextField("アイテムを追加", text: $newMemoNameText, onCommit: {
-                    Task {
-                        await MemoRepository.createMemo(memoName: newMemoNameText)
-                        newMemoNameText = ""
-                    }
+                    textFieldDidEdit()
                 })
                 .padding()
                 .glassEffect(.regular.tint(.accentColor))
@@ -84,33 +81,12 @@ struct MemosView: View {
             })
         }
         .alert("リスト名を変更", isPresented: $renameListAlertIsPresent, actions: {
-            TextField("新しいリスト名を入力", text: $newListNameText)
-            Button(role: .cancel, action: {
-                newListNameText = ""
-            }, label: {
-                Text("キャンセル")
-            })
-            Button(role: .confirm, action: {
-                Task {
-                    await CustomListRepository.updateListName(newName: newListNameText)
-                    newListNameText = ""
-                }
-            }, label: {
-                Text("変更")
-            })
+            renameListAlertActions()
         }, message: {
             Text("新しいリスト名を入力してください。")
         })
         .alert("本当に完了済を全て削除しますか？", isPresented: $deleteCheckedMemosAlertIsPresent, actions: {
-            Button(role: .cancel, action: {}, label: {
-                Text("キャンセル")
-            })
-            Button(role: .destructive, action: {
-                memoDataStore.checkedMemoIsLoading = true
-                Task { await MemoRepository.deleteCheckedMemos() }
-            }, label: {
-                Text("削除")
-            })
+            deleteCheckedMemosAlertActions()
         }, message: {
             Text("この操作は取り消すことができません。")
         })
@@ -137,6 +113,12 @@ struct MemosView: View {
     func checkedDelete(memoId: String) {
         memoDataStore.checkedMemoIsLoading = true
         Task { await MemoRepository.deleteMemo(memoId: memoId) }
+    }
+    func textFieldDidEdit() {
+        Task {
+            await MemoRepository.createMemo(memoName: newMemoNameText)
+            newMemoNameText = ""
+        }
     }
     func toolBarMenu() -> some View {
         Menu {
@@ -225,6 +207,35 @@ struct MemosView: View {
         if memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.checkedMemoArray.isEmpty { return true }
         if memoDataStore.nonCheckMemoArray.isEmpty && !memoDataStore.isShowChecked { return true }
         return false
+    }
+    @ViewBuilder
+    func renameListAlertActions() -> some View {
+        TextField("新しいリスト名を入力", text: $newListNameText)
+        Button(role: .cancel, action: {
+            newListNameText = ""
+        }, label: {
+            Text("キャンセル")
+        })
+        Button(role: .confirm, action: {
+            Task {
+                await CustomListRepository.updateListName(newName: newListNameText)
+                newListNameText = ""
+            }
+        }, label: {
+            Text("変更")
+        })
+    }
+    @ViewBuilder
+    func deleteCheckedMemosAlertActions() -> some View {
+        Button(role: .cancel, action: {}, label: {
+            Text("キャンセル")
+        })
+        Button(role: .destructive, action: {
+            memoDataStore.checkedMemoIsLoading = true
+            Task { await MemoRepository.deleteCheckedMemos() }
+        }, label: {
+            Text("削除")
+        })
     }
     func checkedMemosHeight() -> CGFloat {
         memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.isShowChecked ? 80 : 0

@@ -52,58 +52,22 @@ struct ListsView: View {
             })
         }
         .alert("リストを追加", isPresented: $createNewListAlertIsPresent, actions: {
-            TextField("リストの名前を入力", text: $newListNameText)
-            Button(role: .cancel, action: {
-                newListNameText = ""
-            }, label: {
-                Text("キャンセル")
-            })
-            Button(action: {
-                Task { await CustomListRepository.createList(listName: newListNameText) }
-            }, label: {
-                Text("追加")
-            })
+            createNewListAlertActions()
         }, message: {
             Text("追加するリストの名前を入力してください。")
         })
         .alert("ルーム名を変更", isPresented: $updateRoomNameAlertIsPresent, actions: {
-            TextField("新しいルーム名を入力", text: $newRoomNameText)
-            Button(role: .cancel, action: {
-                newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
-            }, label: {
-                Text("キャンセル")
-            })
-            Button(role: .confirm, action: {
-                Task { await RoomRepository.updateRoomName(newName: newRoomNameText) }
-            }, label: {
-                Text("変更")
-            })
+            updateRoomNameAlertActions()
         }, message: {
             Text("新しく設定するルーム名を入力してください。")
         })
         .alert("本当に\(listDataStore.selectedList?.listName ?? "リスト")を削除しますか？", isPresented: $deleteListAlertIsPresent, actions: {
-            Button(role: .cancel, action: {}, label: {
-                Text("キャンセル")
-            })
-            Button(role: .destructive, action: {
-                listDataStore.isLoading = true
-                Task { await CustomListRepository.deleteList() }
-            }, label: {
-                Text("削除")
-            })
+            deleteListAlertActions()
         }, message: {
             Text("このルームに含まれる全てのメモも削除されます。\nこの操作は取り消すことができません。")
         })
         .alert("本当に\(roomDataStore.selectedRoom?.roomName ?? "ルーム")を削除しますか？", isPresented: $deleteRoomAlertIsPresent, actions: {
-            Button(role: .cancel, action: {}, label: {
-                Text("キャンセル")
-            })
-            Button(role: .destructive, action: {
-                listDataStore.isLoading = true
-                Task { await RoomRepository.deleteRoom() }
-            }, label: {
-                Text("削除")
-            })
+            deleteRoomAlertActions()
         }, message: {
             Text("このルームに含まれる全てのリスト、メモも削除されます。\nこの操作は取り消すことができません。")
         })
@@ -188,6 +152,58 @@ struct ListsView: View {
         } label: {
             Image(systemName: "ellipsis.circle")
         }
+    }
+    @ViewBuilder
+    func createNewListAlertActions() -> some View {
+        TextField("リストの名前を入力", text: $newListNameText)
+        Button(role: .cancel, action: {
+            newListNameText = ""
+        }, label: {
+            Text("キャンセル")
+        })
+        Button(action: {
+            Task { await CustomListRepository.createList(listName: newListNameText) }
+        }, label: {
+            Text("追加")
+        })
+    }
+    @ViewBuilder
+    func updateRoomNameAlertActions() -> some View {
+        TextField("新しいルーム名を入力", text: $newRoomNameText)
+        Button(role: .cancel, action: {
+            newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
+        }, label: {
+            Text("キャンセル")
+        })
+        Button(role: .confirm, action: {
+            Task { await RoomRepository.updateRoomName(newName: newRoomNameText) }
+        }, label: {
+            Text("変更")
+        })
+    }
+    @ViewBuilder
+    func deleteListAlertActions() -> some View {
+        Button(role: .cancel, action: {}, label: {
+            Text("キャンセル")
+        })
+        Button(role: .destructive, action: {
+            listDataStore.isLoading = true
+            Task { await CustomListRepository.deleteList() }
+        }, label: {
+            Text("削除")
+        })
+    }
+    @ViewBuilder
+    func deleteRoomAlertActions() -> some View {
+        Button(role: .cancel, action: {}, label: {
+            Text("キャンセル")
+        })
+        Button(role: .destructive, action: {
+            listDataStore.isLoading = true
+            Task { await RoomRepository.deleteRoom() }
+        }, label: {
+            Text("削除")
+        })
     }
 }
 
