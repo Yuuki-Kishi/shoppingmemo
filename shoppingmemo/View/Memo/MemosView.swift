@@ -98,6 +98,7 @@ struct MemosView: View {
             memoDataStore.checkedMemoIsLoading = true
             MemoRepository.observeNonCheckMemos()
             MemoRepository.observeCheckedMemos()
+            CustomImageRepository.clearImage()
         }
     }
     func nonCheckMove(fromSources: IndexSet, toDestination: Int) {

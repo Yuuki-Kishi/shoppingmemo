@@ -20,9 +20,10 @@ struct ImageView: View {
     @State private var deleteImageAlertIsPresented: Bool = false
     
     var body: some View {
-        VStack {
+        ZStack {
             if imageDataStore.isLoading {
-                Text("データ取得中...")
+                ProgressView()
+                    .scaleEffect(2)
             } else {
                 if let uiImage = getUIImage() {
                     Image(uiImage: uiImage)
@@ -35,6 +36,7 @@ struct ImageView: View {
         }
         .photosPicker(isPresented: $photosPickerIsPresented, selection: $selectedImage)
         .onChange(of: selectedImage) {
+            imageDataStore.isLoading = true
             Task { await CustomImageRepository.createImage(selectedImage: selectedImage) }
         }
         .sheet(isPresented: $imageInfoViewIsPresented) {
@@ -47,26 +49,15 @@ struct ImageView: View {
             })
         }
         .alert("画像を削除しますか？", isPresented: $deleteImageAlertIsPresented, actions: {
-            Button(role: .cancel, action: {}, label: {
-                Text("キャンセル")
-            })
-            Button(role: .destructive, action: {
-                guard let imageUrl = memoDataStore.selectedMemo?.imageUrl else { return }
-                Task { await CustomImageRepository.deleteImage(imageUrl: imageUrl) }
-            }, label: {
-                Text("削除")
-            })
+            deleteImageAlertActions()
         }, message: {
             Text("この操作は取り消すことができません。")
         })
         .navigationTitle(memoDataStore.selectedMemo?.memoName ?? "不明なメモ")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
-            Task {
-                imageDataStore.isLoading = true
-                await CustomImageRepository.getImage(imageUrl: memoDataStore.selectedMemo?.imageUrl ?? "default")
-                imageDataStore.isLoading = false
-            }
+            imageDataStore.isLoading = true
+            CustomImageRepository.observeImageUrl()
         }
     }
     func getUIImage() -> UIImage? {
@@ -100,6 +91,16 @@ struct ImageView: View {
                     }, label: {
                         Label("情報", systemImage: "info.circle")
                     })
+                    Button(action: {
+                        photosPickerIsPresented = true
+                    }, label: {
+                        Label("アルバムから変更", systemImage: "photo.on.rectangle.angled")
+                    })
+                    Button(action: {
+                        
+                    }, label: {
+                        Label("撮影して変更", systemImage: "camera")
+                    })
                     Divider()
                     Button(role: .destructive, action: {
                         deleteImageAlertIsPresented = true
@@ -111,6 +112,17 @@ struct ImageView: View {
                 }
             }
         }
+    }
+    @ViewBuilder
+    func deleteImageAlertActions() -> some View {
+        Button(role: .cancel, action: {}, label: {
+            Text("キャンセル")
+        })
+        Button(role: .destructive, action: {
+            Task { await CustomImageRepository.deleteImage() }
+        }, label: {
+            Text("削除")
+        })
     }
 }
 
