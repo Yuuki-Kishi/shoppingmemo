@@ -96,21 +96,30 @@ class UserRepository {
         }
     }
     
+    static func updateUserName(newName: String) async {
+        do {
+            guard let userId = userDataStore.signInUser?.userId else { return }
+            try await Firestore.firestore().collection("Users").document(userId).updateData(["userName": newName])
+        } catch {
+            print(error)
+        }
+    }
+    
     //delete
     
     //observe
-//    static func observeUserData() {
-//        guard let userId = userDataStore.signInUser?.userId else { return }
-//        Firestore.firestore().collection("Users").document(userId).addSnapshotListener { documentSnapshot, error in
-//            do {
-//                let user = try documentSnapshot?.data(as: User.self)
-//                userDataStore.userResult = .success(user)
-//                userDataStore.signInUser = user
-//            } catch {
-//                print(error)
-//            }
-//        }
-//    }
+    static func observeUserData() {
+        guard let userId = userDataStore.signInUser?.userId else { return }
+        Firestore.firestore().collection("Users").document(userId).addSnapshotListener { documentSnapshot, error in
+            do {
+                let user = try documentSnapshot?.data(as: User.self)
+                userDataStore.userResult = .success(user)
+                userDataStore.signInUser = user
+            } catch {
+                print(error)
+            }
+        }
+    }
 //    static func observeImageUploadUserName() {
 //        guard let userId = imageDataStore.selectedMemoImage?.uploadUserId else { return }
 //        Firestore.firestore().collection("Users").document(userId).addSnapshotListener() { documentSnapshot, error in

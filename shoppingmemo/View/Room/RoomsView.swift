@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct RoomsView: View {
+    @ObservedObject var userDataStore: UserDataStore
     @StateObject var roomDataStore: RoomDataStore = .shared
     @StateObject var listDataStore: ListDataStore = .shared
     @StateObject var memoDataStore: MemoDataStore = .shared
     @StateObject var imageDataStore: ImageDataStore = .shared
+    @StateObject var myInfoDataStore: MyInfoDataStore = .shared
     @StateObject var pathDataStore: PathDataStore = .shared
     
     @State private var newRoomNameText: String = ""
@@ -72,7 +74,7 @@ struct RoomsView: View {
         case .image:
             ImageView(memoDataStore: memoDataStore, imageDataStore: imageDataStore, pathDataStore: pathDataStore)
         case .myInfo:
-            EmptyView()
+            MyInfoView(userDataStore: userDataStore, myInfoDataStore: myInfoDataStore)
         case .noticeList:
             EmptyView()
         case .notice:
@@ -101,7 +103,7 @@ struct RoomsView: View {
     func toolBarMenu() -> some View {
         Menu {
             Button(action: {
-                
+                pathDataStore.navigationPath.append(.myInfo)
             }, label: {
                 Label("マイページ", systemImage: "info.circle")
             })
@@ -157,5 +159,5 @@ struct RoomsView: View {
 }
 
 #Preview {
-    RoomsView()
+    RoomsView(userDataStore: .shared)
 }
