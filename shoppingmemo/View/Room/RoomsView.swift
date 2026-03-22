@@ -14,6 +14,7 @@ struct RoomsView: View {
     @StateObject var memoDataStore: MemoDataStore = .shared
     @StateObject var imageDataStore: ImageDataStore = .shared
     @StateObject var myInfoDataStore: MyInfoDataStore = .shared
+    @StateObject var participantDataStore: ParticipantDataStore = .shared
     @StateObject var pathDataStore: PathDataStore = .shared
     
     @State private var newRoomNameText: String = ""
@@ -75,9 +76,19 @@ struct RoomsView: View {
             ImageView(memoDataStore: memoDataStore, imageDataStore: imageDataStore, pathDataStore: pathDataStore)
         case .myInfo:
             MyInfoView(userDataStore: userDataStore, myInfoDataStore: myInfoDataStore)
+        case .setting:
+            EmptyView()
+        case .instruction:
+            EmptyView()
         case .noticeList:
             EmptyView()
         case .notice:
+            EmptyView()
+        case .participant:
+            ParticipantView(userDataStore: userDataStore, participantDataStore: participantDataStore, pathDataStore: pathDataStore)
+        case .QRreader:
+            EmptyView()
+        case .addParicipant:
             EmptyView()
         }
     }

@@ -110,7 +110,7 @@ struct ListsView: View {
                 Label("ルーム名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
             })
             Button(action: {
-                
+                pathDataStore.navigationPath.append(.participant)
             }, label: {
                 Label("メンバーリスト", systemImage: "person.2")
             })
@@ -139,11 +139,11 @@ struct ListsView: View {
                 Label("並び替え", systemImage: "arrow.up.arrow.down")
             }
             Divider()
-            Button(role: .destructive, action: {
-                
-            }, label: {
-                Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
-            })
+//            Button(role: .destructive, action: {
+//                pathDataStore.navigationPath.append(.participant)
+//            }, label: {
+//                Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
+//            })
             Button(role: .destructive, action: {
                 deleteRoomAlertIsPresent = true
             }, label: {
