@@ -8,147 +8,124 @@
 import SwiftUI
 
 struct ListsView: View {
-    @ObservedObject var roomDataStore: RoomDataStore
-    @ObservedObject var listDataStore: ListDataStore
-    @ObservedObject var pathDataStore: PathDataStore
+    @StateObject var userDataStore: UserDataStore = .shared
+    @StateObject var roomDataStore: RoomDataStore = .shared
+    @StateObject var listDataStore: ListDataStore = .shared
+    @StateObject var pathDataStore: PathDataStore = .shared
     
     @State private var newListNameText: String = ""
     @State private var newRoomNameText: String = ""
     @State private var createNewListAlertIsPresent: Bool = false
     @State private var updateRoomNameAlertIsPresent: Bool = false
-    @State private var deleteListAlertIsPresent: Bool = false
     @State private var deleteRoomAlertIsPresent: Bool = false
     
     var body: some View {
         ZStack {
-            if listDataStore.listArray.isEmpty {
-                Text("表示できるリストがありません")
-            } else {
+            BoolSwitchView(isEmpty: listDataStore.listArray.isEmpty, isLoading: $listDataStore.isLoading, contentName: "リスト") {
                 List {
-                    ForEach($listDataStore.listArray, id: \.listId) { list in
-                        ListsViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: list)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
-                                Button(role: .destructive, action: {
-                                    listDataStore.selectedList = list.wrappedValue
-                                    deleteListAlertIsPresent = true
-                                }, label: {
-                                    Image(systemName: "trash")
-                                })
-                            })
+                    ForEach($listDataStore.listArray, id: \.listId) { $list in
+                        ListsViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: $list)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                DeleteButton {
+                                    listDataStore.selectedList = list
+                                    Task { await CustomListRepository.deleteList() }
+                                }
+                            }
                     }
                     .onMove(perform: move)
                 }
                 .listRowSpacing(35)
             }
-            plusButton()
-            if listDataStore.isLoading {
-                ProgressView()
-                    .scaleEffect(2)
+            PlusButton() {
+                newListNameText = ""
+                createNewListAlertIsPresent = true
             }
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing, content: {
+            ToolbarItem(placement: .topBarTrailing) {
+                HelpButton()
+            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            ToolbarItem(placement: .topBarTrailing) {
                 toolBarMenu()
-            })
+            }
         }
-        .alert("リストを追加", isPresented: $createNewListAlertIsPresent, actions: {
+        .alert("リストを追加", isPresented: $createNewListAlertIsPresent) {
             createNewListAlertActions()
-        }, message: {
+        } message: {
             Text("追加するリストの名前を入力してください。")
-        })
-        .alert("ルーム名を変更", isPresented: $updateRoomNameAlertIsPresent, actions: {
+        }
+        .alert("ルーム名を変更", isPresented: $updateRoomNameAlertIsPresent) {
             updateRoomNameAlertActions()
-        }, message: {
+        } message: {
             Text("新しく設定するルーム名を入力してください。")
-        })
-        .alert("本当に\(listDataStore.selectedList?.listName ?? "リスト")を削除しますか？", isPresented: $deleteListAlertIsPresent, actions: {
-            deleteListAlertActions()
-        }, message: {
-            Text("このルームに含まれる全てのメモも削除されます。\nこの操作は取り消すことができません。")
-        })
-        .alert("本当に\(roomDataStore.selectedRoom?.roomName ?? "ルーム")を削除しますか？", isPresented: $deleteRoomAlertIsPresent, actions: {
+        }
+        .alert("本当に\(roomDataStore.selectedRoom?.roomName ?? "このルーム")を削除しますか？", isPresented: $deleteRoomAlertIsPresent) {
             deleteRoomAlertActions()
-        }, message: {
+        } message: {
             Text("このルームに含まれる全てのリスト、メモも削除されます。\nこの操作は取り消すことができません。")
-        })
+        }
         .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             listDataStore.isLoading = true
-            CustomListRepository.observeLists()
-            MemoRepository.clearMemos()
+            CustomListRepository.clearLists()
+            CustomListRepository.observeLists() { listDataStore.isLoading = false }
         }
     }
     func move(fromSources: IndexSet, toDestination: Int) {
         Task { await CustomListRepository.updateListOrders(from: fromSources, to: toDestination) }
     }
-    func plusButton() -> some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: {
-                    newListNameText = ""
-                    createNewListAlertIsPresent = true
-                }, label: {
-                    Image(systemName: "plus")
-                        .foregroundStyle(Color.primary)
-                        .font(.system(size: 30))
-                })
-                .frame(width: 70, height: 70)
-                .glassEffect(.regular.tint(.accentColor))
-                .padding(.trailing, 34)
-            }
-        }
-    }
     func toolBarMenu() -> some View {
         Menu {
-            Button(action: {
+            Button {
                 newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
                 updateRoomNameAlertIsPresent = true
-            }, label: {
+            } label: {
                 Label("ルーム名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
-            })
-            Button(action: {
+            }
+            Button {
                 pathDataStore.navigationPath.append(.participant)
-            }, label: {
+            } label: {
                 Label("メンバーリスト", systemImage: "person.2")
-            })
+            }
             Menu {
-                Button(action: {
+                Button {
                     CustomListRepository.sortLists(basedOn: .ascending)
-                }, label: {
+                } label: {
                     Label("名前昇順", systemImage: "a.circle")
-                })
-                Button(action: {
+                }
+                Button {
                     CustomListRepository.sortLists(basedOn: .descending)
-                }, label: {
+                } label: {
                     Label("名前降順", systemImage: "z.circle")
-                })
-                Button(action: {
+                }
+                Button {
                     CustomListRepository.sortLists(basedOn: .newest)
-                }, label: {
+                } label: {
                     Label("更新日時", systemImage: "clock")
-                })
-                Button(action: {
+                }
+                Button {
                     CustomListRepository.sortLists(basedOn: .custom)
-                }, label: {
+                } label: {
                     Label("カスタム", systemImage: "hand.point.up")
-                })
+                }
             } label: {
                 Label("並び替え", systemImage: "arrow.up.arrow.down")
             }
             Divider()
-//            Button(role: .destructive, action: {
-//                pathDataStore.navigationPath.append(.participant)
-//            }, label: {
-//                Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
-//            })
-            Button(role: .destructive, action: {
+            if isAdministrator() {
+                Button(role: .destructive) {
+                    pathDataStore.navigationPath.append(.participant)
+                } label: {
+                    Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
+                }
+            }
+            Button(role: .destructive) {
                 deleteRoomAlertIsPresent = true
-            }, label: {
+            } label: {
                 Label("ルーム削除", systemImage: "trash")
-            })
+            }
         } label: {
             Image(systemName: "ellipsis.circle")
         }
@@ -156,57 +133,52 @@ struct ListsView: View {
     @ViewBuilder
     func createNewListAlertActions() -> some View {
         TextField("リストの名前を入力", text: $newListNameText)
-        Button(role: .cancel, action: {
+        Button(role: .cancel) {
             newListNameText = ""
-        }, label: {
+        } label: {
             Text("キャンセル")
-        })
-        Button(action: {
+        }
+        Button {
             Task { await CustomListRepository.createList(listName: newListNameText) }
-        }, label: {
+        } label: {
             Text("追加")
-        })
+        }
     }
     @ViewBuilder
     func updateRoomNameAlertActions() -> some View {
         TextField("新しいルーム名を入力", text: $newRoomNameText)
-        Button(role: .cancel, action: {
+        Button(role: .cancel) {
             newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
-        }, label: {
+        } label: {
             Text("キャンセル")
-        })
-        Button(role: .confirm, action: {
+        }
+        Button(role: .confirm) {
             Task { await RoomRepository.updateRoomName(newName: newRoomNameText) }
-        }, label: {
+        } label: {
             Text("変更")
-        })
-    }
-    @ViewBuilder
-    func deleteListAlertActions() -> some View {
-        Button(role: .cancel, action: {}, label: {
-            Text("キャンセル")
-        })
-        Button(role: .destructive, action: {
-            listDataStore.isLoading = true
-            Task { await CustomListRepository.deleteList() }
-        }, label: {
-            Text("削除")
-        })
+        }
     }
     @ViewBuilder
     func deleteRoomAlertActions() -> some View {
-        Button(role: .cancel, action: {}, label: {
+        Button(role: .cancel) {} label: {
             Text("キャンセル")
-        })
-        Button(role: .destructive, action: {
+        }
+        Button(role: .destructive) {
             listDataStore.isLoading = true
             Task { await RoomRepository.deleteRoom() }
-        }, label: {
+        } label: {
             Text("削除")
-        })
+        }
+    }
+    func isAdministrator() -> Bool {
+        guard let myUserId = userDataStore.signInUser?.userId else { return false }
+        guard let authorities = roomDataStore.selectedRoom?.authorities else { return false }
+        guard let myAuthority = authorities.first(where: { $0.userId == myUserId }) else { return false }
+        if myAuthority.authority == .administrator { return true }
+        return false
     }
 }
 
 #Preview {
-    ListsView(roomDataStore: .shared, listDataStore: .shared, pathDataStore: .shared)
+    ListsView()
 }

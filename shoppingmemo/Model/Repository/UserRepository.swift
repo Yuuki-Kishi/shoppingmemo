@@ -108,13 +108,24 @@ class UserRepository {
     //delete
     
     //observe
-    static func observeUserData() {
+    static func observeMyUserData() {
         guard let userId = userDataStore.signInUser?.userId else { return }
         Firestore.firestore().collection("Users").document(userId).addSnapshotListener { documentSnapshot, error in
             do {
                 let user = try documentSnapshot?.data(as: User.self)
                 userDataStore.userResult = .success(user)
                 userDataStore.signInUser = user
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    static func observeUserName(userId: String, onUpdate: @escaping (String?) -> Void) {
+        Firestore.firestore().collection("Users").document(userId).addSnapshotListener { documentSnapshot, error in
+            do {
+                let userName = try documentSnapshot?.data(as: User.self).userName
+                onUpdate(userName)
             } catch {
                 print(error)
             }

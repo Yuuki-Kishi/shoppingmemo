@@ -19,7 +19,8 @@ class MemoDataStore: ObservableObject {
     @Published var nonCheckSort: SortModeEnum = .ascending
     @Published var checkedSort: SortModeEnum = .ascending
     
-    enum SortModeEnum: String {
+    enum SortModeEnum: String, CaseIterable {
         case ascending, descending, newest, custom
     }
+    
 }

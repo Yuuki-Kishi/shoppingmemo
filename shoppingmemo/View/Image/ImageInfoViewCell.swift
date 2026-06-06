@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ImageInfoViewCell: View {
-    @ObservedObject var memoDataStore: MemoDataStore
-    @ObservedObject var imageDataStore: ImageDataStore
+    @StateObject var memoDataStore: MemoDataStore = .shared
+    @StateObject var imageDataStore: ImageDataStore = .shared
     
     @State var cellContent: CellContentEnum
     @State var userName: String = "取得中..."
@@ -26,11 +26,7 @@ struct ImageInfoViewCell: View {
                 .foregroundStyle(.gray)
         }
         .onAppear() {
-            Task {
-                if cellContent == .userName {
-                    userName = await getUserName()
-                }
-            }
+            onAppear()
         }
     }
     func keyString() -> String {
@@ -53,11 +49,14 @@ struct ImageInfoViewCell: View {
             return uploadTime()
         }
     }
-    func getUserName() async -> String {
-        guard let uploadUserId = imageDataStore.attachedImage?.uploadUserId else { return "----" }
-        if uploadUserId == "unknownUserId" { return "----" }
-        guard let userName = await UserRepository.getUserName(userId: uploadUserId) else { return "----" }
-        return userName
+    func onAppear() {
+        if cellContent == .userName {
+            guard let uploadUserId = imageDataStore.attachedImage?.uploadUserId else { userName = "----"; return }
+            UserRepository.observeUserName(userId: uploadUserId) { userName in
+                guard let userName else { return }
+                self.userName = userName
+            }
+        }
     }
     func imageSize() -> String{
         if let imageData = imageDataStore.attachedImage?.imageData {
@@ -82,5 +81,5 @@ struct ImageInfoViewCell: View {
 }
 
 #Preview {
-    ImageInfoViewCell(memoDataStore: .shared, imageDataStore: .shared, cellContent: .userName)
+    ImageInfoViewCell(cellContent: .userName)
 }

@@ -57,4 +57,20 @@ extension Array where Element == Authority {
         }
         return .unknown
     }
+    var administrators: [Element] {
+        self.filter { $0.authority == .administrator }
+    }
+    var members: [Element] {
+        self.filter { $0.authority == .member }
+    }
+    var gusets: [Element] {
+        self.filter { $0.authority == .guest }
+    }
+}
+@MainActor
+extension Authority {
+    var isMine: Bool {
+        guard let userId = UserDataStore.shared.signInUser?.userId else { return false }
+        return self.userId == userId
+    }
 }

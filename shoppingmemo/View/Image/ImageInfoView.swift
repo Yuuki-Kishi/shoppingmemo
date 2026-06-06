@@ -8,19 +8,20 @@
 import SwiftUI
 
 struct ImageInfoView: View {
-    @ObservedObject var memoDataStore: MemoDataStore
-    @ObservedObject var imageDataStore: ImageDataStore
-        
     var body: some View {
         List {
-            ImageInfoViewCell(memoDataStore: memoDataStore, imageDataStore: imageDataStore, cellContent: .userName)
-            ImageInfoViewCell(memoDataStore: memoDataStore, imageDataStore: imageDataStore, cellContent: .imageSize)
-            ImageInfoViewCell(memoDataStore: memoDataStore, imageDataStore: imageDataStore, cellContent: .uploadTime)
+            Section {
+                ImageInfoViewCell(cellContent: .userName)
+                ImageInfoViewCell(cellContent: .imageSize)
+                ImageInfoViewCell(cellContent: .uploadTime)
+            } header: {
+                Text("画像の情報")
+            }
         }
     }
     
 }
 
 #Preview {
-    ImageInfoView(memoDataStore: .shared, imageDataStore: .shared)
+    ImageInfoView()
 }

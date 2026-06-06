@@ -17,6 +17,7 @@ class RoomRepository {
     
     //create
     static func createRoom(roomName: String) async {
+        guard !roomName.isEmpty else { return }
         do {
             guard let userId = userDataStore.signInUser?.userId else { return }
             let room = Room(roomName: roomName, userId: userId)
@@ -54,19 +55,23 @@ class RoomRepository {
     }
     
     //observe
-    static func observeRooms() {
-        guard let userId = userDataStore.signInUser?.userId else { return }
+    static func observeRooms(completion: @escaping () -> Void) {
+        guard let userId = userDataStore.signInUser?.userId else { completion(); return }
         Firestore.firestore().collection("Rooms").whereField("memberIds", arrayContains: userId).addSnapshotListener() { querySnapshot, error in
             do {
-                guard let documentChanges = querySnapshot?.documentChanges else { return }
+                guard let documentChanges = querySnapshot?.documentChanges else {
+                    print("Failed to get documentChanges")
+                    completion()
+                    return
+                }
                 for documentChange in documentChanges {
                     let document = documentChange.document
                     let room = try document.data(as: Room.self)
                     switch documentChange.type {
                     case .added:
-                        roomDataStore.roomArray.append(noDupulicate: room)
+                        roomDataStore.roomArray.append(noDuplicate: room)
                     case .modified:
-                        roomDataStore.roomArray.append(noDupulicate: room)
+                        roomDataStore.roomArray.append(noDuplicate: room)
                         if room.roomId == roomDataStore.selectedRoom?.roomId {
                             roomDataStore.selectedRoom = room
                         }
@@ -79,9 +84,10 @@ class RoomRepository {
                     }
                 }
                 roomDataStore.roomArray.sort { $0.lastUpdateTime > $1.lastUpdateTime }
-                roomDataStore.isLoading = false
+                completion()
             } catch {
                 print(error)
+                completion()
             }
         }
     }

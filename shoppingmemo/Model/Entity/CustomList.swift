@@ -90,7 +90,7 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
 }
 
 extension Array where Element == CustomList {
-    mutating func append(noDupulicate list: Element) {
+    mutating func append(noDuplicate list: Element) {
         if let index = self.firstIndex(of: list) {
             self[index] = list
         } else {

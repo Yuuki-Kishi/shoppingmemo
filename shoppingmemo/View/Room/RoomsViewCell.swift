@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct RoomsViewCell: View {
-    @ObservedObject var roomDataStore: RoomDataStore
-    @ObservedObject var pathDataStore: PathDataStore
+    @StateObject var roomDataStore: RoomDataStore = .shared
+    @StateObject var pathDataStore: PathDataStore = .shared
     @Binding var room: Room
-    @State var lastUpdateUserName: String = "取得中..."
+    @State var lastUpdateUserName: String = "----"
     
     var body: some View {
         HStack {
@@ -40,7 +40,11 @@ struct RoomsViewCell: View {
             roomDataStore.selectedRoom = room
             pathDataStore.navigationPath.append(.lists)
         }
-        .task { lastUpdateUserName = await lastUpdateUserName() }
+        .onAppear() {
+            UserRepository.observeUserName(userId: room.lastUpdateUserId) { userName in
+                lastUpdateUserName = userName ?? "----"
+            }
+        }
     }
     func roomName() -> String {
         if room.authorities.mine == .guest {
@@ -54,13 +58,6 @@ struct RoomsViewCell: View {
         dateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
         return dateFormatter.string(from: room.lastUpdateTime)
     }
-    func lastUpdateUserName() async -> String {
-        if let user = await UserRepository.getUserData(userId: room.lastUpdateUserId) {
-            return user.userName
-        } else {
-            return "エラー"
-        }
-    }
     func cellColor() -> Color? {
         if room.authorities.mine == .guest { return .orange }
         return nil
@@ -68,5 +65,5 @@ struct RoomsViewCell: View {
 }
 
 #Preview {
-    RoomsViewCell(roomDataStore: .shared, pathDataStore: .shared, room: Binding(get: { Room() }, set: {_ in}))
+    RoomsViewCell(room: Binding(get: { Room() }, set: {_ in}))
 }

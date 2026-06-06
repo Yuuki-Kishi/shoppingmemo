@@ -62,7 +62,6 @@ class CustomImageRepository {
             guard let uploadTime = metadata.updated else { return }
             let uploadUserId = metadata.customMetadata?["uploadUserId"] ?? "unknownUserId"
             imageDataStore.attachedImage = CustomImage(imageUrl: imageUrl, imageData: imageData, uploadTime: uploadTime, uploadUserId: uploadUserId)
-            imageDataStore.isLoading = false
         } catch {
             print(error)
         }
@@ -84,30 +83,30 @@ class CustomImageRepository {
     }
     
     //observe
-    static func observeImageUrl() {
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-        guard let listId = listDataStore.selectedList?.listId else { return }
-        guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
-        Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).addSnapshotListener() { DataSnapshot, error in
-            do {
-                guard let newMemo = try DataSnapshot?.data(as: Memo.self) else { return }
-                if let previousImage = imageDataStore.attachedImage {
-                    if previousImage.imageUrl != newMemo.imageUrl {
-                        imageDataStore.isLoading = true
-                        Task { await getImage(imageUrl: newMemo.imageUrl) }
-                    }
-                } else {
-                    if newMemo.imageUrl == "default" {
-                        imageDataStore.isLoading = false
-                    } else {
-                        imageDataStore.isLoading = true
-                        Task { await getImage(imageUrl: newMemo.imageUrl) }
-                    }
-                }
-                
-            } catch {
-                print(error)
-            }
-        }
-    }
+//    static func observeImageUrl() {
+//        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+//        guard let listId = listDataStore.selectedList?.listId else { return }
+//        guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
+//        Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).addSnapshotListener() { DataSnapshot, error in
+//            do {
+//                guard let newMemo = try DataSnapshot?.data(as: Memo.self) else { return }
+//                if let previousImage = imageDataStore.attachedImage {
+//                    if previousImage.imageUrl != newMemo.imageUrl {
+//                        imageDataStore.isLoading = true
+//                        Task { await getImage(imageUrl: newMemo.imageUrl) }
+//                    }
+//                } else {
+//                    if newMemo.imageUrl == "default" {
+//                        imageDataStore.isLoading = false
+//                    } else {
+//                        imageDataStore.isLoading = true
+//                        Task { await getImage(imageUrl: newMemo.imageUrl) }
+//                    }
+//                }
+//                
+//            } catch {
+//                print(error)
+//            }
+//        }
+//    }
 }

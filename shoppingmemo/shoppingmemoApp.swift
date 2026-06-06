@@ -15,11 +15,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         
         return true
     }
-    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) -> Bool {
-        return GIDSignIn.sharedInstance.handle(url)
-    }
 }
-
 
 @main
 struct shoppingmemoApp: App {
@@ -28,6 +24,9 @@ struct shoppingmemoApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
     }
 }

@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct MemosView: View {
-    @ObservedObject var listDataStore: ListDataStore
-    @ObservedObject var memoDataStore: MemoDataStore
-    @ObservedObject var pathDataStore: PathDataStore
+    @StateObject var listDataStore: ListDataStore = .shared
+    @StateObject var memoDataStore: MemoDataStore = .shared
+    @StateObject var pathDataStore: PathDataStore = .shared
     
     @State private var newMemoNameText: String = ""
     @State private var newListNameText: String = ""
@@ -19,21 +19,17 @@ struct MemosView: View {
     
     var body: some View {
         ZStack {
-            if isShowNoDataLabel() {
-                Text("表示できるメモがありません")
-            } else {
+            BoolSwitchView(isEmpty: isShowNoDataLabel(), isLoading: isLoading(), contentName: "メモ") {
                 List {
-                    if !memoDataStore.nonCheckMemoArray.isEmpty {
+                    BoolSwitchView(isEmpty: memoDataStore.nonCheckMemoArray.isEmpty) {
                         Section {
-                            ForEach($memoDataStore.nonCheckMemoArray, id:\.memoId) { memo in
-                                MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false, content: {
-                                        Button(role: .destructive, action: {
-                                            nonCheckDelete(memoId: memo.memoId.wrappedValue)
-                                        }, label: {
-                                            Image(systemName: "trash")
-                                        })
-                                    })
+                            ForEach($memoDataStore.nonCheckMemoArray, id:\.memoId) { $memo in
+                                MemosViewCell(memo: $memo)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        DeleteButton {
+                                            nonCheckDelete(memoId: memo.memoId)
+                                        }
+                                    }
                             }
                             .onMove(perform: nonCheckMove)
                         } header: {
@@ -41,17 +37,15 @@ struct MemosView: View {
                                 .frame(height: 80, alignment: .bottom)
                         }
                     }
-                    if !memoDataStore.checkedMemoArray.isEmpty && memoDataStore.isShowChecked {
+                    BoolSwitchView(isEmpty: memoDataStore.checkedMemoArray.isEmpty || !memoDataStore.isShowChecked) {
                         Section {
-                            ForEach($memoDataStore.checkedMemoArray, id:\.id) { memo in
-                                MemosViewCell(memoDataStore: memoDataStore, pathDataStore: pathDataStore, memo: memo)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: true, content: {
-                                        Button(role: .destructive, action: {
-                                            checkedDelete(memoId: memo.memoId.wrappedValue)
-                                        }, label: {
-                                            Image(systemName: "trash")
-                                        })
-                                    })
+                            ForEach($memoDataStore.checkedMemoArray, id:\.id) { $memo in
+                                MemosViewCell(memo: $memo)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        DeleteButton {
+                                            checkedDelete(memoId: memo.memoId)
+                                        }
+                                    }
                             }
                             .onMove(perform: checkedMove)
                         } header: {
@@ -61,45 +55,45 @@ struct MemosView: View {
                     }
                 }
             }
-            VStack {
-                TextField("アイテムを追加", text: $newMemoNameText, onCommit: {
-                    textFieldDidEdit()
-                })
-                .padding()
-                .glassEffect(.regular.tint(.accentColor))
-                .padding(.horizontal)
-                Spacer()
-            }
-            if memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading {
-                ProgressView()
-                    .scaleEffect(2)
+            ClearTextField(text: $newMemoNameText) {
+                Task {
+                    await MemoRepository.createMemo(memoName: newMemoNameText)
+                    newMemoNameText = ""
+                }
             }
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing, content: {
+            ToolbarItem(placement: .topBarTrailing) {
+                HelpButton()
+            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            ToolbarItem(placement: .topBarTrailing) {
                 toolBarMenu()
-            })
+            }
         }
-        .alert("リスト名を変更", isPresented: $renameListAlertIsPresent, actions: {
+        .alert("リスト名を変更", isPresented: $renameListAlertIsPresent) {
             renameListAlertActions()
-        }, message: {
+        } message: {
             Text("新しいリスト名を入力してください。")
-        })
-        .alert("本当に完了済を全て削除しますか？", isPresented: $deleteCheckedMemosAlertIsPresent, actions: {
+        }
+        .alert("本当に完了済を全て削除しますか？", isPresented: $deleteCheckedMemosAlertIsPresent) {
             deleteCheckedMemosAlertActions()
-        }, message: {
+        } message: {
             Text("この操作は取り消すことができません。")
-        })
+        }
         .navigationTitle(listDataStore.selectedList?.listName ?? "不明なリスト")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
-            memoDataStore.isShowChecked = UserDefaultsRepository.get(Bool.self, key: "isShowChecked") ?? true
-            memoDataStore.nonCheckMemoIsLoading = true
-            memoDataStore.checkedMemoIsLoading = true
-            MemoRepository.observeNonCheckMemos()
-            MemoRepository.observeCheckedMemos()
-            CustomImageRepository.clearImage()
+            onAppear()
         }
+    }
+    func isShowNoDataLabel() -> Bool {
+        if memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.checkedMemoArray.isEmpty { return true }
+        if memoDataStore.nonCheckMemoArray.isEmpty && !memoDataStore.isShowChecked { return true }
+        return false
+    }
+    func isLoading() -> Binding<Bool> {
+        Binding(get: { memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading }, set: {_ in})
     }
     func nonCheckMove(fromSources: IndexSet, toDestination: Int) {
         Task { await MemoRepository.updateNonCheckOrders(from: fromSources, to: toDestination) }
@@ -115,134 +109,154 @@ struct MemosView: View {
         memoDataStore.checkedMemoIsLoading = true
         Task { await MemoRepository.deleteMemo(memoId: memoId) }
     }
-    func textFieldDidEdit() {
-        Task {
-            await MemoRepository.createMemo(memoName: newMemoNameText)
-            newMemoNameText = ""
-        }
+    func checkedMemosHeight() -> CGFloat {
+        memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.isShowChecked ? 80 : 0
     }
     func toolBarMenu() -> some View {
         Menu {
-            Button(action: {
+            Button {
                 newListNameText = listDataStore.selectedList?.listName ?? ""
                 renameListAlertIsPresent = true
-            }, label: {
+            } label: {
                 Label("リスト名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
-            })
+            }
             if memoDataStore.isShowChecked {
-                Button(action: {
+                Button {
                     memoDataStore.isShowChecked = false
-                }, label: {
+                } label: {
                     Label("完了済を非表示", systemImage: "eye.slash")
-                })
+                }
             } else {
-                Button(action: {
+                Button {
                     memoDataStore.isShowChecked = true
-                }, label: {
+                } label: {
                     Label("完了済を表示", systemImage: "eye")
-                })
+                }
             }
             Menu {
-                Menu {
-                    Button(action: {
-                        MemoRepository.sortNonCheckMemos(basedOn: .ascending)
-                    }, label: {
-                        Label("名前昇順", systemImage: "a.circle")
-                    })
-                    Button(action: {
-                        MemoRepository.sortNonCheckMemos(basedOn: .descending)
-                    }, label: {
-                        Label("名前降順", systemImage: "z.circle")
-                    })
-                    Button(action: {
-                        MemoRepository.sortNonCheckMemos(basedOn: .newest)
-                    }, label: {
-                        Label("更新日時", systemImage: "clock")
-                    })
-                    Button(action: {
-                        MemoRepository.sortNonCheckMemos(basedOn: .custom)
-                    }, label: {
-                        Label("カスタム", systemImage: "hand.point.up")
-                    })
+                Button {
+                    MemoRepository.sortNonCheckMemos(basedOn: MemoDataStore.SortModeEnum.ascending)
                 } label: {
-                    Text("未完了を並べ替え")
+                    ToggleLabel(title: "タイトル昇順", systemImage: "a.circle") {
+                        memoDataStore.nonCheckSort == .ascending
+                    }
                 }
-                Menu {
-                    Button(action: {
-                        MemoRepository.sortCheckedMemos(basedOn: .ascending)
-                    }, label: {
-                        Label("名前昇順", systemImage: "a.circle")
-                    })
-                    Button(action: {
-                        MemoRepository.sortCheckedMemos(basedOn: .descending)
-                    }, label: {
-                        Label("名前降順", systemImage: "z.circle")
-                    })
-                    Button(action: {
-                        MemoRepository.sortCheckedMemos(basedOn: .newest)
-                    }, label: {
-                        Label("更新日時", systemImage: "clock")
-                    })
-                    Button(action: {
-                        MemoRepository.sortCheckedMemos(basedOn: .custom)
-                    }, label: {
-                        Label("カスタム", systemImage: "hand.point.up")
-                    })
+                Button {
+                    MemoRepository.sortNonCheckMemos(basedOn: MemoDataStore.SortModeEnum.descending)
                 } label: {
-                    Text("完了済を並べ替え")
+                    ToggleLabel(title: "タイトル降順", systemImage: "z.circle") {
+                        memoDataStore.nonCheckSort == .descending
+                    }
+                }
+                Button {
+                    MemoRepository.sortNonCheckMemos(basedOn: MemoDataStore.SortModeEnum.newest)
+                } label: {
+                    ToggleLabel(title: "更新日時", systemImage: "clock") {
+                        memoDataStore.nonCheckSort == .newest
+                    }
+                }
+                Button {
+                    MemoRepository.sortNonCheckMemos(basedOn: MemoDataStore.SortModeEnum.custom)
+                } label: {
+                    ToggleLabel(title: "カスタム", systemImage: "hand.point.up") {
+                        memoDataStore.nonCheckSort == .custom
+                    }
+                }
+
+            } label: {
+                Text("未完了を並べ替え")
+            }
+            Menu {
+                Button {
+                    MemoRepository.sortCheckedMemos(basedOn: MemoDataStore.SortModeEnum.ascending)
+                } label: {
+                    ToggleLabel(title: "タイトル昇順", systemImage: "a.circle") {
+                        memoDataStore.checkedSort == .ascending
+                    }
+                }
+                Button {
+                    MemoRepository.sortCheckedMemos(basedOn: MemoDataStore.SortModeEnum.descending)
+                } label: {
+                    ToggleLabel(title: "タイトル降順", systemImage: "z.circle") {
+                        memoDataStore.checkedSort == .descending
+                    }
+                }
+                Button {
+                    MemoRepository.sortCheckedMemos(basedOn: MemoDataStore.SortModeEnum.newest)
+                } label: {
+                    ToggleLabel(title: "更新日時", systemImage: "clock") {
+                        memoDataStore.checkedSort == .newest
+                    }
+                }
+                Button {
+                    MemoRepository.sortCheckedMemos(basedOn: MemoDataStore.SortModeEnum.custom)
+                } label: {
+                    ToggleLabel(title: "カスタム", systemImage: "hand.point.up") {
+                        memoDataStore.checkedSort == .custom
+                    }
                 }
             } label: {
-                Label("並び替え", systemImage: "arrow.up.arrow.down")
+                Text("完了済を並べ替え")
             }
             Divider()
-            Button(role: .destructive, action: {
+            Button(role: .destructive) {
                 deleteCheckedMemosAlertIsPresent = true
-            }, label: {
+            } label: {
                 Label("完了項目を削除", systemImage: "trash")
-            })
+            }
         } label: {
             Image(systemName: "ellipsis.circle")
         }
     }
-    func isShowNoDataLabel() -> Bool {
-        if memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.checkedMemoArray.isEmpty { return true }
-        if memoDataStore.nonCheckMemoArray.isEmpty && !memoDataStore.isShowChecked { return true }
-        return false
-    }
     @ViewBuilder
     func renameListAlertActions() -> some View {
         TextField("新しいリスト名を入力", text: $newListNameText)
-        Button(role: .cancel, action: {
+        Button(role: .cancel) {
             newListNameText = ""
-        }, label: {
+        } label: {
             Text("キャンセル")
-        })
-        Button(role: .confirm, action: {
+        }
+        Button(role: .confirm) {
             Task {
                 await CustomListRepository.updateListName(newName: newListNameText)
                 newListNameText = ""
             }
-        }, label: {
+        } label: {
             Text("変更")
-        })
+        }
     }
     @ViewBuilder
     func deleteCheckedMemosAlertActions() -> some View {
-        Button(role: .cancel, action: {}, label: {
+        Button(role: .cancel) {} label: {
             Text("キャンセル")
-        })
-        Button(role: .destructive, action: {
+        }
+        Button(role: .destructive) {
             memoDataStore.checkedMemoIsLoading = true
             Task { await MemoRepository.deleteCheckedMemos() }
-        }, label: {
+        } label: {
             Text("削除")
-        })
+        }
     }
-    func checkedMemosHeight() -> CGFloat {
-        memoDataStore.nonCheckMemoArray.isEmpty && memoDataStore.isShowChecked ? 80 : 0
+    func onAppear() {
+        memoDataStore.isShowChecked = UserDefaultsRepository.get(Bool.self, key: "isShowChecked") ?? true
+        let nonCheckSortString = UserDefaultsRepository.get(String.self, key: "nonCheckSort") ?? "ascending"
+        memoDataStore.nonCheckSort = MemoDataStore.SortModeEnum(rawValue: nonCheckSortString) ?? .ascending
+        let checkedSortString = UserDefaultsRepository.get(String.self, key: "checkedSort") ?? "ascending"
+        memoDataStore.checkedSort = MemoDataStore.SortModeEnum(rawValue: checkedSortString) ?? .ascending
+        memoDataStore.nonCheckMemoIsLoading = true
+        memoDataStore.checkedMemoIsLoading = true
+        MemoRepository.clearMemos()
+        MemoRepository.observeNonCheckMemos() { memoDataStore.nonCheckMemoIsLoading = false }
+        MemoRepository.observeCheckedMemos() { memoDataStore.checkedMemoIsLoading = false }
+    }
+    func nonCheckSortToggleIsOn(sortMode: MemoDataStore.SortModeEnum) -> Bool {
+        memoDataStore.nonCheckSort == sortMode
+    }
+    func checkedSortToggleIsOn(sortMode: MemoDataStore.SortModeEnum) -> Bool {
+        memoDataStore.checkedSort == sortMode
     }
 }
 
 #Preview {
-    MemosView(listDataStore: .shared, memoDataStore: .shared, pathDataStore: .shared)
+    MemosView()
 }

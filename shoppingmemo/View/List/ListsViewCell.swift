@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ListsViewCell: View {
-    @ObservedObject var listDataStore: ListDataStore
-    @ObservedObject var pathDataStore: PathDataStore
+    @StateObject var listDataStore: ListDataStore = .shared
+    @StateObject var pathDataStore: PathDataStore = .shared
     @Binding var list: CustomList
     
     var body: some View {
@@ -30,5 +30,5 @@ struct ListsViewCell: View {
 }
 
 #Preview {
-    ListsViewCell(listDataStore: .shared, pathDataStore: .shared, list: Binding(get: { CustomList() }, set: {_ in}))
+    ListsViewCell(list: Binding(get: { CustomList() }, set: {_ in}))
 }

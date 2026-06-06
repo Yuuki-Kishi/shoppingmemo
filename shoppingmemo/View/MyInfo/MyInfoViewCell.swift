@@ -10,8 +10,8 @@ import FirebaseAuth
 import CoreImage.CIFilterBuiltins
 
 struct MyInfoViewCell: View {
-    @ObservedObject var userDataStore: UserDataStore
-    @ObservedObject var myInfoDataStore: MyInfoDataStore
+    @StateObject var userDataStore: UserDataStore = .shared
+    @StateObject var myInfoDataStore: MyInfoDataStore = .shared
     @State var itemType: ItemTypeEnum
     
     enum ItemTypeEnum {
@@ -147,5 +147,5 @@ struct MyInfoViewCell: View {
 }
 
 #Preview {
-    MyInfoViewCell(userDataStore: .shared, myInfoDataStore: .shared, itemType: .QR)
+    MyInfoViewCell(itemType: .QR)
 }

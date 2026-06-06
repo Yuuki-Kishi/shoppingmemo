@@ -8,47 +8,45 @@
 import SwiftUI
 
 struct MemosViewCell: View {
-    @ObservedObject var memoDataStore: MemoDataStore
-    @ObservedObject var pathDataStore: PathDataStore
+    @StateObject var memoDataStore: MemoDataStore = .shared
+    @StateObject var pathDataStore: PathDataStore = .shared
     @Binding var memo: Memo
     
     var body: some View {
         HStack {
-            Button(action: {
+            Button {
                 Task { await MemoRepository.updateIsChecked(memo: memo) }
-            }, label: {
+            } label: {
                 Image(systemName: checkMarkImageName())
                     .font(.system(size: 20))
                     .foregroundStyle(Color.primary)
-            })
+                    .frame(width: 30, height: 30)
+            }
             .buttonStyle(.plain)
-            Button(action: {
+            Button {
                 print("updateMemo")
-            }, label: {
+            } label: {
                 Text(memo.memoName)
                     .lineLimit(1)
                     .font(.system(size: 25))
                     .foregroundStyle(Color.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
-            })
+            }
             .buttonStyle(.plain)
-            Button(action: {
+            Button {
                 memoDataStore.selectedMemo = memo
                 pathDataStore.navigationPath.append(.image)
-            }, label: {
+            } label: {
                 Image(systemName: imageMarkImageName())
                     .font(.system(size: 25))
                     .foregroundStyle(Color.primary)
-            })
+                    .frame(width: 30, height: 30)
+            }
             .buttonStyle(.plain)
         }
     }
     func checkMarkImageName() -> String {
-        if memo.isChecked {
-            return "checkmark.square"
-        } else {
-            return "square"
-        }
+        memo.isChecked ? "checkmark.square" : "square"
     }
     func imageMarkImageName() -> String {
         if memo.imageUrl == "default" || memo.imageUrl == "unknown" {
@@ -60,5 +58,5 @@ struct MemosViewCell: View {
 }
 
 #Preview {
-    MemosViewCell(memoDataStore: .shared, pathDataStore: .shared, memo: Binding(get: { Memo() }, set: {_ in}))
+    MemosViewCell(memo: Binding(get: { Memo() }, set: {_ in}))
 }

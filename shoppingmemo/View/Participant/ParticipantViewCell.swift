@@ -8,34 +8,34 @@
 import SwiftUI
 
 struct ParticipantViewCell: View {
-    @ObservedObject var userDataStore: UserDataStore
-    @Binding var participant: Participant
+    @Binding var authority: Authority
+    @State var userName: String = "----"
+    @State var email: String = "----"
     
     var body: some View {
         HStack {
-            Text(participant.userName ?? "----")
+            Text(userName)
                 .lineLimit(1)
                 .foregroundStyle(userNameTextColor())
                 .frame(alignment: .leading)
             Spacer()
-            Text(participant.email ?? "----")
+            Text(email)
                 .lineLimit(1)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .onAppear() {
-            ParticipantRepository.observeUserData(userId: participant.userId, authority: participant.authority)
+            UserRepository.observeUserName(userId: authority.userId) { userName in
+                self.userName = userName ?? "----"
+            }
+            Task { email = await UserRepository.getUserData(userId: authority.userId)?.email ?? "----" }
         }
     }
     func userNameTextColor() -> Color {
-        guard let myUserId = userDataStore.signInUser?.userId else { return .primary }
-        if participant.userId == myUserId {
-            return .green
-        }
-        return .primary
+        authority.isMine ? Color.green : Color.primary
     }
 }
 
 #Preview {
-    ParticipantViewCell(userDataStore: .shared, participant: Binding(get: { Participant() }, set: {_ in}))
+    ParticipantViewCell(authority: Binding(get: { Authority() }, set: {_ in}))
 }

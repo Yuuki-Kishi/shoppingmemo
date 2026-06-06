@@ -8,9 +8,8 @@
 import SwiftUI
 
 struct ParticipantView: View {
-    @ObservedObject var userDataStore: UserDataStore
-    @ObservedObject var participantDataStore: ParticipantDataStore
-    @ObservedObject var pathDataStore: PathDataStore
+    @StateObject var roomDataStore: RoomDataStore = .shared
+    @StateObject var pathDataStore: PathDataStore = .shared
     
     @State private var addParticipantAlertIsPresented: Bool = false
     @State private var addParticipantByUserIdAlertIsPresented: Bool = false
@@ -18,34 +17,65 @@ struct ParticipantView: View {
     
     var body: some View {
         ZStack {
-            List {
-                Section(content: {
-                    ForEach($participantDataStore.administrators, id: \.userId) { participant in
-                        ParticipantViewCell(userDataStore: userDataStore, participant: participant)
+            BoolSwitchView(optional: roomDataStore.selectedRoom) { selectedRoom in
+                List {
+                    Section {
+                        ForEach(selectedRoom.authorities.administrators, id: \.userId) { authority in
+                            ParticipantViewCell(authority: authority)
+                        }
+                    } header: {
+                        Text("管理者")
                     }
-                }, header: {
-                    Text("管理者")
-                })
-                if !participantDataStore.members.isEmpty {
-                    Section(content: {
-                        ForEach($participantDataStore.members, id: \.userId) { participant in
-                            ParticipantViewCell(userDataStore: userDataStore, participant: participant)
+                    BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.members.isEmpty) {
+                        Section {
+                            ForEach($roomDataStore.selectedRoom?.authorities.members, id: \.userId) { authority in
+                                ParticipantViewCell(authority: authority)
+                            }
+                        } header: {
+                            Text("メンバー")
                         }
-                    }, header: {
-                        Text("メンバー")
-                    })
-                }
-                if !participantDataStore.guests.isEmpty {
-                    Section(content: {
-                        ForEach($participantDataStore.guests, id: \.userId) { participant in
-                            ParticipantViewCell(userDataStore: userDataStore, participant: participant)
+                    }
+                    BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.guests.isEmpty) {
+                        Section {
+                            ForEach($roomDataStore.selectedRoom?.authorities.guests, id: \.userId) { authority in
+                                ParticipantViewCell(authority: authority)
+                            }
+                        } header: {
+                            Text("ゲスト")
                         }
-                    }, header: {
-                        Text("ゲスト")
-                    })
+                    }
                 }
             }
-            plusButton()
+            List {
+                Section {
+                    ForEach($roomDataStore.selectedRoom?.authorities.administrators, id: \.userId) { authority in
+                        ParticipantViewCell(authority: authority)
+                    }
+                } header: {
+                    Text("管理者")
+                }
+                BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.members.isEmpty) {
+                    Section {
+                        ForEach($roomDataStore.selectedRoom?.authorities.members, id: \.userId) { authority in
+                            ParticipantViewCell(authority: authority)
+                        }
+                    } header: {
+                        Text("メンバー")
+                    }
+                }
+                BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.guests.isEmpty) {
+                    Section {
+                        ForEach($roomDataStore.selectedRoom?.authorities.guests, id: \.userId) { authority in
+                            ParticipantViewCell(authority: authority)
+                        }
+                    } header: {
+                        Text("ゲスト")
+                    }
+                }
+            }
+            PlusButton {
+                addParticipantAlertIsPresented = true
+            }
         }
         .alert("メンバーを追加", isPresented: $addParticipantAlertIsPresented, actions: {
             addParticipantAlertActions()
@@ -59,25 +89,6 @@ struct ParticipantView: View {
         })
         .onAppear() {
             ParticipantRepository.observeRoomParticipants()
-        }
-    }
-    func plusButton() -> some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: {
-                    addParticipantAlertIsPresented = true
-                }, label: {
-                    Image(systemName: "plus")
-                        .foregroundStyle(Color.primary)
-                        .font(.system(size: 30))
-                        .frame(width: 70, height: 70)
-                        .background(Color("AccentColor"))
-                        .clipShape(Circle())
-                })
-                .padding(.trailing, 34)
-            }
         }
     }
     @ViewBuilder

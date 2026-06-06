@@ -8,12 +8,8 @@
 import SwiftUI
 
 struct RoomsView: View {
-    @ObservedObject var userDataStore: UserDataStore
+    @StateObject var userDataStore: UserDataStore = .shared
     @StateObject var roomDataStore: RoomDataStore = .shared
-    @StateObject var listDataStore: ListDataStore = .shared
-    @StateObject var memoDataStore: MemoDataStore = .shared
-    @StateObject var imageDataStore: ImageDataStore = .shared
-    @StateObject var myInfoDataStore: MyInfoDataStore = .shared
     @StateObject var participantDataStore: ParticipantDataStore = .shared
     @StateObject var pathDataStore: PathDataStore = .shared
     
@@ -24,35 +20,36 @@ struct RoomsView: View {
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             ZStack {
-                if roomDataStore.roomArray.isEmpty {
-                    Text("表示できるルームがありません")
-                } else {
+                BoolSwitchView(isEmpty: roomDataStore.roomArray.isEmpty, isLoading: $roomDataStore.isLoading, contentName: "ルーム") {
                     List($roomDataStore.roomArray, id: \.roomId) { room in
-                        RoomsViewCell(roomDataStore: roomDataStore, pathDataStore: pathDataStore, room: room)
+                        RoomsViewCell(room: room)
                     }
                     .listRowSpacing(35)
                 }
-                plusButton()
-                if roomDataStore.isLoading {
-                    ProgressView()
-                        .scaleEffect(2)
+                PlusButton() {
+                    newRoomNameText = ""
+                    newRoomCreateAlertIsPresented = true
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing, content: {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HelpButton()
+                }
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                ToolbarItem(placement: .topBarTrailing) {
                     toolBarMenu()
-                })
+                }
             }
-            .alert("ルームを新規作成", isPresented: $newRoomCreateAlertIsPresented, actions: {
+            .alert("ルームを新規作成", isPresented: $newRoomCreateAlertIsPresented) {
                 newRoomCreateAlertActions()
-            }, message: {
+            } message: {
                 Text("新規作成するルームの名前を入力してください。")
-            })
-            .alert("本当にサインアウトしますか？", isPresented: $signOutAlertIsPresented, actions: {
+            }
+            .alert("本当にサインアウトしますか？", isPresented: $signOutAlertIsPresented) {
                 signOutAlertActions()
-            }, message: {
+            } message: {
                 Text("サインアウトすると、再度利用する際にサインインが必要になります。")
-            })
+            }
             .navigationDestination(for: PathDataStore.path.self) { path in
                 destination(path: path)
             }
@@ -60,8 +57,9 @@ struct RoomsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear() {
                 roomDataStore.isLoading = true
-                RoomRepository.observeRooms()
-                CustomListRepository.clearLists()
+                RoomRepository.observeRooms() {
+                    roomDataStore.isLoading = false
+                }
             }
         }
     }
@@ -69,13 +67,13 @@ struct RoomsView: View {
     func destination(path: PathDataStore.path) -> some View {
         switch path {
         case .lists:
-            ListsView(roomDataStore: roomDataStore, listDataStore: listDataStore, pathDataStore: pathDataStore)
+            ListsView()
         case .memos:
-            MemosView(listDataStore: listDataStore, memoDataStore: memoDataStore, pathDataStore: pathDataStore)
+            MemosView()
         case .image:
-            ImageView(memoDataStore: memoDataStore, imageDataStore: imageDataStore, pathDataStore: pathDataStore)
+            ImageView()
         case .myInfo:
-            MyInfoView(userDataStore: userDataStore, myInfoDataStore: myInfoDataStore)
+            MyInfoView()
         case .setting:
             EmptyView()
         case .instruction:
@@ -92,53 +90,29 @@ struct RoomsView: View {
             EmptyView()
         }
     }
-    func plusButton() -> some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Button(action: {
-                    newRoomCreateAlertIsPresented = true
-                }, label: {
-                    Image(systemName: "plus")
-                        .foregroundStyle(Color.primary)
-                        .font(.system(size: 30))
-                        .frame(width: 70, height: 70)
-                        .background(Color("AccentColor"))
-                        .clipShape(Circle())
-                })
-                .padding(.trailing, 34)
-            }
-        }
-    }
     func toolBarMenu() -> some View {
         Menu {
-            Button(action: {
+            Button {
                 pathDataStore.navigationPath.append(.myInfo)
-            }, label: {
+            } label: {
                 Label("マイページ", systemImage: "info.circle")
-            })
-            Button(action: {
+            }
+            Button {
                 
-            }, label: {
-                Label("設定", systemImage: "switch.2")
-            })
-            Button(action: {
+            } label: {
+                Label("設定", systemImage: "gear")
+            }
+            Button {
                 
-            }, label: {
+            } label: {
                 Label("通知一覧", systemImage: "bell")
-            })
-            Button(action: {
-                
-            }, label: {
-                Label("操作説明", systemImage: "questionmark.circle")
-            })
+            }
             Divider()
-            Button(role: .destructive, action: {
+            Button(role: .destructive) {
                 signOutAlertIsPresented = true
-            }, label: {
-                Label("サインアウト", systemImage: "door.right.hand.open")
-            })
+            } label: {
+                Text("サインアウト")
+            }
         } label: {
             Image(systemName: "ellipsis.circle")
                 .foregroundStyle(Color.primary)
@@ -147,28 +121,28 @@ struct RoomsView: View {
     @ViewBuilder
     func newRoomCreateAlertActions() -> some View {
         TextField("ルームの名前を入力", text: $newRoomNameText)
-        Button(role: .cancel, action: {}, label: {
+        Button(role: .cancel) {} label: {
             Text("キャンセル")
-        })
-        Button(role: .confirm, action: {
+        }
+        Button(role: .confirm) {
             Task { await RoomRepository.createRoom(roomName: newRoomNameText) }
-        }, label: {
+        } label: {
             Text("作成")
-        })
+        }
     }
     @ViewBuilder
     func signOutAlertActions() -> some View {
-        Button(role: .cancel, action: {}, label: {
+        Button(role: .cancel) {} label: {
             Text("キャンセル")
-        })
-        Button(role: .destructive, action: {
+        }
+        Button(role: .destructive) {
             Task { await AuthRepository.signOut() }
-        }, label: {
+        } label: {
             Text("サインアウト")
-        })
+        }
     }
 }
 
 #Preview {
-    RoomsView(userDataStore: .shared)
+    RoomsView()
 }
