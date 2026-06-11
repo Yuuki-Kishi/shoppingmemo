@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct RoomsViewCell: View {
-    @StateObject var roomDataStore: RoomDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    @Binding var room: Room
-    @State var lastUpdateUserName: String = "----"
+    @EnvironmentObject private var roomDataStore: RoomDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
+    private let room: Room
+    @State private var lastUpdateUserName: String = "----"
+    
+    init(room: Room) {
+        self.room = room
+    }
     
     var body: some View {
         HStack {
@@ -37,7 +41,7 @@ struct RoomsViewCell: View {
         .contentShape(Rectangle())
         .listRowBackground(cellColor())
         .onTapGesture {
-            roomDataStore.selectedRoom = room
+            roomDataStore.selectedRoomId = room.roomId
             pathDataStore.navigationPath.append(.lists)
         }
         .onAppear() {
@@ -65,5 +69,5 @@ struct RoomsViewCell: View {
 }
 
 #Preview {
-    RoomsViewCell(room: Binding(get: { Room() }, set: {_ in}))
+    RoomsViewCell(room: Room())
 }

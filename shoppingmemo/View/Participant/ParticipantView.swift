@@ -8,74 +8,48 @@
 import SwiftUI
 
 struct ParticipantView: View {
-    @StateObject var roomDataStore: RoomDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    
+    @EnvironmentObject private var roomDataStore: RoomDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var addParticipantAlertIsPresented: Bool = false
     @State private var addParticipantByUserIdAlertIsPresented: Bool = false
     @State private var addParticipantUserId: String = ""
     
     var body: some View {
-        ZStack {
-            BoolSwitchView(optional: roomDataStore.selectedRoom) { selectedRoom in
+        OptionalUnwrapView(optional: roomDataStore.roomArray.selected) { room in
+            ZStack {
                 List {
                     Section {
-                        ForEach(selectedRoom.authorities.administrators, id: \.userId) { authority in
+                        ForEach(room.authorities.administrators, id: \.userId) { authority in
                             ParticipantViewCell(authority: authority)
                         }
                     } header: {
                         Text("管理者")
                     }
-                    BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.members.isEmpty) {
+                    BoolSwitchView(isEmpty: room.authorities.members.isEmpty) {
                         Section {
-                            ForEach($roomDataStore.selectedRoom?.authorities.members, id: \.userId) { authority in
+                            ForEach(room.authorities.members, id: \.userId) { authority in
                                 ParticipantViewCell(authority: authority)
                             }
                         } header: {
                             Text("メンバー")
                         }
-                    }
-                    BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.guests.isEmpty) {
+                    } emptyContent: {}
+                    BoolSwitchView(isEmpty: room.authorities.guests.isEmpty) {
                         Section {
-                            ForEach($roomDataStore.selectedRoom?.authorities.guests, id: \.userId) { authority in
+                            ForEach(room.authorities.guests, id: \.userId) { authority in
                                 ParticipantViewCell(authority: authority)
                             }
                         } header: {
                             Text("ゲスト")
                         }
-                    }
+                    } emptyContent: {}
+                }
+                PlusButton {
+                    addParticipantAlertIsPresented = true
                 }
             }
-            List {
-                Section {
-                    ForEach($roomDataStore.selectedRoom?.authorities.administrators, id: \.userId) { authority in
-                        ParticipantViewCell(authority: authority)
-                    }
-                } header: {
-                    Text("管理者")
-                }
-                BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.members.isEmpty) {
-                    Section {
-                        ForEach($roomDataStore.selectedRoom?.authorities.members, id: \.userId) { authority in
-                            ParticipantViewCell(authority: authority)
-                        }
-                    } header: {
-                        Text("メンバー")
-                    }
-                }
-                BoolSwitchView(isEmpty: roomDataStore.selectedRoom?.authorities.guests.isEmpty) {
-                    Section {
-                        ForEach($roomDataStore.selectedRoom?.authorities.guests, id: \.userId) { authority in
-                            ParticipantViewCell(authority: authority)
-                        }
-                    } header: {
-                        Text("ゲスト")
-                    }
-                }
-            }
-            PlusButton {
-                addParticipantAlertIsPresented = true
-            }
+        } nilContent: {
+            Text("ルームを選択してください")
         }
         .alert("メンバーを追加", isPresented: $addParticipantAlertIsPresented, actions: {
             addParticipantAlertActions()
@@ -124,5 +98,5 @@ struct ParticipantView: View {
 }
 
 #Preview {
-    ParticipantView(userDataStore: .shared, participantDataStore: .shared, pathDataStore: .shared)
+    ParticipantView()
 }

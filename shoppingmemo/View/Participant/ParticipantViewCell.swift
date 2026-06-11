@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct ParticipantViewCell: View {
-    @Binding var authority: Authority
-    @State var userName: String = "----"
-    @State var email: String = "----"
+    private let authority: Authority
+    @State private var userName: String = "----"
+    @State private var email: String = "----"
+    
+    init(authority: Authority) {
+        self.authority = authority
+    }
     
     var body: some View {
         HStack {
@@ -37,5 +41,5 @@ struct ParticipantViewCell: View {
 }
 
 #Preview {
-    ParticipantViewCell(authority: Binding(get: { Authority() }, set: {_ in}))
+    ParticipantViewCell(authority: Authority())
 }

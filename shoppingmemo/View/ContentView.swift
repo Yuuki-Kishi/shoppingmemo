@@ -20,7 +20,7 @@ struct ContentView: View {
             if userDataStore.signInUser == nil {
                 SignInView()
             } else {
-                RoomsView(userDataStore: userDataStore)
+                RoomsView()
             }
         }
     }

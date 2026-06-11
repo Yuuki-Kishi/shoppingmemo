@@ -26,9 +26,9 @@ class CustomImageRepository {
         guard let uiImage = UIImage(data: data) else { return }
         guard let imageData = uiImage.jpegData(compressionQuality: 0.2) else { return }
         guard let userId = userDataStore.signInUser?.userId else { return }
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-        guard let listId = listDataStore.selectedList?.listId else { return }
-        guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
+        guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+        guard let listId = listDataStore.listArray.selected?.listId else { return }
+        guard let memoId = memoDataStore.selectedMemo()?.memoId else { return }
         let imageRef = storage.reference().child(roomId).child(listId).child(memoId + ".jpg")
         let attachedMetadata = StorageMetadata()
         attachedMetadata.customMetadata = ["uploadUserId": userId]

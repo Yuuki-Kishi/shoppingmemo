@@ -8,11 +8,10 @@
 import SwiftUI
 
 struct ListsView: View {
-    @StateObject var userDataStore: UserDataStore = .shared
-    @StateObject var roomDataStore: RoomDataStore = .shared
-    @StateObject var listDataStore: ListDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    
+    @EnvironmentObject private var userDataStore: UserDataStore
+    @EnvironmentObject private var roomDataStore: RoomDataStore
+    @EnvironmentObject private var listDataStore: ListDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var newListNameText: String = ""
     @State private var newRoomNameText: String = ""
     @State private var createNewListAlertIsPresent: Bool = false
@@ -21,13 +20,13 @@ struct ListsView: View {
     
     var body: some View {
         ZStack {
-            BoolSwitchView(isEmpty: listDataStore.listArray.isEmpty, isLoading: $listDataStore.isLoading, contentName: "リスト") {
+            BoolSwitchView(isEmpty: listDataStore.listArray.isEmpty, isLoading: listDataStore.isLoading) {
                 List {
-                    ForEach($listDataStore.listArray, id: \.listId) { $list in
-                        ListsViewCell(listDataStore: listDataStore, pathDataStore: pathDataStore, list: $list)
+                    ForEach(listDataStore.listArray, id: \.listId) { list in
+                        ListsViewCell(list: list)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                 DeleteButton {
-                                    listDataStore.selectedList = list
+                                    listDataStore.selectedListId = list.listId
                                     Task { await CustomListRepository.deleteList() }
                                 }
                             }
@@ -35,6 +34,8 @@ struct ListsView: View {
                     .onMove(perform: move)
                 }
                 .listRowSpacing(35)
+            } emptyContent: {
+                Text("リストがありません")
             }
             PlusButton() {
                 newListNameText = ""
@@ -60,12 +61,12 @@ struct ListsView: View {
         } message: {
             Text("新しく設定するルーム名を入力してください。")
         }
-        .alert("本当に\(roomDataStore.selectedRoom?.roomName ?? "このルーム")を削除しますか？", isPresented: $deleteRoomAlertIsPresent) {
+        .alert("本当に\(roomDataStore.roomArray.selected?.roomName ?? "このルーム")を削除しますか？", isPresented: $deleteRoomAlertIsPresent) {
             deleteRoomAlertActions()
         } message: {
             Text("このルームに含まれる全てのリスト、メモも削除されます。\nこの操作は取り消すことができません。")
         }
-        .navigationTitle(roomDataStore.selectedRoom?.roomName ?? "不明なルーム")
+        .navigationTitle(roomDataStore.roomArray.selected?.roomName ?? "不明なルーム")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             listDataStore.isLoading = true
@@ -79,7 +80,7 @@ struct ListsView: View {
     func toolBarMenu() -> some View {
         Menu {
             Button {
-                newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
+                newRoomNameText = roomDataStore.roomArray.selected?.roomName ?? ""
                 updateRoomNameAlertIsPresent = true
             } label: {
                 Label("ルーム名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
@@ -93,22 +94,30 @@ struct ListsView: View {
                 Button {
                     CustomListRepository.sortLists(basedOn: .ascending)
                 } label: {
-                    Label("名前昇順", systemImage: "a.circle")
+                    ToggleLabel(title: "タイトル昇順", systemImage: "a.circle") {
+                        listDataStore.listSort == .ascending
+                    }
                 }
                 Button {
                     CustomListRepository.sortLists(basedOn: .descending)
                 } label: {
-                    Label("名前降順", systemImage: "z.circle")
+                    ToggleLabel(title: "タイトル降順", systemImage: "z.circle") {
+                        listDataStore.listSort == .descending
+                    }
                 }
                 Button {
                     CustomListRepository.sortLists(basedOn: .newest)
                 } label: {
-                    Label("更新日時", systemImage: "clock")
+                    ToggleLabel(title: "更新日時", systemImage: "clock") {
+                        listDataStore.listSort == .newest
+                    }
                 }
                 Button {
                     CustomListRepository.sortLists(basedOn: .custom)
                 } label: {
-                    Label("カスタム", systemImage: "hand.point.up")
+                    ToggleLabel(title: "カスタム", systemImage: "hand.point.up") {
+                        listDataStore.listSort == .custom
+                    }
                 }
             } label: {
                 Label("並び替え", systemImage: "arrow.up.arrow.down")
@@ -148,7 +157,7 @@ struct ListsView: View {
     func updateRoomNameAlertActions() -> some View {
         TextField("新しいルーム名を入力", text: $newRoomNameText)
         Button(role: .cancel) {
-            newRoomNameText = roomDataStore.selectedRoom?.roomName ?? ""
+            newRoomNameText = roomDataStore.roomArray.selected?.roomName ?? ""
         } label: {
             Text("キャンセル")
         }
@@ -172,7 +181,7 @@ struct ListsView: View {
     }
     func isAdministrator() -> Bool {
         guard let myUserId = userDataStore.signInUser?.userId else { return false }
-        guard let authorities = roomDataStore.selectedRoom?.authorities else { return false }
+        guard let authorities = roomDataStore.roomArray.selected?.authorities else { return false }
         guard let myAuthority = authorities.first(where: { $0.userId == myUserId }) else { return false }
         if myAuthority.authority == .administrator { return true }
         return false

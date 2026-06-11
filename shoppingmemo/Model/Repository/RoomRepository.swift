@@ -36,7 +36,7 @@ class RoomRepository {
     //update
     static func updateRoomName(newName: String) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["roomName": newName])
         } catch {
             print(error)
@@ -46,7 +46,7 @@ class RoomRepository {
     //delete
     static func deleteRoom() async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
             let path = "Rooms/\(roomId)"
             let _ = try await functions.httpsCallable("recursiveDelete").call(["path": path])
         } catch {
@@ -72,13 +72,10 @@ class RoomRepository {
                         roomDataStore.roomArray.append(noDuplicate: room)
                     case .modified:
                         roomDataStore.roomArray.append(noDuplicate: room)
-                        if room.roomId == roomDataStore.selectedRoom?.roomId {
-                            roomDataStore.selectedRoom = room
-                        }
                     case .removed:
                         roomDataStore.roomArray.remove(room: room)
-                        if room.roomId == roomDataStore.selectedRoom?.roomId {
-                            roomDataStore.selectedRoom = nil
+                        if room.roomId == roomDataStore.roomArray.selected?.roomId {
+                            roomDataStore.selectedRoomId = nil
                             NavigationRepository.removeAllViews()
                         }
                     }

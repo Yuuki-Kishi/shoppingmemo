@@ -8,10 +8,9 @@
 import SwiftUI
 
 struct MemosView: View {
-    @StateObject var listDataStore: ListDataStore = .shared
-    @StateObject var memoDataStore: MemoDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    
+    @EnvironmentObject private var listDataStore: ListDataStore
+    @EnvironmentObject private var memoDataStore: MemoDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var newMemoNameText: String = ""
     @State private var newListNameText: String = ""
     @State private var renameListAlertIsPresent: Bool = false
@@ -19,12 +18,12 @@ struct MemosView: View {
     
     var body: some View {
         ZStack {
-            BoolSwitchView(isEmpty: isShowNoDataLabel(), isLoading: isLoading(), contentName: "メモ") {
+            BoolSwitchView(isEmpty: isShowNoDataLabel(), isLoading: isLoading()) {
                 List {
                     BoolSwitchView(isEmpty: memoDataStore.nonCheckMemoArray.isEmpty) {
                         Section {
-                            ForEach($memoDataStore.nonCheckMemoArray, id:\.memoId) { $memo in
-                                MemosViewCell(memo: $memo)
+                            ForEach(memoDataStore.nonCheckMemoArray, id:\.memoId) { memo in
+                                MemosViewCell(memo: memo)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         DeleteButton {
                                             nonCheckDelete(memoId: memo.memoId)
@@ -36,11 +35,11 @@ struct MemosView: View {
                             Text("未完了")
                                 .frame(height: 80, alignment: .bottom)
                         }
-                    }
+                    } emptyContent: {}
                     BoolSwitchView(isEmpty: memoDataStore.checkedMemoArray.isEmpty || !memoDataStore.isShowChecked) {
                         Section {
-                            ForEach($memoDataStore.checkedMemoArray, id:\.id) { $memo in
-                                MemosViewCell(memo: $memo)
+                            ForEach(memoDataStore.checkedMemoArray, id:\.memoId) { memo in
+                                MemosViewCell(memo: memo)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         DeleteButton {
                                             checkedDelete(memoId: memo.memoId)
@@ -52,9 +51,9 @@ struct MemosView: View {
                             Text("完了済")
                                 .frame(height: checkedMemosHeight(), alignment: .bottom)
                         }
-                    }
+                    } emptyContent: {}
                 }
-            }
+            } emptyContent: {}
             ClearTextField(text: $newMemoNameText) {
                 Task {
                     await MemoRepository.createMemo(memoName: newMemoNameText)
@@ -81,7 +80,7 @@ struct MemosView: View {
         } message: {
             Text("この操作は取り消すことができません。")
         }
-        .navigationTitle(listDataStore.selectedList?.listName ?? "不明なリスト")
+        .navigationTitle(listDataStore.listArray.selected?.listName ?? "不明なリスト")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             onAppear()
@@ -92,8 +91,8 @@ struct MemosView: View {
         if memoDataStore.nonCheckMemoArray.isEmpty && !memoDataStore.isShowChecked { return true }
         return false
     }
-    func isLoading() -> Binding<Bool> {
-        Binding(get: { memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading }, set: {_ in})
+    func isLoading() -> Bool {
+        memoDataStore.nonCheckMemoIsLoading || memoDataStore.checkedMemoIsLoading
     }
     func nonCheckMove(fromSources: IndexSet, toDestination: Int) {
         Task { await MemoRepository.updateNonCheckOrders(from: fromSources, to: toDestination) }
@@ -115,7 +114,7 @@ struct MemosView: View {
     func toolBarMenu() -> some View {
         Menu {
             Button {
-                newListNameText = listDataStore.selectedList?.listName ?? ""
+                newListNameText = listDataStore.listArray.selected?.listName ?? ""
                 renameListAlertIsPresent = true
             } label: {
                 Label("リスト名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")

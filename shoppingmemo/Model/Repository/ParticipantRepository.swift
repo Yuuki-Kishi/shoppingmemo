@@ -35,7 +35,7 @@ class ParticipantRepository {
     }
     
     static func observeRoomParticipants() {
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+        guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
         Firestore.firestore().collection("Rooms").document(roomId).addSnapshotListener() { DataSnapshot, error in
             do {
                 guard let roomAuthorities = try DataSnapshot?.data(as: Room.self).authorities else { return }

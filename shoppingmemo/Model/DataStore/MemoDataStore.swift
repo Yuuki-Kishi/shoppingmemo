@@ -12,7 +12,7 @@ class MemoDataStore: ObservableObject {
     static let shared = MemoDataStore()
     @Published var nonCheckMemoArray: [Memo] = []
     @Published var checkedMemoArray: [Memo] = []
-    @Published var selectedMemo: Memo? = nil
+    @Published var selectedMemoId: String? = nil
     @Published var isShowChecked: Bool = false
     @Published var nonCheckMemoIsLoading: Bool = false
     @Published var checkedMemoIsLoading: Bool = false
@@ -23,4 +23,13 @@ class MemoDataStore: ObservableObject {
         case ascending, descending, newest, custom
     }
     
+    func selectedMemo() -> Memo? {
+        if let memo = nonCheckMemoArray.selected {
+            return memo
+        } else if let memo = checkedMemoArray.selected {
+            return memo
+        } else {
+            return nil
+        }
+    }
 }

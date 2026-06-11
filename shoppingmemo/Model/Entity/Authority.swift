@@ -63,7 +63,7 @@ extension Array where Element == Authority {
     var members: [Element] {
         self.filter { $0.authority == .member }
     }
-    var gusets: [Element] {
+    var guests: [Element] {
         self.filter { $0.authority == .guest }
     }
 }

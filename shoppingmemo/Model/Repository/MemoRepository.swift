@@ -19,8 +19,8 @@ class MemoRepository {
     static func createMemo(memoName: String) async {
         do {
             guard let userId = userDataStore.signInUser?.userId else { return }
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            guard let listId = listDataStore.selectedList?.listId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
             let memo = Memo(memoName: memoName, lastUpdateUserId: userId)
             let encoded = try JSONEncoder().encode(memo)
             guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
@@ -39,8 +39,8 @@ class MemoRepository {
     //update
     static func updateIsChecked(memo: Memo) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            guard let listId = listDataStore.selectedList?.listId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memo.memoId).updateData(["isChecked": !memo.isChecked])
         } catch {
             print(error)
@@ -49,8 +49,8 @@ class MemoRepository {
     
     static func updateNonCheckOrder(memoId: String, newOrder: Int) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            guard let listId = listDataStore.selectedList?.listId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["nonCheckOrder": newOrder])
         } catch {
             print(error)
@@ -75,8 +75,8 @@ class MemoRepository {
     
     static func updateCheckedOrder(memoId: String, newOrder: Int) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            guard let listId = listDataStore.selectedList?.listId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["checkedOrder": newOrder])
         } catch {
             print(error)
@@ -132,9 +132,9 @@ class MemoRepository {
     
     static func updateImageUrl(newImageUrl: String) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            guard let listId = listDataStore.selectedList?.listId else { return }
-            guard let memoId = memoDataStore.selectedMemo?.memoId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
+            guard let memoId = memoDataStore.selectedMemo()?.memoId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["imageUrl": newImageUrl])
         } catch {
             print(error)
@@ -144,8 +144,8 @@ class MemoRepository {
     //delete
     static func deleteMemo(memoId: String) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            guard let listId = listDataStore.selectedList?.listId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).delete()
         } catch {
             print(error)
@@ -159,15 +159,15 @@ class MemoRepository {
     }
     
     static func clearMemos() {
-        memoDataStore.selectedMemo = nil
+        memoDataStore.selectedMemoId = nil
         memoDataStore.nonCheckMemoArray.removeAll()
         memoDataStore.checkedMemoArray.removeAll()
     }
     
     //observe
     static func observeNonCheckMemos(completion: @escaping (() -> Void)) {
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { completion(); return }
-        guard let listId = listDataStore.selectedList?.listId else { completion(); return }
+        guard let roomId = roomDataStore.roomArray.selected?.roomId else { completion(); return }
+        guard let listId = listDataStore.listArray.selected?.listId else { completion(); return }
         Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").whereField("isChecked", isEqualTo: false).addSnapshotListener() { querySnapshot, error in
             do {
                 guard let documentChanges = querySnapshot?.documentChanges else { return }
@@ -179,13 +179,13 @@ class MemoRepository {
                         memoDataStore.nonCheckMemoArray.append(noDuplicate: memo)
                     case .modified:
                         memoDataStore.nonCheckMemoArray.append(noDuplicate: memo)
-                        if memoDataStore.selectedMemo?.memoId == memo.memoId {
-                            memoDataStore.selectedMemo = memo
+                        if memoDataStore.selectedMemo()?.memoId == memo.memoId {
+                            memoDataStore.selectedMemoId = memo.memoId
                         }
                     case .removed:
                         memoDataStore.nonCheckMemoArray.remove(memo: memo)
-                        if memoDataStore.selectedMemo?.memoId == memo.memoId {
-                            memoDataStore.selectedMemo = nil
+                        if memoDataStore.selectedMemo()?.memoId == memo.memoId {
+                            memoDataStore.selectedMemoId = nil
 //                            CustomImageRepository.clearImage()
 //                            NavigationRepository.removeViews(dest: .memos)
                         }
@@ -204,8 +204,8 @@ class MemoRepository {
     }
     
     static func observeCheckedMemos(completion: @escaping () -> Void) {
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { completion(); return }
-        guard let listId = listDataStore.selectedList?.listId else { completion(); return }
+        guard let roomId = roomDataStore.roomArray.selected?.roomId else { completion(); return }
+        guard let listId = listDataStore.listArray.selected?.listId else { completion(); return }
         Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").whereField("isChecked", isEqualTo: true).addSnapshotListener() { querySnapshot, error in
             do {
                 guard let documentChanges = querySnapshot?.documentChanges else { return }
@@ -217,13 +217,13 @@ class MemoRepository {
                         memoDataStore.checkedMemoArray.append(noDuplicate: memo)
                     case .modified:
                         memoDataStore.checkedMemoArray.append(noDuplicate: memo)
-                        if memoDataStore.selectedMemo?.memoId == memo.memoId {
-                            memoDataStore.selectedMemo = memo
+                        if memoDataStore.selectedMemo()?.memoId == memo.memoId {
+                            memoDataStore.selectedMemoId = memo.memoId
                         }
                     case .removed:
                         memoDataStore.checkedMemoArray.remove(memo: memo)
-                        if memoDataStore.selectedMemo?.memoId == memo.memoId {
-                            memoDataStore.selectedMemo = nil
+                        if memoDataStore.selectedMemo()?.memoId == memo.memoId {
+                            memoDataStore.selectedMemoId = nil
 //                            CustomImageRepository.clearImage()
 //                            NavigationRepository.removeViews(dest: .memos)
                         }

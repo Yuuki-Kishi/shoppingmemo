@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct ImageInfoViewCell: View {
-    @StateObject var memoDataStore: MemoDataStore = .shared
     @StateObject var imageDataStore: ImageDataStore = .shared
     
     @State var cellContent: CellContentEnum

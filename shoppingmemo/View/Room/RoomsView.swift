@@ -8,11 +8,8 @@
 import SwiftUI
 
 struct RoomsView: View {
-    @StateObject var userDataStore: UserDataStore = .shared
-    @StateObject var roomDataStore: RoomDataStore = .shared
-    @StateObject var participantDataStore: ParticipantDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    
+    @EnvironmentObject private var roomDataStore: RoomDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var newRoomNameText: String = ""
     @State private var newRoomCreateAlertIsPresented: Bool = false
     @State private var signOutAlertIsPresented: Bool = false
@@ -20,11 +17,13 @@ struct RoomsView: View {
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             ZStack {
-                BoolSwitchView(isEmpty: roomDataStore.roomArray.isEmpty, isLoading: $roomDataStore.isLoading, contentName: "ルーム") {
-                    List($roomDataStore.roomArray, id: \.roomId) { room in
+                BoolSwitchView(isEmpty: roomDataStore.roomArray.isEmpty, isLoading: roomDataStore.isLoading) {
+                    List(roomDataStore.roomArray, id: \.roomId) { room in
                         RoomsViewCell(room: room)
                     }
                     .listRowSpacing(35)
+                } emptyContent: {
+                    Text("ルームがありません")
                 }
                 PlusButton() {
                     newRoomNameText = ""
@@ -83,7 +82,7 @@ struct RoomsView: View {
         case .notice:
             EmptyView()
         case .participant:
-            ParticipantView(userDataStore: userDataStore, participantDataStore: participantDataStore, pathDataStore: pathDataStore)
+            ParticipantView()
         case .QRreader:
             EmptyView()
         case .addParicipant:

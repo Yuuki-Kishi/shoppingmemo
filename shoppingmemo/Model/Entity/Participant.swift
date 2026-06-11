@@ -58,13 +58,13 @@ extension Array where Element == Participant {
             self.remove(at: index)
         }
     }
-    var administrators: [Element] {
-        self.filter { $0.authority == .administrator }
-    }
-    var members: [Element] {
-        self.filter { $0.authority == .member }
-    }
-    var guests: [Element] {
-        self.filter { $0.authority == .guest }
-    }
+//    var administrators: [Element] {
+//        self.filter { $0.authority == .administrator }
+//    }
+//    var members: [Element] {
+//        self.filter { $0.authority == .member }
+//    }
+//    var guests: [Element] {
+//        self.filter { $0.authority == .guest }
+//    }
 }

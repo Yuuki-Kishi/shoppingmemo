@@ -93,7 +93,12 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     }
 }
 
+@MainActor
 extension Array where Element == Room {
+    var selected: Element? {
+        guard let selectedRoomId = RoomDataStore.shared.selectedRoomId else { return nil }
+        return self.first(where: { $0.roomId == selectedRoomId })
+    }
     mutating func append(noDuplicate room: Element) {
         if let index = self.firstIndex(of: room) {
             self[index] = room

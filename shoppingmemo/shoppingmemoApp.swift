@@ -24,6 +24,12 @@ struct shoppingmemoApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(UserDataStore.shared)
+                .environmentObject(RoomDataStore.shared)
+                .environmentObject(ListDataStore.shared)
+                .environmentObject(MemoDataStore.shared)
+                .environmentObject(ImageDataStore.shared)
+                .environmentObject(PathDataStore.shared)
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }

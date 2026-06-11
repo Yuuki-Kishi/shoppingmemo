@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct ListsViewCell: View {
-    @StateObject var listDataStore: ListDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    @Binding var list: CustomList
+    @EnvironmentObject private var listDataStore: ListDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
+    private let list: CustomList
+    
+    init(list: CustomList) {
+        self.list = list
+    }
     
     var body: some View {
         HStack {
@@ -23,12 +27,12 @@ struct ListsViewCell: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            listDataStore.selectedList = list
+            listDataStore.selectedListId = list.listId
             pathDataStore.navigationPath.append(.memos)
         }
     }
 }
 
 #Preview {
-    ListsViewCell(list: Binding(get: { CustomList() }, set: {_ in}))
+    ListsViewCell(list: CustomList())
 }

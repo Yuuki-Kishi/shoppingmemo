@@ -8,9 +8,13 @@
 import SwiftUI
 
 struct MemosViewCell: View {
-    @StateObject var memoDataStore: MemoDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    @Binding var memo: Memo
+    @EnvironmentObject private var memoDataStore: MemoDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
+    private let memo: Memo
+    
+    init(memo: Memo) {
+        self.memo = memo
+    }
     
     var body: some View {
         HStack {
@@ -34,7 +38,7 @@ struct MemosViewCell: View {
             }
             .buttonStyle(.plain)
             Button {
-                memoDataStore.selectedMemo = memo
+                memoDataStore.selectedMemoId = memo.memoId
                 pathDataStore.navigationPath.append(.image)
             } label: {
                 Image(systemName: imageMarkImageName())
@@ -58,5 +62,5 @@ struct MemosViewCell: View {
 }
 
 #Preview {
-    MemosViewCell(memo: Binding(get: { Memo() }, set: {_ in}))
+    MemosViewCell(memo: Memo())
 }

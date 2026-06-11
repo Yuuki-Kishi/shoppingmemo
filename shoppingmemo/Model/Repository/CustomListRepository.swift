@@ -19,7 +19,7 @@ class CustomListRepository {
     //create
     static func createList(listName: String) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
             guard let userId = userDataStore.signInUser?.userId else { return }
             let list = CustomList(listName: listName, lastUpdateUserId: userId)
             let encoded = try JSONEncoder().encode(list)
@@ -38,8 +38,8 @@ class CustomListRepository {
     
     //update
     static func updateListName(newName: String) async {
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-        guard let listId = listDataStore.selectedList?.listId else { return }
+        guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+        guard let listId = listDataStore.listArray.selected?.listId else { return }
         do {
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).updateData(["listName": newName])
         } catch {
@@ -49,7 +49,7 @@ class CustomListRepository {
     
     static func updateListOrders(from: IndexSet, to: Int) async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
             var listArray = listDataStore.listArray
             listArray.move(fromOffsets: from, toOffset: to)
             for (index, list) in listArray.enumerated() {
@@ -79,8 +79,8 @@ class CustomListRepository {
     //delete
     static func deleteList() async {
         do {
-            guard let roomId = roomDataStore.selectedRoom?.roomId else { return }
-            guard let listId = listDataStore.selectedList?.listId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
             let path = "Rooms/\(roomId)/Lists/\(listId)"
             let _ = try await functions.httpsCallable("recursiveDelete").call(["path": path])
         } catch {
@@ -89,13 +89,13 @@ class CustomListRepository {
     }
     
     static func clearLists() {
-        listDataStore.selectedList = nil
+        listDataStore.selectedListId = nil
         listDataStore.listArray.removeAll()
     }
     
     //observe
     static func observeLists(completion: @escaping () -> Void) {
-        guard let roomId = roomDataStore.selectedRoom?.roomId else { completion(); return }
+        guard let roomId = roomDataStore.roomArray.selected?.roomId else { completion(); return }
         Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").addSnapshotListener() { querySnapshot, error in
             do {
                 guard let documentChanges = querySnapshot?.documentChanges else { completion(); return }
@@ -107,13 +107,13 @@ class CustomListRepository {
                         listDataStore.listArray.append(noDuplicate: list)
                     case .modified:
                         listDataStore.listArray.append(noDuplicate: list)
-                        if list.listId == listDataStore.selectedList?.listId {
-                            listDataStore.selectedList = list
+                        if list.listId == listDataStore.listArray.selected?.listId {
+                            listDataStore.selectedListId = list.listId
                         }
                     case .removed:
                         listDataStore.listArray.remove(list: list)
-                        if list.listId == listDataStore.selectedList?.listId {
-                            listDataStore.selectedList = nil
+                        if list.listId == listDataStore.listArray.selected?.listId {
+                            listDataStore.selectedListId = nil
                             NavigationRepository.removeViews(dest: .lists)
                         }
                     }

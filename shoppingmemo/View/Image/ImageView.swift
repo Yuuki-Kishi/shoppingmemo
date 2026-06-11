@@ -9,30 +9,24 @@ import SwiftUI
 import PhotosUI
 
 struct ImageView: View {
-    @StateObject var memoDataStore: MemoDataStore = .shared
-    @StateObject var imageDataStore: ImageDataStore = .shared
-    @StateObject var pathDataStore: PathDataStore = .shared
-    
+    @EnvironmentObject private var memoDataStore: MemoDataStore
+    @EnvironmentObject private var imageDataStore: ImageDataStore
     @State private var selectedImage: PhotosPickerItem?
     @State private var uiImage: UIImage?
-    
     @State private var photosPickerIsPresented: Bool = false
     @State private var imageInfoViewIsPresented: Bool = false
     @State private var deleteImageAlertIsPresented: Bool = false
     
     var body: some View {
-        ZStack {
-            BoolSwitchView(optional: uiImage, isLoading: $imageDataStore.isLoading, contentName: "画像") { uiImage in
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-            }
-            .task {
-                await loadImage(imageUrl: memoDataStore.selectedMemo?.imageUrl ?? "default")
-            }
+        OptionalUnwrapView(optional: uiImage, isLoading: imageDataStore.isLoading) { uiImage in
+            Image(uiImage: uiImage)
+                .resizable()
+                .scaledToFit()
+        } nilContent: {
+            Text("画像がありません")
         }
-        .onChange(of: memoDataStore.selectedMemo?.imageUrl) { _, imageUrl in
-            Task { await loadImage(imageUrl: memoDataStore.selectedMemo?.imageUrl ?? "default") }
+        .onChange(of: memoDataStore.selectedMemo()?.imageUrl) { _, imageUrl in
+            Task { await loadImage(imageUrl: memoDataStore.selectedMemo()?.imageUrl ?? "default") }
         }
         .photosPicker(isPresented: $photosPickerIsPresented, selection: $selectedImage)
         .onChange(of: selectedImage) {
@@ -57,9 +51,10 @@ struct ImageView: View {
         } message: {
             Text("この操作は取り消すことができません。")
         }
-        .navigationTitle(memoDataStore.selectedMemo?.memoName ?? "不明なメモ")
+        .navigationTitle(memoDataStore.selectedMemo()?.memoName ?? "不明なメモ")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
+            Task { await loadImage(imageUrl: memoDataStore.selectedMemo()?.imageUrl ?? "default") }
             CustomImageRepository.clearImage()
         }
     }
@@ -76,7 +71,7 @@ struct ImageView: View {
     }
     func toolBarMenu() -> some View {
         ZStack {
-            if memoDataStore.selectedMemo?.imageUrl == "default" {
+            if memoDataStore.selectedMemo()?.imageUrl == "default" {
                 Menu {
                     Button {
                         photosPickerIsPresented = true

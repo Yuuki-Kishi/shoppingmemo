@@ -116,7 +116,12 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
     }
 }
 
+@MainActor
 extension Array where Element == Memo {
+    var selected: Element? {
+        guard let selectedMemoId = MemoDataStore.shared.selectedMemoId else { return nil }
+        return self.first(where: { $0.memoId == selectedMemoId })
+    }
     mutating func append(noDuplicate memo: Element) {
         if let index = self.firstIndex(of: memo) {
             self[index] = memo
