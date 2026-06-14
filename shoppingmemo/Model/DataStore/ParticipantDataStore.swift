@@ -10,8 +10,5 @@ import Foundation
 @MainActor
 class ParticipantDataStore: ObservableObject {
     static let shared = ParticipantDataStore()
-    @Published var administrators: [Participant] = []
-    @Published var members: [Participant] = []
-    @Published var guests: [Participant] = []
-    @Published var isLoading: Bool = false
+    @Published var addUserId: String? = nil
 }

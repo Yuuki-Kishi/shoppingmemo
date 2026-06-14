@@ -20,7 +20,7 @@ class UserRepository {
             let user = User(userId: userId, email: email, creationTime: creationTime)
             let encoded = try JSONEncoder().encode(user)
             guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return nil }
-            try await Firestore.firestore().collection("Users").addDocument(data: jsonObject)
+            try await Firestore.firestore().collection("Users").document(user.userId).setData(jsonObject)
             return user
         } catch {
             print(error)

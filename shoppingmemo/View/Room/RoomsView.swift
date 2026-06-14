@@ -86,7 +86,7 @@ struct RoomsView: View {
         case .QRreader:
             EmptyView()
         case .addParicipant:
-            EmptyView()
+            AddParticipantView()
         }
     }
     func toolBarMenu() -> some View {

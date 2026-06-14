@@ -9,10 +9,11 @@ import SwiftUI
 
 struct ParticipantView: View {
     @EnvironmentObject private var roomDataStore: RoomDataStore
+    @StateObject private var participantDataStore: ParticipantDataStore = .shared
     @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var addParticipantAlertIsPresented: Bool = false
     @State private var addParticipantByUserIdAlertIsPresented: Bool = false
-    @State private var addParticipantUserId: String = ""
+    @State private var addUserIdText: String = ""
     
     var body: some View {
         OptionalUnwrapView(optional: roomDataStore.roomArray.selected) { room in
@@ -51,49 +52,50 @@ struct ParticipantView: View {
         } nilContent: {
             Text("ルームを選択してください")
         }
-        .alert("メンバーを追加", isPresented: $addParticipantAlertIsPresented, actions: {
+        .alert("メンバーを追加", isPresented: $addParticipantAlertIsPresented) {
             addParticipantAlertActions()
-        }, message: {
+        } message: {
             Text("メンバーを追加する方法を選択してください。")
-        })
-        .alert("ユーザーIDで追加", isPresented: $addParticipantByUserIdAlertIsPresented, actions: {
-            addParicipantByUserIdAlertActions()
-        }, message: {
-            Text("追加するメンバーのユーザーIDを入力してください。")
-        })
-        .onAppear() {
-            ParticipantRepository.observeRoomParticipants()
         }
+        .alert("ユーザーIDで追加", isPresented: $addParticipantByUserIdAlertIsPresented) {
+            addParicipantByUserIdAlertActions()
+        } message: {
+            Text("追加するメンバーのユーザーIDを入力してください。")
+        }
+        .navigationTitle("メンバーリスト")
+        .navigationBarTitleDisplayMode(.inline)
     }
     @ViewBuilder
     func addParticipantAlertActions() -> some View {
-        Button(role: .confirm, action: {
+        Button(role: .confirm) {
             pathDataStore.navigationPath.append(.QRreader)
-        }, label: {
+        } label: {
             Text("QRコード")
-        })
-        Button(role: .confirm, action: {
+        }
+        Button(role: .confirm) {
             addParticipantByUserIdAlertIsPresented = true
-        }, label: {
+        } label: {
             Text("ユーザーID")
-        })
-        Button(role: .cancel, action: {}, label: {
+        }
+        Button(role: .cancel) {} label: {
             Text("キャンセル")
-        })
+        }
     }
     @ViewBuilder
     func addParicipantByUserIdAlertActions() -> some View {
-        TextField("ユーザーID", text: $addParticipantUserId)
-        Button(role: .confirm, action: {
+        TextField("ユーザーID", text: $addUserIdText)
+        Button(role: .confirm) {
+            participantDataStore.addUserId = addUserIdText
+            addUserIdText = ""
             pathDataStore.navigationPath.append(.addParicipant)
-        }, label: {
+        } label: {
             Text("追加")
-        })
-        Button(role: .cancel, action: {
-            addParticipantUserId = ""
-        }, label: {
+        }
+        Button(role: .cancel) {
+            addUserIdText = ""
+        } label: {
             Text("キャンセル")
-        })
+        }
     }
 }
 
