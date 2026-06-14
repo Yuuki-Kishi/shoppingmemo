@@ -15,6 +15,7 @@ struct MemosView: View {
     @State private var newListNameText: String = ""
     @State private var renameListAlertIsPresent: Bool = false
     @State private var deleteCheckedMemosAlertIsPresent: Bool = false
+    @FocusState private var focus: Bool
     
     var body: some View {
         ZStack {
@@ -54,12 +55,16 @@ struct MemosView: View {
                     } emptyContent: {}
                 }
             } emptyContent: {}
-            ClearTextField(text: $newMemoNameText) {
+            ClearTextField(text: $newMemoNameText, focus: $focus) {
                 Task {
                     await MemoRepository.createMemo(memoName: newMemoNameText)
                     newMemoNameText = ""
                 }
             }
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focus = false
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

@@ -9,10 +9,12 @@ import SwiftUI
 
 struct ClearTextField: View {
     @Binding private var text: String
+    @FocusState.Binding var focus: Bool
     private let action: () -> Void
     
-    init(text: Binding<String>, action: @escaping () -> Void) {
+    init(text: Binding<String>, focus: FocusState<Bool>.Binding, action: @escaping () -> Void) {
         self._text = text
+        self._focus = focus
         self.action = action
     }
     
@@ -21,6 +23,8 @@ struct ClearTextField: View {
             TextField("アイテムを追加", text: $text, onCommit: action)
                 .padding()
                 .glassEffect(.regular.tint(.accentColor))
+                .tint(.blue)
+                .focused($focus)
                 .padding(.horizontal)
             Spacer()
         }
@@ -29,5 +33,5 @@ struct ClearTextField: View {
 }
 
 #Preview {
-    ClearTextField(text: Binding(get: { "" }, set: {_ in})) {}
+//    ClearTextField(text: Binding(get: { "" }, set: {_ in}), focus: true) {}
 }

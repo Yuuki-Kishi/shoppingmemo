@@ -125,7 +125,7 @@ struct ListsView: View {
             Divider()
             if isAdministrator() {
                 Button(role: .destructive) {
-                    pathDataStore.navigationPath.append(.participant)
+                    
                 } label: {
                     Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
                 }
