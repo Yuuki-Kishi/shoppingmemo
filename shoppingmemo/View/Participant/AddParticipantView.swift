@@ -8,45 +8,78 @@
 import SwiftUI
 
 struct AddParticipantView: View {
+    @EnvironmentObject private var participantDataStore: ParticipantDataStore
+    @State private var isEmpty: Bool = false
+    
     var body: some View {
         GeometryReader { geometry in
-            List {
-                Section {
-                    AddParticipantViewCell(itemType: .userId)
-                    AddParticipantViewCell(itemType: .userName)
-                    AddParticipantViewCell(itemType: .email)
-                } header: {
-                    Text("ユーザ情報")
+            BoolSwitchView(isEmpty: isEmpty, isLoading: participantDataStore.isLoading) {
+                List {
+                    Section {
+                        AddParticipantViewCell(itemType: .userId)
+                        AddParticipantViewCell(itemType: .userName)
+                        AddParticipantViewCell(itemType: .email)
+                    } header: {
+                        Text("ユーザ情報")
+                    }
+                }
+                VStack {
+                    Button {
+                        
+                    } label: {
+                        Text("追加")
+                            .frame(width: geometry.size.width * 0.6, height: 40)
+                    }
+                    .foregroundStyle(.primary)
+                    .background(Color.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    Button {
+                        NavigationRepository.removeViews(dest: .participant)
+                    } label: {
+                        Text("キャンセル")
+                            .frame(width: geometry.size.width * 0.6, height: 30)
+                    }
+                    .foregroundStyle(.primary)
+                }
+                .position(
+                    x: geometry.size.width / 2,
+                    y: geometry.size.height * 4 / 5
+                )
+            } emptyContent: {
+                ZStack {
+                    Text("ユーザが見つかりません")
+                        .position(
+                            x: geometry.size.width / 2,
+                            y: geometry.size.height / 2
+                        )
+                    Button {
+                        NavigationRepository.removeViews(dest: .participant)
+                    } label: {
+                        Text("キャンセル")
+                            .frame(width: geometry.size.width * 0.6, height: 30)
+                    }
+                    .foregroundStyle(.primary)
+                    .position(
+                        x: geometry.size.width / 2,
+                        y: geometry.size.height * 4 / 5
+                    )
                 }
             }
-            VStack {
-                Button {
-                    
-                } label: {
-                    Text("追加")
-                }
-                .frame(width: geometry.size.width * 0.6, height: 40)
-                .foregroundStyle(.primary)
-                .background(Color.accent)
-                .contentShape(Rectangle())
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                Button {
-                    NavigationRepository.removeViews(dest: .participant)
-                } label: {
-                    Text("キャンセル")
-                }
-                .frame(width: geometry.size.width * 0.6, height: 30)
-                .foregroundStyle(.primary)
-                .contentShape(Rectangle())
-            }
-            .position(
-                x: geometry.size.width / 2,
-                y: geometry.size.height * 4 / 5
-            )
         }
         .navigationTitle("ユーザを追加")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
+        .onAppear() {
+            participantDataStore.isLoading = true
+            guard let userId = participantDataStore.addUserId else {
+                participantDataStore.isLoading = false
+                return
+            }
+            Task {
+                isEmpty = await !UserRepository.isExist(userId: userId)
+                participantDataStore.isLoading = false
+            }
+        }
     }
 }
 

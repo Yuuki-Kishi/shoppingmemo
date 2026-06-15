@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AddParticipantViewCell: View {
-    @StateObject private var participantDataStore: ParticipantDataStore = .shared
+    @EnvironmentObject private var participantDataStore: ParticipantDataStore
     private let itemType: ItemTypeEnum
     @State private var userName: String = "----"
     @State private var email: String = "----"

@@ -11,4 +11,5 @@ import Foundation
 class ParticipantDataStore: ObservableObject {
     static let shared = ParticipantDataStore()
     @Published var addUserId: String? = nil
+    @Published var isLoading: Bool = false
 }

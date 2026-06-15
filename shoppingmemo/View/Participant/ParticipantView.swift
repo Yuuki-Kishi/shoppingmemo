@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ParticipantView: View {
     @EnvironmentObject private var roomDataStore: RoomDataStore
-    @StateObject private var participantDataStore: ParticipantDataStore = .shared
+    @EnvironmentObject private var participantDataStore: ParticipantDataStore
     @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var addParticipantAlertIsPresented: Bool = false
     @State private var addParticipantByUserIdAlertIsPresented: Bool = false
