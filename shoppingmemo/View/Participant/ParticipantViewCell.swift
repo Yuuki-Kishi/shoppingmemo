@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct ParticipantViewCell: View {
-    private let authority: Authority
+    private let userId: String
     @State private var userName: String = "----"
     @State private var email: String = "----"
     
-    init(authority: Authority) {
-        self.authority = authority
+    init(userId: String) {
+        self.userId = userId
     }
     
     var body: some View {
@@ -29,17 +29,17 @@ struct ParticipantViewCell: View {
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .onAppear() {
-            UserRepository.observeUserName(userId: authority.userId) { userName in
+            UserRepository.observeUserName(userId: userId) { userName in
                 self.userName = userName ?? "----"
             }
-            Task { email = await UserRepository.getUserData(userId: authority.userId)?.email ?? "----" }
+            Task { email = await UserRepository.getUserData(userId: userId)?.email ?? "----" }
         }
     }
     func userNameTextColor() -> Color {
-        authority.isMine ? Color.green : Color.primary
+        userId.isMyUserId ? .green : .primary
     }
 }
 
 #Preview {
-    ParticipantViewCell(authority: Authority())
+    ParticipantViewCell(userId: "unknownUserId")
 }

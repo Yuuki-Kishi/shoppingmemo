@@ -62,7 +62,7 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         try container.encode(noticeCheckedTimeString, forKey: .noticeCheckedTime)
     }
     
-    init(userId: String, userName: String, email: String, creationTime: Date, currentVersion: String, iOSVersion: String, noticeCheckedTime: Date, authorities: [Authority]) {
+    init(userId: String, userName: String, email: String, creationTime: Date, currentVersion: String, iOSVersion: String, noticeCheckedTime: Date) {
         self.userId = userId
         self.userName = userName
         self.email = email
@@ -92,5 +92,13 @@ struct User: Codable, Hashable, Identifiable, Equatable {
         self.currentVersion = "unknownVersion"
         self.iOSVersion = "unknownVersion"
         self.noticeCheckedTime = Date()
+    }
+}
+
+@MainActor
+extension String {
+    var isMyUserId: Bool {
+        guard let userId = UserDataStore.shared.signInUser?.userId else { return false }
+        return self == userId
     }
 }

@@ -182,8 +182,8 @@ struct ListsView: View {
     func isAdministrator() -> Bool {
         guard let myUserId = userDataStore.signInUser?.userId else { return false }
         guard let authorities = roomDataStore.roomArray.selected?.authorities else { return false }
-        guard let myAuthority = authorities.first(where: { $0.userId == myUserId }) else { return false }
-        if myAuthority.authority == .administrator { return true }
+        guard let myAuthority = authorities[myUserId] else { return false }
+        if myAuthority == .administrator { return true }
         return false
     }
 }

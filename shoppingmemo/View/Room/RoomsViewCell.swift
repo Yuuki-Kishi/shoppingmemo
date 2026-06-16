@@ -46,14 +46,12 @@ struct RoomsViewCell: View {
                 Text("保留")
             }
             Button(role: .confirm) {
-                guard let authority = room.authorities.mine else { return }
-                Task { await RoomRepository.updateMyAuthority(roomId: room.roomId, authority: authority) }
+                Task { await RoomRepository.updateMyAuthority(roomId: room.roomId) }
             } label: {
                 Text("加入")
             }
             Button(role: .destructive) {
-                guard let authority = room.authorities.mine else { return }
-                Task { await RoomRepository.removeAuthority(authority: authority) }
+                Task { await RoomRepository.removeMyAuthority(roomId: room.roomId) }
             } label: {
                 Text("拒否")
             }

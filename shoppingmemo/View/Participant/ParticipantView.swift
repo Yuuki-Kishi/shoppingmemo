@@ -20,18 +20,20 @@ struct ParticipantView: View {
             ZStack {
                 List {
                     Section {
-                        ForEach(room.authorities.administrators, id: \.userId) { authority in
-                            ParticipantViewCell(authority: authority)
+                        ForEach(room.authorities.administrators, id: \.self) { userId in
+                            ParticipantViewCell(userId: userId)
                         }
                     } header: {
                         Text("管理者")
                     }
                     BoolSwitchView(isEmpty: room.authorities.members.isEmpty) {
                         Section {
-                            ForEach(room.authorities.members, id: \.userId) { authority in
-                                ParticipantViewCell(authority: authority)
+                            ForEach(room.authorities.members, id: \.self) { userId in
+                                ParticipantViewCell(userId: userId)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        deleteButton(authority: authority)
+                                        DeleteButton {
+                                            Task { await RoomRepository.removeAuthority(userId: userId, roomId: room.roomId) }
+                                        }
                                     }
                             }
                         } header: {
@@ -40,10 +42,12 @@ struct ParticipantView: View {
                     } emptyContent: {}
                     BoolSwitchView(isEmpty: room.authorities.guests.isEmpty) {
                         Section {
-                            ForEach(room.authorities.guests, id: \.userId) { authority in
-                                ParticipantViewCell(authority: authority)
+                            ForEach(room.authorities.guests, id: \.self) { userId in
+                                ParticipantViewCell(userId: userId)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        deleteButton(authority: authority)
+                                        DeleteButton {
+                                            Task { await RoomRepository.removeAuthority(userId: userId, roomId: room.roomId) }
+                                        }
                                     }
                             }
                         } header: {
@@ -70,11 +74,6 @@ struct ParticipantView: View {
         }
         .navigationTitle("メンバーリスト")
         .navigationBarTitleDisplayMode(.inline)
-    }
-    func deleteButton(authority: Authority) -> some View {
-        DeleteButton {
-            Task { await RoomRepository.removeAuthority(authority: authority) }
-        }
     }
     @ViewBuilder
     func addParticipantAlertActions() -> some View {

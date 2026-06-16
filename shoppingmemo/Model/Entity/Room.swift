@@ -19,7 +19,11 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     var lastUpdateUserId: String
     var lastUpdateTime: Date
     var memberIds: [String]
-    var authorities: [Authority]
+    var authorities: [String: AuthorityEnum]
+    
+    enum AuthorityEnum: String, Codable {
+        case administrator, member, guest, unknown
+    }
     
     enum CodingKeys: String, CodingKey {
         case roomId, roomName, creationTime, lastUpdateUserId, lastUpdateTime, memberIds, authorities
@@ -44,7 +48,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
             throw DecodingError.dataCorruptedError(forKey: .lastUpdateTime, in: container, debugDescription: "Failed to decode lastUpdateTime.")
         }
         self.memberIds = try container.decode([String].self, forKey: .memberIds)
-        self.authorities = try container.decode([Authority].self, forKey: .authorities)
+        self.authorities = try container.decode([String: AuthorityEnum].self, forKey: .authorities)
     }
     
     func encode(to encoder: any Encoder) throws {
@@ -61,7 +65,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         try container.encode(self.authorities, forKey: .authorities)
     }
     
-    init(roomId: String, roomName: String, creationTime: Date, lastUpdateUserId: String, lastUpdateTime: Date, memberIds: [String], authorities: [Authority]) {
+    init(roomId: String, roomName: String, creationTime: Date, lastUpdateUserId: String, lastUpdateTime: Date, memberIds: [String], authorities: [String: AuthorityEnum]) {
         self.roomId = roomId
         self.roomName = roomName
         self.creationTime = creationTime
@@ -79,7 +83,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.lastUpdateUserId = userId
         self.lastUpdateTime = Date()
         self.memberIds = [userId]
-        self.authorities = [Authority(userId: userId, authority: .administrator)]
+        self.authorities = [userId: .administrator]
     }
     
     init() {
@@ -89,7 +93,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
         self.lastUpdateUserId = "unknownUserId"
         self.lastUpdateTime = Date()
         self.memberIds = ["unknownUserId"]
-        self.authorities = [Authority(userId: "unknownRoomId", authority: .administrator)]
+        self.authorities = ["unknownUserId": .unknown]
     }
 }
 
@@ -110,5 +114,28 @@ extension Array where Element == Room {
         if let index = self.firstIndex(of: room) {
             self.remove(at: index)
         }
+    }
+}
+
+@MainActor
+extension Dictionary where Key == String, Value == Room.AuthorityEnum {
+    var myAuthority: Value? {
+        guard let userId = UserDataStore.shared.signInUser?.userId else { return nil }
+        return self[userId]
+    }
+    var administrators: [Key] {
+        self.filter { $0.value == .administrator }.map { $0.key }
+    }
+    var members: [Key] {
+        self.filter { $0.value == .member }.map { $0.key }
+    }
+    var guests: [Key] {
+        self.filter { $0.value == .guest }.map { $0.key }
+    }
+}
+
+extension Room {
+    mutating func authority(userId: String) -> AuthorityEnum? {
+        self.authorities[userId]
     }
 }
