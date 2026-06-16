@@ -43,6 +43,46 @@ class RoomRepository {
         }
     }
     
+    static func addAuthority(userId: String) async {
+        do {
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            let authority = Authority(userId: userId, authority: .guest)
+            let encoded = try JSONEncoder().encode(authority)
+            guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities": FieldValue.arrayUnion([jsonObject])])
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["memberIds": FieldValue.arrayUnion([userId])])
+        } catch {
+            print(error)
+        }
+    }
+    
+    static func removeAuthority(authority: Authority) async {
+        do {
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            let encoded = try JSONEncoder().encode(authority)
+            guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities": FieldValue.arrayRemove([jsonObject])])
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["memberIds": FieldValue.arrayRemove([authority.userId])])
+        } catch {
+            print(error)
+        }
+    }
+    
+    static func updateMyAuthority(roomId: String, authority: Authority) async {
+        do {
+            guard let userId = userDataStore.signInUser?.userId else { return }
+            let encoded = try JSONEncoder().encode(authority)
+            guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities": FieldValue.arrayRemove([jsonObject])])
+            let newAuthority = Authority(userId: userId, authority: .member)
+            let newEncoded = try JSONEncoder().encode(newAuthority)
+            guard let newJsonObject = try JSONSerialization.jsonObject(with: newEncoded, options: []) as? [String: Any] else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities": FieldValue.arrayUnion([newJsonObject])])
+        } catch {
+            print(error)
+        }
+    }
+    
     //delete
     static func deleteRoom() async {
         do {

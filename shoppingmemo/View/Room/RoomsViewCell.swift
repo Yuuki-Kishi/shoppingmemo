@@ -12,6 +12,7 @@ struct RoomsViewCell: View {
     @EnvironmentObject private var pathDataStore: PathDataStore
     private let room: Room
     @State private var lastUpdateUserName: String = "----"
+    @State private var enterRoomAlertIsPresented: Bool = false
     
     init(room: Room) {
         self.room = room
@@ -40,9 +41,32 @@ struct RoomsViewCell: View {
         }
         .contentShape(Rectangle())
         .listRowBackground(cellColor())
+        .alert("\(room.roomName)に加入しますか？", isPresented: $enterRoomAlertIsPresented) {
+            Button(role: .cancel) {} label: {
+                Text("保留")
+            }
+            Button(role: .confirm) {
+                guard let authority = room.authorities.mine else { return }
+                Task { await RoomRepository.updateMyAuthority(roomId: room.roomId, authority: authority) }
+            } label: {
+                Text("加入")
+            }
+            Button(role: .destructive) {
+                guard let authority = room.authorities.mine else { return }
+                Task { await RoomRepository.removeAuthority(authority: authority) }
+            } label: {
+                Text("拒否")
+            }
+        } message: {
+            Text("後から自分で脱退することができます。")
+        }
         .onTapGesture {
-            roomDataStore.selectedRoomId = room.roomId
-            pathDataStore.navigationPath.append(.lists)
+            if room.authorities.myAuthority == .guest {
+                enterRoomAlertIsPresented = true
+            } else {
+                roomDataStore.selectedRoomId = room.roomId
+                pathDataStore.navigationPath.append(.lists)
+            }
         }
         .onAppear() {
             UserRepository.observeUserName(userId: room.lastUpdateUserId) { userName in
@@ -51,7 +75,7 @@ struct RoomsViewCell: View {
         }
     }
     func roomName() -> String {
-        if room.authorities.mine == .guest {
+        if room.authorities.myAuthority == .guest {
             return room.roomName + " (招待されています)"
         } else {
             return room.roomName
@@ -63,7 +87,7 @@ struct RoomsViewCell: View {
         return dateFormatter.string(from: room.lastUpdateTime)
     }
     func cellColor() -> Color? {
-        if room.authorities.mine == .guest { return .orange }
+        if room.authorities.myAuthority == .guest { return .orange }
         return nil
     }
 }

@@ -84,7 +84,7 @@ struct RoomsView: View {
         case .participant:
             ParticipantView()
         case .QRreader:
-            EmptyView()
+            QRCodeReaderView()
         case .addParicipant:
             AddParticipantView()
         }

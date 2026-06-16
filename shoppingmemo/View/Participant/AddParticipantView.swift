@@ -25,7 +25,11 @@ struct AddParticipantView: View {
                 }
                 VStack {
                     Button {
-                        
+                        guard let userId = participantDataStore.addUserId else { return }
+                        Task {
+                            await RoomRepository.addAuthority(userId: userId)
+                            NavigationRepository.removeViews(dest: .participant)
+                        }
                     } label: {
                         Text("追加")
                             .frame(width: geometry.size.width * 0.6, height: 40)

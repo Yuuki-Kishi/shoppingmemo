@@ -30,6 +30,9 @@ struct ParticipantView: View {
                         Section {
                             ForEach(room.authorities.members, id: \.userId) { authority in
                                 ParticipantViewCell(authority: authority)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                        deleteButton(authority: authority)
+                                    }
                             }
                         } header: {
                             Text("メンバー")
@@ -39,9 +42,12 @@ struct ParticipantView: View {
                         Section {
                             ForEach(room.authorities.guests, id: \.userId) { authority in
                                 ParticipantViewCell(authority: authority)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                        deleteButton(authority: authority)
+                                    }
                             }
                         } header: {
-                            Text("ゲスト")
+                            Text("招待中")
                         }
                     } emptyContent: {}
                 }
@@ -64,6 +70,11 @@ struct ParticipantView: View {
         }
         .navigationTitle("メンバーリスト")
         .navigationBarTitleDisplayMode(.inline)
+    }
+    func deleteButton(authority: Authority) -> some View {
+        DeleteButton {
+            Task { await RoomRepository.removeAuthority(authority: authority) }
+        }
     }
     @ViewBuilder
     func addParticipantAlertActions() -> some View {

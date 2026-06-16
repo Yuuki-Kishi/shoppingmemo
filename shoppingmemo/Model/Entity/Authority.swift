@@ -50,7 +50,14 @@ struct Authority: Codable, Hashable, Identifiable, Equatable {
 
 @MainActor
 extension Array where Element == Authority {
-    var mine: Authority.AuthorityEnum {
+    var mine: Element? {
+        guard let userId = UserDataStore.shared.signInUser?.userId else { return nil }
+        if let mine = self.first(where: { $0.userId == userId }) {
+            return mine
+        }
+        return nil
+    }
+    var myAuthority: Authority.AuthorityEnum {
         guard let userId = UserDataStore.shared.signInUser?.userId else { return .unknown }
         if let mine = self.first(where: { $0.userId == userId }) {
             return mine.authority
