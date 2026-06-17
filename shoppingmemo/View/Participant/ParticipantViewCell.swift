@@ -28,11 +28,13 @@ struct ParticipantViewCell: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .task {
+            email = await UserRepository.getUserData(userId: userId)?.email ?? "----"
+        }
         .onAppear() {
             UserRepository.observeUserName(userId: userId) { userName in
                 self.userName = userName ?? "----"
             }
-            Task { email = await UserRepository.getUserData(userId: userId)?.email ?? "----" }
         }
     }
     func userNameTextColor() -> Color {

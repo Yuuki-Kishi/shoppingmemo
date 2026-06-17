@@ -18,7 +18,7 @@ struct RoomsView: View {
         NavigationStack(path: $pathDataStore.navigationPath) {
             ZStack {
                 BoolSwitchView(isEmpty: roomDataStore.roomArray.isEmpty, isLoading: roomDataStore.isLoading) {
-                    List(roomDataStore.roomArray, id: \.roomId) { room in
+                    List(roomDataStore.roomArray, id: \.id) { room in
                         RoomsViewCell(room: room)
                     }
                     .listRowSpacing(35)
