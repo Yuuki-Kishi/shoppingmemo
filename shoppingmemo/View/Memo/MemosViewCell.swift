@@ -11,15 +11,18 @@ struct MemosViewCell: View {
     @EnvironmentObject private var memoDataStore: MemoDataStore
     @EnvironmentObject private var pathDataStore: PathDataStore
     private let memo: Memo
+    @State private var newMemoNameText: String
+    @State private var renameMemoNameAlertIsPresented: Bool = false
     
     init(memo: Memo) {
         self.memo = memo
+        self.newMemoNameText = memo.memoName
     }
     
     var body: some View {
         HStack {
             Button {
-                Task { await MemoRepository.updateIsChecked(memo: memo) }
+                Task { await MemoRepository.updateIsChecked(memoId: memo.memoId, newIsChecked: !memo.isChecked) }
             } label: {
                 Image(systemName: checkMarkImageName())
                     .font(.system(size: 20))
@@ -28,7 +31,7 @@ struct MemosViewCell: View {
             }
             .buttonStyle(.plain)
             Button {
-                print("updateMemo")
+                renameMemoNameAlertIsPresented = true
             } label: {
                 Text(memo.memoName)
                     .lineLimit(1)
@@ -48,6 +51,22 @@ struct MemosViewCell: View {
             }
             .buttonStyle(.plain)
         }
+        .alert("メモの変更", isPresented: $renameMemoNameAlertIsPresented) {
+            TextField("メモを入力", text: $newMemoNameText)
+            Button(role: .cancel) {
+                newMemoNameText = memo.memoName
+            } label: {
+                Text("キャンセル")
+            }
+            Button(role: .confirm) {
+                Task { await MemoRepository.updateMemoName(memoId: memo.memoId, newMemoName: newMemoNameText) }
+            } label: {
+                Text("変更")
+            }
+        } message: {
+            Text("変更後のメモを入力してください。")
+        }
+
     }
     func checkMarkImageName() -> String {
         memo.isChecked ? "checkmark.square" : "square"

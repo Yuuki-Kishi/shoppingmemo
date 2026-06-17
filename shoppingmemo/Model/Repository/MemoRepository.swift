@@ -37,11 +37,21 @@ class MemoRepository {
     //get
     
     //update
-    static func updateIsChecked(memo: Memo) async {
+    static func updateIsChecked(memoId: String, newIsChecked: Bool) async {
         do {
             guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
             guard let listId = listDataStore.listArray.selected?.listId else { return }
-            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memo.memoId).updateData(["isChecked": !memo.isChecked])
+            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["isChecked": newIsChecked])
+        } catch {
+            print(error)
+        }
+    }
+    
+    static func updateMemoName(memoId: String, newMemoName: String) async {
+        do {
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["memoName": newMemoName])
         } catch {
             print(error)
         }
