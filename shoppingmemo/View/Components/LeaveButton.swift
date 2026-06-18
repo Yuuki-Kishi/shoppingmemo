@@ -1,13 +1,13 @@
 //
-//  PlusButton.swift
+//  LeaveButton.swift
 //  shoppingmemo
 //
-//  Created by 岸　優樹 on 2026/05/14.
+//  Created by 岸　優樹 on 2026/06/18.
 //
 
 import SwiftUI
 
-struct PlusButton: View {
+struct LeaveButton: View {
     private let action: () -> Void
     
     init(action: @escaping () -> Void) {
@@ -16,11 +16,10 @@ struct PlusButton: View {
     
     var body: some View {
         Button(action: action) {
-            Image(systemName: "plus")
-                .foregroundStyle(Color.primary)
+            Image(systemName: "figure.walk.departure")
+                .foregroundStyle(Color.red)
                 .font(.system(size: 30))
                 .frame(width: 70, height: 70)
-                .background(Color("AccentColor"))
                 .glassEffect(.regular)
                 .clipShape(Circle())
         }
@@ -30,5 +29,5 @@ struct PlusButton: View {
 }
 
 #Preview {
-    PlusButton() {}
+    LeaveButton() {}
 }

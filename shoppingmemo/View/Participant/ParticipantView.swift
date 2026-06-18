@@ -13,6 +13,7 @@ struct ParticipantView: View {
     @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var addParticipantAlertIsPresented: Bool = false
     @State private var addParticipantByUserIdAlertIsPresented: Bool = false
+    @State private var leaveGroupAlertIsPresented: Bool = false
     @State private var addUserIdText: String = ""
     
     var body: some View {
@@ -29,12 +30,16 @@ struct ParticipantView: View {
                     BoolSwitchView(isEmpty: room.authorities.members.isEmpty) {
                         Section {
                             ForEach(room.authorities.members, id: \.self) { userId in
-                                ParticipantViewCell(userId: userId)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        DeleteButton {
-                                            Task { await RoomRepository.removeAuthority(userId: userId, roomId: room.roomId) }
+                                if room.authorities.myAuthority == .administrator {
+                                    ParticipantViewCell(userId: userId)
+                                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                            DeleteButton {
+                                                Task { await RoomRepository.removeAuthority(userId: userId, roomId: room.roomId) }
+                                            }
                                         }
-                                    }
+                                } else {
+                                    ParticipantViewCell(userId: userId)
+                                }
                             }
                         } header: {
                             Text("メンバー")
@@ -55,8 +60,14 @@ struct ParticipantView: View {
                         }
                     } emptyContent: {}
                 }
-                PlusButton {
-                    addParticipantAlertIsPresented = true
+                if room.authorities.myAuthority == .administrator {
+                    PlusButton {
+                        addParticipantAlertIsPresented = true
+                    }
+                } else {
+                    LeaveButton {
+                        leaveGroupAlertIsPresented = true
+                    }
                 }
             }
         } nilContent: {
@@ -71,6 +82,11 @@ struct ParticipantView: View {
             addParicipantByUserIdAlertActions()
         } message: {
             Text("追加するメンバーのユーザーIDを入力してください。")
+        }
+        .alert("本当に脱退しますか？", isPresented: $leaveGroupAlertIsPresented) {
+            leaveGroupAlertActions()
+        } message: {
+            Text("この操作は取り消すことができません。")
         }
         .navigationTitle("メンバーリスト")
         .navigationBarTitleDisplayMode(.inline)
@@ -105,6 +121,21 @@ struct ParticipantView: View {
             addUserIdText = ""
         } label: {
             Text("キャンセル")
+        }
+    }
+    @ViewBuilder
+    func leaveGroupAlertActions() -> some View {
+        Button(role: .cancel) {} label: {
+            Text("キャンセル")
+        }
+        Button(role: .destructive) {
+            Task {
+                guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+                await RoomRepository.removeMyAuthority(roomId: roomId)
+                NavigationRepository.removeAllViews()
+            }
+        } label: {
+            Text("脱退")
         }
     }
 }

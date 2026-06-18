@@ -10,12 +10,16 @@ import FirebaseAuth
 import CoreImage.CIFilterBuiltins
 
 struct MyInfoViewCell: View {
-    @StateObject var userDataStore: UserDataStore = .shared
-    @StateObject var myInfoDataStore: MyInfoDataStore = .shared
+    @EnvironmentObject private var userDataStore: UserDataStore
+    @EnvironmentObject private var myInfoDataStore: MyInfoDataStore
     @State var itemType: ItemTypeEnum
     
+    init(itemType: ItemTypeEnum) {
+        self.itemType = itemType
+    }
+    
     enum ItemTypeEnum {
-        case name, email, userId, QR, creationDate, lastSignInDate, useDays
+        case name, email, userId, QR, creationDate, lastSignInDate, useDays, deleteAccount
     }
     
     var body: some View {
@@ -104,6 +108,15 @@ struct MyInfoViewCell: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
+        case .deleteAccount:
+            HStack {
+                Text(itemString())
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .onTapGesture {
+                //go to reAuthentic View
+            }
         }
     }
     func itemString() -> String {
@@ -122,6 +135,8 @@ struct MyInfoViewCell: View {
             return "最終ログイン日"
         case .useDays:
             return "利用日数"
+        case .deleteAccount:
+            return "アカウント削除"
         }
     }
     func getQRImage() -> UIImage? {

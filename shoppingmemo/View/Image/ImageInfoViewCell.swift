@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct ImageInfoViewCell: View {
-    @StateObject var imageDataStore: ImageDataStore = .shared
-    
+    @EnvironmentObject private var imageDataStore: ImageDataStore
     @State var cellContent: CellContentEnum
     @State var userName: String = "取得中..."
     
@@ -43,7 +42,7 @@ struct ImageInfoViewCell: View {
         case .userName:
             return userName
         case .imageSize:
-            return imageSize()
+            return imageDataStore.attachedImage?.imageData.count.fileSizeString ?? "--MB"
         case .uploadTime:
             return uploadTime()
         }
@@ -56,18 +55,6 @@ struct ImageInfoViewCell: View {
                 self.userName = userName
             }
         }
-    }
-    func imageSize() -> String{
-        if let imageData = imageDataStore.attachedImage?.imageData {
-            if imageData.count > 1000 * 1000 {
-                return String(Double(imageData.count) / (1000 * 1000)) + "MB"
-            } else if imageData.count > 1000 {
-                return String(Double(imageData.count) / (1000)) + "KB"
-            } else {
-                return String(imageData.count) + "B"
-            }
-        }
-        return "不明なサイズ"
     }
     func uploadTime() -> String {
         if let uploadTime = imageDataStore.attachedImage?.uploadTime {

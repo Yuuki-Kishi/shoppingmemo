@@ -32,3 +32,9 @@ struct CustomImage: Hashable, Identifiable, Equatable {
         self.uploadUserId = "unknownUserId"
     }
 }
+
+extension Int {
+    var fileSizeString: String {
+        ByteCountFormatter.string(fromByteCount: Int64(self), countStyle: .file)
+    }
+}

@@ -71,6 +71,16 @@ class RoomRepository {
         }
     }
     
+    static func transferAuthority(newAdministratorUserId: String) async {
+        do {
+            guard let userId = userDataStore.signInUser?.userId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.member.rawValue, "authorities.\(newAdministratorUserId)": Room.AuthorityEnum.administrator.rawValue])
+        } catch {
+            print(error)
+        }
+    }
+    
     static func removeMyAuthority(roomId: String) async {
         guard let userId = userDataStore.signInUser?.userId else { return }
         await removeAuthority(userId: userId, roomId: roomId)

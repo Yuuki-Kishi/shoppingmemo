@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MyInfoView: View {
-    @StateObject var myInfoDataStore: MyInfoDataStore = .shared
+    @EnvironmentObject private var myInfoDataStore: MyInfoDataStore
     
     var body: some View {
         List {
@@ -22,6 +22,9 @@ struct MyInfoView: View {
                 MyInfoViewCell(itemType: .useDays)
             } header: {
                 Text("自分の情報")
+            }
+            Section {
+                MyInfoViewCell(itemType: .deleteAccount)
             }
         }
         .alert("ユーザーネームを変更", isPresented: $myInfoDataStore.renameUserNameAlertIsPresent) {
