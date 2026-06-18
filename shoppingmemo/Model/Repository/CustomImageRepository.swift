@@ -57,7 +57,7 @@ class CustomImageRepository {
             return
         }
         do {
-            let imageData = try await storage.reference(forURL: imageUrl).data(maxSize: 1 * 1024 * 1024)
+            let imageData = try await storage.reference(forURL: imageUrl).data(maxSize: 5 * 1024 * 1024)
             let metadata = try await storage.reference(forURL: imageUrl).getMetadata()
             guard let uploadTime = metadata.updated else { return }
             let uploadUserId = metadata.customMetadata?["uploadUserId"] ?? "unknownUserId"

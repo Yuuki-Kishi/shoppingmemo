@@ -22,6 +22,7 @@ struct ImageView: View {
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFit()
+                .zoomable(maxScale: 5)
         } nilContent: {
             Text("画像がありません")
         }

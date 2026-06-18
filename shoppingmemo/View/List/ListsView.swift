@@ -123,13 +123,13 @@ struct ListsView: View {
                 Label("並び替え", systemImage: "arrow.up.arrow.down")
             }
             Divider()
-            if isAdministrator() {
-                Button(role: .destructive) {
-                    
-                } label: {
-                    Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
-                }
-            }
+//            if isAdministrator() {
+//                Button(role: .destructive) {
+//                    
+//                } label: {
+//                    Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
+//                }
+//            }
             Button(role: .destructive) {
                 deleteRoomAlertIsPresent = true
             } label: {
