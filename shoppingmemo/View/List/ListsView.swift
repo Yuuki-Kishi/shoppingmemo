@@ -123,17 +123,12 @@ struct ListsView: View {
                 Label("並び替え", systemImage: "arrow.up.arrow.down")
             }
             Divider()
-//            if isAdministrator() {
-//                Button(role: .destructive) {
-//                    
-//                } label: {
-//                    Label("管理者権限を譲渡", systemImage: "person.line.dotted.person")
-//                }
-//            }
-            Button(role: .destructive) {
-                deleteRoomAlertIsPresent = true
-            } label: {
-                Label("ルーム削除", systemImage: "trash")
+            if roomDataStore.roomArray.selected?.authorities.myAuthority == .administrator {
+                Button(role: .destructive) {
+                    deleteRoomAlertIsPresent = true
+                } label: {
+                    Label("ルーム削除", systemImage: "trash")
+                }
             }
         } label: {
             Image(systemName: "ellipsis.circle")
@@ -178,13 +173,6 @@ struct ListsView: View {
         } label: {
             Text("削除")
         }
-    }
-    func isAdministrator() -> Bool {
-        guard let myUserId = userDataStore.signInUser?.userId else { return false }
-        guard let authorities = roomDataStore.roomArray.selected?.authorities else { return false }
-        guard let myAuthority = authorities[myUserId] else { return false }
-        if myAuthority == .administrator { return true }
-        return false
     }
 }
 

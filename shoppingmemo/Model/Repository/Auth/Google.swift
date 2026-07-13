@@ -26,8 +26,10 @@ class Google {
                 return
             }
             guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken,accessToken: user.accessToken.tokenString)
-            Task { await self.login(credential: credential) }
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            Task { @MainActor in
+                login(credential: credential)
+            }
         }
     }
     
@@ -43,7 +45,7 @@ class Google {
                 return
             }
             guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken,accessToken: user.accessToken.tokenString)
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
             Auth.auth().currentUser?.reauthenticate(with: credential) { _, error  in
                 if let error = error {
                     print("reauthenticateError: \(error.localizedDescription)")

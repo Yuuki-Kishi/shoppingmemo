@@ -12,13 +12,14 @@ struct ImageView: View {
     @EnvironmentObject private var memoDataStore: MemoDataStore
     @EnvironmentObject private var imageDataStore: ImageDataStore
     @State private var selectedImage: PhotosPickerItem?
-    @State private var uiImage: UIImage?
+//    @State private var uiImage: UIImage?
     @State private var photosPickerIsPresented: Bool = false
     @State private var imageInfoViewIsPresented: Bool = false
+    @State private var isShowCameraView: Bool = false
     @State private var deleteImageAlertIsPresented: Bool = false
     
     var body: some View {
-        OptionalUnwrapView(optional: uiImage, isLoading: imageDataStore.isLoading) { uiImage in
+        ImageDataUnwrapView(imageData: imageDataStore.attachedImage?.imageData, isLoading: imageDataStore.isLoading) { uiImage in
             Image(uiImage: uiImage)
                 .resizable()
                 .scaledToFit()
@@ -31,12 +32,17 @@ struct ImageView: View {
         }
         .photosPicker(isPresented: $photosPickerIsPresented, selection: $selectedImage)
         .onChange(of: selectedImage) {
-            imageDataStore.isLoading = true
-            Task { await CustomImageRepository.createImage(selectedImage: selectedImage) }
+            Task { await imageSelected() }
         }
         .sheet(isPresented: $imageInfoViewIsPresented) {
             ImageInfoView()
                 .presentationDetents([.height(200)])
+        }
+        .fullScreenCover(isPresented: $isShowCameraView) {
+            CameraView { imageData in
+                Task { await uploadImageData(data: imageData) }
+            }
+            .ignoresSafeArea()
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -60,15 +66,17 @@ struct ImageView: View {
         }
     }
     func loadImage(imageUrl: String) async {
-        if let imageData = imageDataStore.attachedImage?.imageData {
-            uiImage = UIImage(data: imageData)
-            return
-        }
         imageDataStore.isLoading = true
-        defer { imageDataStore.isLoading = false }
         await CustomImageRepository.getImage(imageUrl: imageUrl)
-        guard let imageData = imageDataStore.attachedImage?.imageData else { return }
-        uiImage = UIImage(data: imageData)
+        imageDataStore.isLoading = false
+    }
+    func imageSelected() async {
+        guard let data = try? await selectedImage?.loadTransferable(type: Data.self) else { return }
+        await uploadImageData(data: data)
+    }
+    func uploadImageData(data: Data) async {
+        imageDataStore.isLoading = true
+        await CustomImageRepository.createImage(imageData: data)
     }
     func toolBarMenu() -> some View {
         ZStack {
@@ -80,7 +88,7 @@ struct ImageView: View {
                         Label("アルバムから追加", systemImage: "photo.stack")
                     }
                     Button {
-                        
+                        isShowCameraView = true
                     } label: {
                         Label("撮影して追加", systemImage: "camera")
                     }
@@ -100,7 +108,7 @@ struct ImageView: View {
                         Label("アルバムから変更", systemImage: "photo.on.rectangle.angled")
                     }
                     Button {
-                        
+                        isShowCameraView = true
                     } label: {
                         Label("撮影して変更", systemImage: "camera")
                     }

@@ -12,7 +12,9 @@ import CoreImage.CIFilterBuiltins
 struct MyInfoViewCell: View {
     @EnvironmentObject private var userDataStore: UserDataStore
     @EnvironmentObject private var myInfoDataStore: MyInfoDataStore
+    @EnvironmentObject private var pathDataStore: PathDataStore
     @State var itemType: ItemTypeEnum
+    @State private var deleteAccountAlertIsPresented: Bool = false
     
     init(itemType: ItemTypeEnum) {
         self.itemType = itemType
@@ -114,8 +116,18 @@ struct MyInfoViewCell: View {
                     .foregroundStyle(.red)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
+            .contentShape(Rectangle())
+            .alert("再度ログインを求められます", isPresented: $deleteAccountAlertIsPresented) {
+                Button {
+                    pathDataStore.navigationPath.append(.deleteAccount)
+                } label: {
+                    Text("OK")
+                }
+            } message: {
+                Text("重要な操作のため、一度ログインしてください。")
+            }
             .onTapGesture {
-                //go to reAuthentic View
+                deleteAccountAlertIsPresented = true
             }
         }
     }

@@ -7,19 +7,47 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DE2DB4823003E1F30060B7D4 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB4813003E1F30060B7D4 /* FirebaseAuth */; };
+		DE2DB4843003E1F30060B7D4 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB4833003E1F30060B7D4 /* FirebaseCore */; };
+		DE2DB4863003E1F30060B7D4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB4853003E1F30060B7D4 /* FirebaseFirestore */; };
+		DE2DB4883003E1F30060B7D4 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB4873003E1F30060B7D4 /* FirebaseFunctions */; };
+		DE2DB48A3003E1F30060B7D4 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB4893003E1F30060B7D4 /* FirebaseStorage */; };
+		DE2DB48C3003E2170060B7D4 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB48B3003E2170060B7D4 /* FirebaseCore */; };
+		DE2DB48E3003E21B0060B7D4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB48D3003E21B0060B7D4 /* FirebaseFirestore */; };
 		DE3BF90B2FB5338E0094E2B1 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DE3BF90A2FB5338E0094E2B1 /* Localizable.xcstrings */; };
-		DE68B5C62F688FD0008C9CF7 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = DE68B5C52F688FD0008C9CF7 /* FirebaseAuth */; };
-		DE68B5C82F688FD0008C9CF7 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = DE68B5C72F688FD0008C9CF7 /* FirebaseCore */; };
-		DE68B5CA2F688FD0008C9CF7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DE68B5C92F688FD0008C9CF7 /* FirebaseFirestore */; };
-		DE68B5CC2F688FD0008C9CF7 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = DE68B5CB2F688FD0008C9CF7 /* FirebaseFunctions */; };
-		DE68B5CE2F688FD0008C9CF7 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = DE68B5CD2F688FD0008C9CF7 /* FirebaseStorage */; };
 		DEC8760A2E7998C60023AA0C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DEC876092E7998C60023AA0C /* GoogleSignIn */; };
 		DEC8760C2E7998C60023AA0C /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DEC8760B2E7998C60023AA0C /* GoogleSignInSwift */; };
+		DEE77439300254540090AB49 /* shoppingmemoWatchApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DEE7742F300254520090AB49 /* shoppingmemoWatchApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DEE77437300254540090AB49 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DE48A83C2E5B8956008C6FF2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEE7742E300254520090AB49;
+			remoteInfo = "shoppingmemoWatchApp Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DEE7743A300254540090AB49 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				DEE77439300254540090AB49 /* shoppingmemoWatchApp Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DE3BF90A2FB5338E0094E2B1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		DE48A8822E6365F7008C6FF2 /* shoppingmemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shoppingmemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DEE7742F300254520090AB49 /* shoppingmemoWatchApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "shoppingmemoWatchApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -41,6 +69,11 @@
 			path = shoppingmemo;
 			sourceTree = "<group>";
 		};
+		DEE77430300254520090AB49 /* shoppingmemoWatchApp Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "shoppingmemoWatchApp Watch App";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,24 +82,43 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEC8760A2E7998C60023AA0C /* GoogleSignIn in Frameworks */,
-				DE68B5C62F688FD0008C9CF7 /* FirebaseAuth in Frameworks */,
-				DE68B5C82F688FD0008C9CF7 /* FirebaseCore in Frameworks */,
-				DE68B5CC2F688FD0008C9CF7 /* FirebaseFunctions in Frameworks */,
-				DE68B5CE2F688FD0008C9CF7 /* FirebaseStorage in Frameworks */,
-				DE68B5CA2F688FD0008C9CF7 /* FirebaseFirestore in Frameworks */,
+				DE2DB4823003E1F30060B7D4 /* FirebaseAuth in Frameworks */,
 				DEC8760C2E7998C60023AA0C /* GoogleSignInSwift in Frameworks */,
+				DE2DB48A3003E1F30060B7D4 /* FirebaseStorage in Frameworks */,
+				DE2DB48C3003E2170060B7D4 /* FirebaseCore in Frameworks */,
+				DE2DB4883003E1F30060B7D4 /* FirebaseFunctions in Frameworks */,
+				DE2DB48E3003E21B0060B7D4 /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DEE7742C300254520090AB49 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE2DB4843003E1F30060B7D4 /* FirebaseCore in Frameworks */,
+				DE2DB4863003E1F30060B7D4 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DE2DB4773003DC2F0060B7D4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		DE48A83B2E5B8956008C6FF2 = {
 			isa = PBXGroup;
 			children = (
 				DE3BF90A2FB5338E0094E2B1 /* Localizable.xcstrings */,
 				DE48A8462E5B8956008C6FF2 /* shoppingmemo */,
 				DE48A8822E6365F7008C6FF2 /* shoppingmemo.app */,
+				DEE7742F300254520090AB49 /* shoppingmemoWatchApp Watch App.app */,
+				DEE77430300254520090AB49 /* shoppingmemoWatchApp Watch App */,
+				DE2DB4773003DC2F0060B7D4 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -80,10 +132,12 @@
 				DE48A8402E5B8956008C6FF2 /* Sources */,
 				DE48A8412E5B8956008C6FF2 /* Frameworks */,
 				DE48A8422E5B8956008C6FF2 /* Resources */,
+				DEE7743A300254540090AB49 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DEE77438300254540090AB49 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DE48A8462E5B8956008C6FF2 /* shoppingmemo */,
@@ -92,14 +146,38 @@
 			packageProductDependencies = (
 				DEC876092E7998C60023AA0C /* GoogleSignIn */,
 				DEC8760B2E7998C60023AA0C /* GoogleSignInSwift */,
-				DE68B5C52F688FD0008C9CF7 /* FirebaseAuth */,
-				DE68B5C72F688FD0008C9CF7 /* FirebaseCore */,
-				DE68B5C92F688FD0008C9CF7 /* FirebaseFirestore */,
-				DE68B5CB2F688FD0008C9CF7 /* FirebaseFunctions */,
-				DE68B5CD2F688FD0008C9CF7 /* FirebaseStorage */,
+				DE2DB4813003E1F30060B7D4 /* FirebaseAuth */,
+				DE2DB4873003E1F30060B7D4 /* FirebaseFunctions */,
+				DE2DB4893003E1F30060B7D4 /* FirebaseStorage */,
+				DE2DB48B3003E2170060B7D4 /* FirebaseCore */,
+				DE2DB48D3003E21B0060B7D4 /* FirebaseFirestore */,
 			);
 			productName = shoppingmemo;
 			productReference = DE48A8822E6365F7008C6FF2 /* shoppingmemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DEE7742E300254520090AB49 /* shoppingmemoWatchApp Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DEE7743D300254540090AB49 /* Build configuration list for PBXNativeTarget "shoppingmemoWatchApp Watch App" */;
+			buildPhases = (
+				DEE7742B300254520090AB49 /* Sources */,
+				DEE7742C300254520090AB49 /* Frameworks */,
+				DEE7742D300254520090AB49 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DEE77430300254520090AB49 /* shoppingmemoWatchApp Watch App */,
+			);
+			name = "shoppingmemoWatchApp Watch App";
+			packageProductDependencies = (
+				DE2DB4833003E1F30060B7D4 /* FirebaseCore */,
+				DE2DB4853003E1F30060B7D4 /* FirebaseFirestore */,
+			);
+			productName = "shoppingmemoWatchApp Watch App";
+			productReference = DEE7742F300254520090AB49 /* shoppingmemoWatchApp Watch App.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -109,11 +187,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2660;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					DE48A8432E5B8956008C6FF2 = {
 						CreatedOnToolsVersion = 16.4;
+					};
+					DEE7742E300254520090AB49 = {
+						CreatedOnToolsVersion = 26.6;
 					};
 				};
 			};
@@ -129,7 +210,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				DEC876082E7998C60023AA0C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-				DE68B5C42F688FD0008C9CF7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = DE48A83B2E5B8956008C6FF2;
@@ -137,6 +218,7 @@
 			projectRoot = "";
 			targets = (
 				DE48A8432E5B8956008C6FF2 /* shoppingmemo */,
+				DEE7742E300254520090AB49 /* shoppingmemoWatchApp Watch App */,
 			);
 		};
 /* End PBXProject section */
@@ -150,6 +232,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEE7742D300254520090AB49 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -160,7 +249,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DEE7742B300254520090AB49 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DEE77438300254540090AB49 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEE7742E300254520090AB49 /* shoppingmemoWatchApp Watch App */;
+			targetProxy = DEE77437300254540090AB49 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DE48A84D2E5B8958008C6FF2 /* Debug */ = {
@@ -289,7 +393,7 @@
 		DE48A8502E5B8958008C6FF2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Icon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = shoppingmemo/shoppingmemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -320,7 +424,7 @@
 		DE48A8512E5B8958008C6FF2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = Icon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = shoppingmemo/shoppingmemo.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -348,6 +452,72 @@
 			};
 			name = Release;
 		};
+		DEE7743B300254540090AB49 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 85MXHZWC2N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = shoppingmemoWatchApp;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.Kishi.Yuki.shoppingmemo;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Debug;
+		};
+		DEE7743C300254540090AB49 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 85MXHZWC2N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = shoppingmemoWatchApp;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.Kishi.Yuki.shoppingmemo;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.Kishi.Yuki.shoppingmemo.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -369,15 +539,24 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		DEE7743D300254540090AB49 /* Build configuration list for PBXNativeTarget "shoppingmemoWatchApp Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DEE7743B300254540090AB49 /* Debug */,
+				DEE7743C300254540090AB49 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		DE68B5C42F688FD0008C9CF7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 12.11.0;
+				minimumVersion = 12.16.0;
 			};
 		};
 		DEC876082E7998C60023AA0C /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
@@ -391,30 +570,40 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		DE68B5C52F688FD0008C9CF7 /* FirebaseAuth */ = {
+		DE2DB4813003E1F30060B7D4 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DE68B5C42F688FD0008C9CF7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
 		};
-		DE68B5C72F688FD0008C9CF7 /* FirebaseCore */ = {
+		DE2DB4833003E1F30060B7D4 /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DE68B5C42F688FD0008C9CF7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
 		};
-		DE68B5C92F688FD0008C9CF7 /* FirebaseFirestore */ = {
+		DE2DB4853003E1F30060B7D4 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DE68B5C42F688FD0008C9CF7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
 		};
-		DE68B5CB2F688FD0008C9CF7 /* FirebaseFunctions */ = {
+		DE2DB4873003E1F30060B7D4 /* FirebaseFunctions */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DE68B5C42F688FD0008C9CF7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFunctions;
 		};
-		DE68B5CD2F688FD0008C9CF7 /* FirebaseStorage */ = {
+		DE2DB4893003E1F30060B7D4 /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = DE68B5C42F688FD0008C9CF7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		DE2DB48B3003E2170060B7D4 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		DE2DB48D3003E21B0060B7D4 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE2DB4803003E1F30060B7D4 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 		DEC876092E7998C60023AA0C /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -87,6 +87,8 @@ struct RoomsView: View {
             QRCodeReaderView()
         case .addParicipant:
             AddParticipantView()
+        case .deleteAccount:
+            DeleteAccountView()
         }
     }
     func toolBarMenu() -> some View {
@@ -97,10 +99,15 @@ struct RoomsView: View {
                 Label("マイページ", systemImage: "info.circle")
             }
             Button {
-                
+                SessionRepository.sendMessage()
             } label: {
-                Label("設定", systemImage: "gear")
+                Image(systemName: "paperplane")
             }
+//            Button {
+//                
+//            } label: {
+//                Label("設定", systemImage: "gear")
+//            }
             Button {
                 
             } label: {

@@ -21,39 +21,30 @@ class CustomImageRepository {
     static let storage = Storage.storage()
     
     //create
-    static func createImage(selectedImage: PhotosPickerItem?) async {
-        guard let data = try? await selectedImage?.loadTransferable(type: Data.self) else { return }
-        guard let uiImage = UIImage(data: data) else { return }
-        guard let imageData = uiImage.jpegData(compressionQuality: 0.2) else { return }
-        guard let userId = userDataStore.signInUser?.userId else { return }
-        guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
-        guard let listId = listDataStore.listArray.selected?.listId else { return }
-        guard let memoId = memoDataStore.selectedMemo()?.memoId else { return }
-        let imageRef = storage.reference().child(roomId).child(listId).child(memoId + ".jpg")
-        let attachedMetadata = StorageMetadata()
-        attachedMetadata.customMetadata = ["uploadUserId": userId]
-        imageRef.putData(imageData, metadata: attachedMetadata) { putDataResult in
-            switch putDataResult {
-            case .success(_):
-                imageRef.downloadURL { urlResult in
-                    switch urlResult {
-                    case .success(let imageUrl):
-                        Task { await MemoRepository.updateImageUrl(newImageUrl: imageUrl.absoluteString) }
-                    case .failure(let error):
-                        print(error)
-                    }
-                }
-            case .failure(let error):
-                print(error)
-            }
+    static func createImage(imageData: Data) async {
+        do {
+            guard let uiImage = UIImage(data: imageData) else { return }
+            guard let resizedImage = await uiImage.byPreparingThumbnail(ofSize: CGSize(width: 2000, height: 2000)) else { return }
+            guard let imageData = resizedImage.jpegData(compressionQuality: 0.8) else { return }
+            guard let userId = userDataStore.signInUser?.userId else { return }
+            guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
+            guard let listId = listDataStore.listArray.selected?.listId else { return }
+            guard let memoId = memoDataStore.selectedMemo()?.memoId else { return }
+            let imageRef = storage.reference().child(roomId).child(listId).child(memoId + ".jpg")
+            let attachedMetadata = StorageMetadata()
+            attachedMetadata.customMetadata = ["uploadUserId": userId]
+            _ = try await imageRef.putDataAsync(imageData, metadata: attachedMetadata)
+            let imageUrl = try await imageRef.downloadURL()
+            await MemoRepository.updateImageUrl(newImageUrl: imageUrl.absoluteString)
+        } catch {
+            print(error)
         }
     }
     
     //get
     static func getImage(imageUrl: String) async {
-        if imageUrl == "default" {
+        guard imageUrl != "default" else {
             imageDataStore.attachedImage = nil
-            imageDataStore.isLoading = false
             return
         }
         do {

@@ -34,9 +34,7 @@ class AuthRepository {
     }
     
     //get
-    
-    //check
-    
+        
     //update
     
     //delete

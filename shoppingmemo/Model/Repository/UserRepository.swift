@@ -105,6 +105,11 @@ class UserRepository {
         }
     }
     
+    static func reAuth() {
+        let user = Auth.auth().currentUser
+        let credential: AuthCredential
+    }
+    
     //delete
     
     //observe

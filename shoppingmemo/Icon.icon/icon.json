@@ -1,0 +1,86 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : {
+        "solid" : "display-p3:0.67059,0.96078,0.77255,1.00000"
+      }
+    },
+    {
+      "appearance" : "dark",
+      "value" : {
+        "solid" : "srgb:0.71765,0.89804,0.78039,1.00000"
+      }
+    }
+  ],
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "image-name" : "ショッピングメモ_アイコン1 2.svg",
+          "name" : "ショッピングメモ_アイコン1 2",
+          "opacity" : 0.8,
+          "position" : {
+            "scale" : 0.8,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "image-name" : "ショッピングメモ_アイコン2.svg",
+          "name" : "ショッピングメモ_アイコン2",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 0.9,
+            "translation-in-points" : [
+              -3.8600000000001273,
+              26.90268277815528
+            ]
+          }
+        },
+        {
+          "hidden" : false,
+          "image-name" : "ショッピングメモ_アイコン4 2.svg",
+          "name" : "ショッピングメモ_アイコン4 2",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 0.9,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        },
+        {
+          "blend-mode" : "normal",
+          "hidden" : false,
+          "image-name" : "ショッピングメモ_アイコン3 2.svg",
+          "name" : "ショッピングメモ_アイコン3 2",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 0.9,
+            "translation-in-points" : [
+              -0.10000000000013642,
+              15.105000000000018
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
