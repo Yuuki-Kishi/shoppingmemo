@@ -37,7 +37,7 @@ class CustomImageRepository {
             let imageUrl = try await imageRef.downloadURL()
             await MemoRepository.updateImageUrl(newImageUrl: imageUrl.absoluteString)
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -54,7 +54,7 @@ class CustomImageRepository {
             let uploadUserId = metadata.customMetadata?["uploadUserId"] ?? "unknownUserId"
             imageDataStore.attachedImage = CustomImage(imageUrl: imageUrl, imageData: imageData, uploadTime: uploadTime, uploadUserId: uploadUserId)
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -69,7 +69,7 @@ class CustomImageRepository {
             try await storage.reference(forURL: imageUrl).delete()
             await MemoRepository.updateImageUrl(newImageUrl: "default")
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -96,7 +96,7 @@ class CustomImageRepository {
 //                }
 //                
 //            } catch {
-//                print(error)
+//                print(error.localizedDescription)
 //            }
 //        }
 //    }

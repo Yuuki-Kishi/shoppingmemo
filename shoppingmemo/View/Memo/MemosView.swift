@@ -10,6 +10,7 @@ import SwiftUI
 struct MemosView: View {
     @EnvironmentObject private var listDataStore: ListDataStore
     @EnvironmentObject private var memoDataStore: MemoDataStore
+    @EnvironmentObject private var watchDataStore: WatchDataStore
     @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var newMemoNameText: String = ""
     @State private var newListNameText: String = ""
@@ -67,8 +68,11 @@ struct MemosView: View {
             focus = false
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                HelpButton()
+            if watchDataStore.isReachable {
+                ToolbarItem(placement: .topBarTrailing) {
+                    //                HelpButton()
+                    WatchButton()
+                }
             }
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
             ToolbarItem(placement: .topBarTrailing) {

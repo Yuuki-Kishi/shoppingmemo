@@ -23,7 +23,7 @@ class UserRepository {
             try await Firestore.firestore().collection("Users").document(user.userId).setData(jsonObject)
             return user
         } catch {
-            print(error)
+            print(error.localizedDescription)
             return nil
         }
     }
@@ -34,7 +34,7 @@ class UserRepository {
             let isExist = try await Firestore.firestore().collection("Users").document(userId).getDocument().exists
             return isExist
         } catch {
-            print(error)
+            print(error.localizedDescription)
             return false
         }
     }
@@ -50,7 +50,7 @@ class UserRepository {
             guard let _ = document["noticeCheckedTime"] as? String else { return true }
             return false
         } catch {
-            print(error)
+            print(error.localizedDescription)
             return false
         }
     }
@@ -62,7 +62,7 @@ class UserRepository {
             let user = try document.data(as: User.self)
             return user
         } catch {
-            print(error)
+            print(error.localizedDescription)
             return nil
         }
     }
@@ -73,7 +73,7 @@ class UserRepository {
             guard let userName = document["userName"] as? String else { return nil }
             return userName
         } catch {
-            print(error)
+            print(error.localizedDescription)
             return nil
         }
     }
@@ -91,7 +91,7 @@ class UserRepository {
             guard let userId = Auth.auth().currentUser?.uid else { return }
             try await Firestore.firestore().collection("Users").document(userId).updateData(["creationTime": creationTimeString, "currentVersion": currentVersion, "email": email, "iOSVersion": iOSVersion, "noticeCheckedTime": noticeCheckedTime, "userId": userId])
         } catch {
-            print(error)
+            print(error.localizedDescription)
             return
         }
     }
@@ -101,7 +101,7 @@ class UserRepository {
             guard let userId = userDataStore.signInUser?.userId else { return }
             try await Firestore.firestore().collection("Users").document(userId).updateData(["userName": newName])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -121,7 +121,7 @@ class UserRepository {
                 userDataStore.userResult = .success(user)
                 userDataStore.signInUser = user
             } catch {
-                print(error)
+                print(error.localizedDescription)
             }
         }
     }
@@ -132,7 +132,7 @@ class UserRepository {
                 let userName = try documentSnapshot?.data(as: User.self).userName
                 onUpdate(userName)
             } catch {
-                print(error)
+                print(error.localizedDescription)
             }
         }
     }

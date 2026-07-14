@@ -14,6 +14,7 @@ class MemoRepository {
     static let roomDataStore: RoomDataStore = .shared
     static let listDataStore: ListDataStore = .shared
     static let memoDataStore: MemoDataStore = .shared
+    static let watchDataStore: WatchDataStore = .shared
     
     //create
     static func createMemo(memoName: String) async {
@@ -28,7 +29,7 @@ class MemoRepository {
             await incrementCheckedOrder()
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memo.memoId).setData(jsonObject)
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -43,7 +44,7 @@ class MemoRepository {
             guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["isChecked": newIsChecked])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -53,7 +54,7 @@ class MemoRepository {
             guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["memoName": newMemoName])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -63,7 +64,7 @@ class MemoRepository {
             guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["nonCheckOrder": newOrder])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -89,7 +90,7 @@ class MemoRepository {
             guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["checkedOrder": newOrder])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -147,7 +148,7 @@ class MemoRepository {
             guard let memoId = memoDataStore.selectedMemo()?.memoId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).updateData(["imageUrl": newImageUrl])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -158,7 +159,7 @@ class MemoRepository {
             guard let listId = listDataStore.listArray.selected?.listId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).collection("Memos").document(memoId).delete()
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -204,9 +205,10 @@ class MemoRepository {
                 let nonCheckSortString = UserDefaultsRepository.get(String.self, key: "nonCheckSort") ?? "ascending"
                 let nonCheckSort = MemoDataStore.SortModeEnum(rawValue: nonCheckSortString) ?? .ascending
                 sortNonCheckMemos(basedOn: nonCheckSort)
+                if watchDataStore.isConnect { SessionRepository.sendNonCheckMemoArray() }
                 completion()
             } catch {
-                print(error)
+                print(error.localizedDescription)
                 completion()
             }
         }
@@ -244,7 +246,7 @@ class MemoRepository {
                 sortCheckedMemos(basedOn: checkedSort)
                 completion()
             } catch {
-                print(error)
+                print(error.localizedDescription)
                 completion()
             }
         }

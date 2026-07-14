@@ -25,7 +25,7 @@ class RoomRepository {
             guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
             try await Firestore.firestore().collection("Rooms").document(room.roomId).setData(jsonObject)
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -39,7 +39,7 @@ class RoomRepository {
             guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["roomName": newName])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -49,7 +49,7 @@ class RoomRepository {
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.guest.rawValue])
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["memberIds": FieldValue.arrayUnion([userId])])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -58,7 +58,7 @@ class RoomRepository {
             guard let userId = userDataStore.signInUser?.userId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.member.rawValue])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -67,7 +67,7 @@ class RoomRepository {
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": FieldValue.delete()])
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["memberIds": FieldValue.arrayRemove([userId])])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -77,7 +77,7 @@ class RoomRepository {
             guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.member.rawValue, "authorities.\(newAdministratorUserId)": Room.AuthorityEnum.administrator.rawValue])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -93,7 +93,7 @@ class RoomRepository {
             let path = "Rooms/\(roomId)"
             let _ = try await functions.httpsCallable("recursiveDelete").call(["path": path])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -126,7 +126,7 @@ class RoomRepository {
                 roomDataStore.roomArray.sort { $0.lastUpdateTime > $1.lastUpdateTime }
                 completion()
             } catch {
-                print(error)
+                print(error.localizedDescription)
                 completion()
             }
         }

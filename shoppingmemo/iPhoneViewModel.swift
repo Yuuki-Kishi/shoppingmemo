@@ -8,7 +8,9 @@
 import Foundation
 import WatchConnectivity
 
+@MainActor
 final class iPhoneViewModel: NSObject {
+    let watchDataStore: WatchDataStore = .shared
     var session: WCSession
     
     init(session: WCSession = .default) {
@@ -19,18 +21,37 @@ final class iPhoneViewModel: NSObject {
     }
 }
 
-extension iPhoneViewModel: WCSessionDelegate {
+extension iPhoneViewModel: @MainActor WCSessionDelegate {
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         if let error = error {
             print(error.localizedDescription)
         } else {
+            Task { @MainActor in
+                watchDataStore.isReachable = session.isReachable
+            }
             print("The session has completed activation.")
         }
     }
     
-    func session(_ session: WCSession, didReceiveMessage message: [String : Any]) {
-        DispatchQueue.main.async {
-            print(message)
+    func sessionReachabilityDidChange(_ session: WCSession) {
+        watchDataStore.isReachable = session.isReachable
+    }
+    
+    func session(_ session: WCSession, didReceiveMessage message: [String : Any], replyHandler: @escaping ([String : Any]) -> Void) {
+        Task { @MainActor in
+            guard let status = message["status"] as? String else { replyHandler(["isSuccess": false]); return }
+            switch status {
+//            case "isConnect":
+//                guard let isConnect = message["isConnect"] as? Bool else { replyHandler(["isSuccess": false]); return }
+//                watchDataStore.isConnect = isConnect
+//                replyHandler(["isSuccess": true])
+            case "check":
+                guard let memoId = message["memoId"] as? String else { replyHandler(["isSuccess": false]); return }
+                await MemoRepository.updateIsChecked(memoId: memoId, newIsChecked: true)
+                replyHandler(["isSuccess": true])
+            default:
+                replyHandler(["isSuccess": false])
+            }
         }
     }
     

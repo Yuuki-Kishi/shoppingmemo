@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var userDataStore: UserDataStore
+    @EnvironmentObject var watchDataStore: WatchDataStore
     
     var body: some View {
 //        Button {
@@ -16,10 +16,12 @@ struct ContentView: View {
 //        } label: {
 //            Image(systemName: "paperplane")
 //        }
-        if userDataStore.isReachable {
+        if watchDataStore.isConnect {
             MemoView()
+        } else if watchDataStore.isReachable {
+            IconLabelView(iconString: "iphone.gen3.radiowaves.left.and.right", labelText: "接続準備完了")
         } else {
-            IconLabelView(iconString: "iPhone.gen3.radiowave.left.and.right", labelText: "接続準備完了")
+            
         }
     }
 }

@@ -15,6 +15,7 @@ struct shoppingmemoWatchApp_Watch_AppApp: App {
         }
         .environmentObject(UserDataStore.shared)
         .environmentObject(MemoDataStore.shared)
+        .environmentObject(WatchDataStore.shared)
         .environmentObject(PathDataStore.shared)
     }
 }

@@ -13,7 +13,7 @@ struct MemoView: View {
     
     var body: some View {
         NavigationStack(path: $pathDataStore.navigationPath) {
-            if pathDataStore.navigationPath.isEmpty {
+            if memoDataStore.memoArray.isEmpty {
                 IconLabelView(iconString: "checkmark.square", labelText: "全て完了済")
             } else {
                 List(memoDataStore.memoArray, id: \.memoId) { memo in
@@ -22,7 +22,6 @@ struct MemoView: View {
                 .navigationTitle(memoDataStore.listName)
             }
         }
-        
     }
 }
 

@@ -26,7 +26,7 @@ class CustomListRepository {
             guard let jsonObject = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any] else { return }
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(list.listId).setData(jsonObject)
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -43,7 +43,7 @@ class CustomListRepository {
         do {
             try await Firestore.firestore().collection("Rooms").document(roomId).collection("Lists").document(listId).updateData(["listName": newName])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -57,7 +57,7 @@ class CustomListRepository {
             }
             sortLists(basedOn: .custom)
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -84,7 +84,7 @@ class CustomListRepository {
             let path = "Rooms/\(roomId)/Lists/\(listId)"
             let _ = try await functions.httpsCallable("recursiveDelete").call(["path": path])
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
@@ -123,7 +123,7 @@ class CustomListRepository {
                 sortLists(basedOn: listSort)
                 completion()
             } catch {
-                print(error)
+                print(error.localizedDescription)
                 completion()
             }
         }

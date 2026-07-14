@@ -22,6 +22,10 @@ struct MemoViewCell: View {
             Spacer()
             Image(systemName: imageboxImageString())
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            SessionRepository.sendCheck(memoId: memo.memoId)
+        }
     }
     func checkboxImageString() -> String {
         if memo.isChecked {

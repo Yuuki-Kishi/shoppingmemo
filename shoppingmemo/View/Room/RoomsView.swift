@@ -98,11 +98,6 @@ struct RoomsView: View {
             } label: {
                 Label("マイページ", systemImage: "info.circle")
             }
-            Button {
-                SessionRepository.sendMessage()
-            } label: {
-                Image(systemName: "paperplane")
-            }
 //            Button {
 //                
 //            } label: {

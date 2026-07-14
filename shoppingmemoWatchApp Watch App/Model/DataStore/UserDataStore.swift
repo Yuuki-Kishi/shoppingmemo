@@ -8,8 +8,8 @@
 import Foundation
 import Combine
 
+@MainActor
 class UserDataStore: ObservableObject {
     static let shared = UserDataStore()
     @Published var viewModel = WatchViewModel()
-    @Published var isReachable: Bool = false
 }

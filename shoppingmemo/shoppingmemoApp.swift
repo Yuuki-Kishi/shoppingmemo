@@ -31,6 +31,7 @@ struct shoppingmemoApp: App {
                 .environmentObject(ImageDataStore.shared)
                 .environmentObject(MyInfoDataStore.shared)
                 .environmentObject(ParticipantDataStore.shared)
+                .environmentObject(WatchDataStore.shared)
                 .environmentObject(PathDataStore.shared)
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
