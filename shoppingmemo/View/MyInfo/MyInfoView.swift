@@ -27,36 +27,10 @@ struct MyInfoView: View {
                 MyInfoViewCell(itemType: .deleteAccount)
             }
         }
-        .alert("ユーザーネームを変更", isPresented: $myInfoDataStore.renameUserNameAlertIsPresent) {
-            renameUserNameAlertActions()
-        } message: {
-            Text("新しいユーザーネームを入力してください。")
-        }
-        .alert("コピー完了", isPresented: $myInfoDataStore.copiedUserIdAlertIsPresent) {
-            Button(role: .close) {} label: {
-                Text("OK")
-            }
-        } message: {
-            Text("ユーザーIDをクリップボードにコピーしました。")
-        }
         .navigationTitle("マイページ")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             UserRepository.observeMyUserData()
-        }
-    }
-    @ViewBuilder
-    func renameUserNameAlertActions() -> some View {
-        TextField("ユーザーネームを入力", text: $myInfoDataStore.newUserName)
-        Button(role: .cancel) {
-            myInfoDataStore.newUserName = ""
-        } label: {
-            Text("キャンセル")
-        }
-        Button(role: .confirm) {
-            Task { await UserRepository.updateUserName(newName: myInfoDataStore.newUserName) }
-        } label: {
-            Text("変更")
         }
     }
 }

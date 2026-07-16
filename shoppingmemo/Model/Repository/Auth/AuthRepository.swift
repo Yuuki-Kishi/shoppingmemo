@@ -34,6 +34,12 @@ class AuthRepository {
     }
     
     //get
+    static func getProvider() -> UserDataStore.providerEnum {
+        let prividerData = Auth.auth().currentUser?.providerData
+        guard let providerID = Auth.auth().currentUser?.providerData.first?.providerID else { return .unknown }
+        guard let provider = UserDataStore.providerEnum(rawValue: providerID) else { return .unknown }
+        return provider
+    }
         
     //update
     

@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct DeleteAccountViewCell: View {
-    private var userId: String
+    @EnvironmentObject private var userDataStore: UserDataStore
     private let itemType: ItemTypeEnum
+    @State private var userId: String = "----"
     @State private var userName: String = "----"
     @State private var email: String = "----"
     
@@ -17,8 +18,7 @@ struct DeleteAccountViewCell: View {
         case userId, userName, email
     }
     
-    init(userId: String, itemType: ItemTypeEnum) {
-        self.userId = userId
+    init(itemType: ItemTypeEnum) {
         self.itemType = itemType
     }
     
@@ -33,6 +33,10 @@ struct DeleteAccountViewCell: View {
                     .lineLimit(1)
                     .foregroundStyle(.secondary)
             }
+            .onAppear() {
+                guard let userId = userDataStore.signInUser?.userId else { return }
+                self.userId = userId
+            }
         case .userName:
             HStack {
                 Text("ユーザネーム")
@@ -42,6 +46,7 @@ struct DeleteAccountViewCell: View {
                     .foregroundStyle(.secondary)
             }
             .onAppear() {
+                guard let userId = userDataStore.signInUser?.userId else { return }
                 UserRepository.observeUserName(userId: userId) { userName in
                     self.userName = userName ?? "----"
                 }
@@ -56,6 +61,7 @@ struct DeleteAccountViewCell: View {
             }
             .onAppear() {
                 Task {
+                    guard let userId = userDataStore.signInUser?.userId else { return }
                     email = await UserRepository.getUserData(userId: userId)?.email ?? "----"
                 }
             }
@@ -64,5 +70,5 @@ struct DeleteAccountViewCell: View {
 }
 
 #Preview {
-    DeleteAccountViewCell(userId: "unknownUserId", itemType: .userId)
+    DeleteAccountViewCell(itemType: .userId)
 }

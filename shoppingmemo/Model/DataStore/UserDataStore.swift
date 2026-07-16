@@ -13,4 +13,10 @@ class UserDataStore: ObservableObject {
     @Published var userResult: Result<User?, Error>? = nil
     @Published var signInUser: User? = nil
     @Published var viewModel = iPhoneViewModel()
+    
+    enum providerEnum: String {
+        case apple = "apple.com"
+        case google = "google.com"
+        case unknown = "unknown"
+    }
 }

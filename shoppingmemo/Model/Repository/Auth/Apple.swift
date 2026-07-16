@@ -110,7 +110,7 @@ class Apple: NSObject, ASAuthorizationControllerDelegate {
         }
     }
     
-    static func reauthenticateAndDeleteUser() {
+    static func reauthenticate() {
         guard let appleId = Auth.auth().currentUser?.providerData.first(where: { $0.providerID == "apple.com" })?.uid else { return }
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.user = appleId

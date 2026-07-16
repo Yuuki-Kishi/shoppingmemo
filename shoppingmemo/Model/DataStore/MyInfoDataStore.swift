@@ -11,6 +11,5 @@ import Foundation
 class MyInfoDataStore: ObservableObject {
     static let shared = MyInfoDataStore()
     @Published var newUserName: String = ""
-    @Published var renameUserNameAlertIsPresent: Bool = false
-    @Published var copiedUserIdAlertIsPresent: Bool = false
+    @Published var deleteAccountAlertIsPresented: Bool = false
 }

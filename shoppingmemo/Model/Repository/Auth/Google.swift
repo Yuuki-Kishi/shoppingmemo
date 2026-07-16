@@ -33,7 +33,7 @@ class Google {
         }
     }
     
-    static func reauthenticateAndDeleteUser() {
+    static func reauthenticate() {
         guard let clientID: String = FirebaseApp.app()?.options.clientID else { return }
         let config:GIDConfiguration = GIDConfiguration(clientID: clientID)
         let windowScene:UIWindowScene? = UIApplication.shared.connectedScenes.first as? UIWindowScene
@@ -46,12 +46,17 @@ class Google {
             }
             guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            Auth.auth().currentUser?.reauthenticate(with: credential) { _, error  in
+            Auth.auth().currentUser?.reauthenticate(with: credential) { authResult, error  in
                 if let error = error {
                     print("reauthenticateError: \(error.localizedDescription)")
                     return
                 }
-//                AuthRepository.deleteUser()
+                Task { @MainActor in
+                    guard let userId = authResult?.user.uid else { return }
+                    guard let user = await UserRepository.getUserData(userId: userId) else { return }
+                    userDataStore.userResult = .success(user)
+                    userDataStore.signInUser = user
+                }
             }
         }
     }

@@ -14,7 +14,8 @@ struct MyInfoViewCell: View {
     @EnvironmentObject private var myInfoDataStore: MyInfoDataStore
     @EnvironmentObject private var pathDataStore: PathDataStore
     @State var itemType: ItemTypeEnum
-    @State private var deleteAccountAlertIsPresented: Bool = false
+    @State private var renameUserNameAlertIsPresent: Bool = false
+    @State private var copiedUserIdAlertIsPresent: Bool = false
     
     init(itemType: ItemTypeEnum) {
         self.itemType = itemType
@@ -35,10 +36,15 @@ struct MyInfoViewCell: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
+            .alert("ユーザーネームを変更", isPresented: $renameUserNameAlertIsPresent) {
+                renameUserNameAlertActions()
+            } message: {
+                Text("新しいユーザーネームを入力してください。")
+            }
             .contentShape(Rectangle())
             .onTapGesture {
                 myInfoDataStore.newUserName = userDataStore.signInUser?.userName ?? ""
-                myInfoDataStore.renameUserNameAlertIsPresent = true
+                renameUserNameAlertIsPresent = true
             }
         case .email:
             HStack {
@@ -59,28 +65,42 @@ struct MyInfoViewCell: View {
                     .font(.system(size: 15))
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
+            .alert("コピー完了", isPresented: $copiedUserIdAlertIsPresent) {
+                Button(role: .close) {} label: {
+                    Text("OK")
+                }
+            } message: {
+                Text("ユーザーIDをクリップボードにコピーしました。")
+            }
             .contentShape(Rectangle())
             .onTapGesture {
                 UIPasteboard.general.string = userDataStore.signInUser?.userId ?? ""
-                myInfoDataStore.copiedUserIdAlertIsPresent = true
+                copiedUserIdAlertIsPresent = true
             }
         case .QR:
             VStack {
                 Text(itemString())
                     .foregroundStyle(.primary)
                     .frame(maxWidth: .infinity,alignment: .leading)
-                if let image = getQRImage() {
-                    Image(uiImage: image)
-                        .interpolation(.none)
-                        .resizable()
+                if myInfoDataStore.deleteAccountAlertIsPresented {
+                    Rectangle()
+                        .foregroundStyle(.background)
                         .frame(width: 300, height: 300, alignment: .center)
                         .padding(5)
                 } else {
-                    Image(systemName: "qrcode")
-                        .interpolation(.none)
-                        .resizable()
-                        .frame(width: 300, height: 300, alignment: .center)
-                        .padding(5)
+                    if let image = getQRImage() {
+                        Image(uiImage: image)
+                            .interpolation(.none)
+                            .resizable()
+                            .frame(width: 300, height: 300, alignment: .center)
+                            .padding(5)
+                    } else {
+                        Image(systemName: "qrcode")
+                            .interpolation(.none)
+                            .resizable()
+                            .frame(width: 300, height: 300, alignment: .center)
+                            .padding(5)
+                    }
                 }
             }
         case .creationDate:
@@ -117,7 +137,7 @@ struct MyInfoViewCell: View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }
             .contentShape(Rectangle())
-            .alert("再度ログインを求められます", isPresented: $deleteAccountAlertIsPresented) {
+            .alert("再度ログインを求められます", isPresented: $myInfoDataStore.deleteAccountAlertIsPresented) {
                 Button {
                     pathDataStore.navigationPath.append(.deleteAccount)
                 } label: {
@@ -127,7 +147,7 @@ struct MyInfoViewCell: View {
                 Text("重要な操作のため、一度ログインしてください。")
             }
             .onTapGesture {
-                deleteAccountAlertIsPresented = true
+                myInfoDataStore.deleteAccountAlertIsPresented = true
             }
         }
     }
@@ -149,6 +169,20 @@ struct MyInfoViewCell: View {
             return "利用日数"
         case .deleteAccount:
             return "アカウント削除"
+        }
+    }
+    @ViewBuilder
+    func renameUserNameAlertActions() -> some View {
+        TextField("ユーザーネームを入力", text: $myInfoDataStore.newUserName)
+        Button(role: .cancel) {
+            myInfoDataStore.newUserName = ""
+        } label: {
+            Text("キャンセル")
+        }
+        Button(role: .confirm) {
+            Task { await UserRepository.updateUserName(newName: myInfoDataStore.newUserName) }
+        } label: {
+            Text("変更")
         }
     }
     func getQRImage() -> UIImage? {

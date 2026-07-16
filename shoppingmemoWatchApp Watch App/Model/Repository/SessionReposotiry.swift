@@ -19,16 +19,6 @@ class SessionRepository {
         }
     }
     
-//    static func sendIsConnect(isConnect: Bool) {
-//        let message: [String: Any] = ["status": "isConnect", "isConnect": isConnect]
-//        sendMessage(message: message) { reply in
-//            guard let isConnect = reply["isSuccess"] as? Bool else { return }
-//            Task { @MainActor in
-//                watchDataStore.isConnect = isConnect
-//            }
-//        }
-//    }
-    
     static func sendCheck(memoId: String) {
         let message: [String: Any] = ["status": "check", "memoId": memoId]
         sendMessage(message: message) { reply in
