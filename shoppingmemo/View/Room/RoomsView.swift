@@ -78,9 +78,9 @@ struct RoomsView: View {
         case .instruction:
             EmptyView()
         case .noticeList:
-            EmptyView()
+            NoticeListView()
         case .notice:
-            EmptyView()
+            NoticeView()
         case .participant:
             ParticipantView()
         case .QRreader:
@@ -104,7 +104,7 @@ struct RoomsView: View {
 //                Label("設定", systemImage: "gear")
 //            }
             Button {
-                
+                pathDataStore.navigationPath.append(.noticeList)
             } label: {
                 Label("通知一覧", systemImage: "bell")
             }

@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct DeleteAccountView: View {
+    @EnvironmentObject private var pathDataStore: PathDataStore
     @State private var isEmpty: Bool = false
+    @State private var deleteAccountAlertIsPresented: Bool = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -23,13 +25,13 @@ struct DeleteAccountView: View {
                     }
                 }
                 Button(role: .destructive) {
-                    #warning("アカウント削除処理")
+                    deleteAccountAlertIsPresented = true
                 } label: {
                     Text("削除")
                         .frame(width: geometry.size.width * 0.6, height: 40)
                 }
                 .foregroundStyle(.red)
-                .background(.background)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .position(
                     x: geometry.size.width / 2,
@@ -43,10 +45,33 @@ struct DeleteAccountView: View {
                     )
             }
         }
+        .alert("本当に削除しますか？", isPresented: $deleteAccountAlertIsPresented) {
+            deleteAccountAlertAction()
+        } message: {
+            Text("この操作は取り消すことができません。")
+        }
         .navigationTitle("アカウント削除")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             reauthenticate()
+        }
+    }
+    @ViewBuilder
+    func deleteAccountAlertAction() -> some View {
+        Button(role: .destructive) {
+            Task {
+                await AuthRepository.deleteAccount {
+                    pathDataStore.navigationPath.removeAll()
+                } failure: {
+                    reauthenticate()
+                }
+
+            }
+        } label: {
+            Text("削除")
+        }
+        Button(role: .cancel) {} label: {
+            Text("キャンセル")
         }
     }
     func reauthenticate() {

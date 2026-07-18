@@ -84,7 +84,7 @@ struct MyInfoViewCell: View {
                     .frame(maxWidth: .infinity,alignment: .leading)
                 if myInfoDataStore.deleteAccountAlertIsPresented {
                     Rectangle()
-                        .foregroundStyle(.background)
+                        .foregroundStyle(Color(uiColor: .secondarySystemGroupedBackground))
                         .frame(width: 300, height: 300, alignment: .center)
                         .padding(5)
                 } else {

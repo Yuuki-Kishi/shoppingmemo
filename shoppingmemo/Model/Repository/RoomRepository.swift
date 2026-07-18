@@ -108,8 +108,7 @@ class RoomRepository {
                     return
                 }
                 for documentChange in documentChanges {
-                    let document = documentChange.document
-                    let room = try document.data(as: Room.self)
+                    let room = try documentChange.document.data(as: Room.self)
                     switch documentChange.type {
                     case .added:
                         roomDataStore.roomArray.append(noDuplicate: room)

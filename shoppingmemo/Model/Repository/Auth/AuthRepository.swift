@@ -35,7 +35,6 @@ class AuthRepository {
     
     //get
     static func getProvider() -> UserDataStore.providerEnum {
-        let prividerData = Auth.auth().currentUser?.providerData
         guard let providerID = Auth.auth().currentUser?.providerData.first?.providerID else { return .unknown }
         guard let provider = UserDataStore.providerEnum(rawValue: providerID) else { return .unknown }
         return provider
@@ -50,6 +49,16 @@ class AuthRepository {
              userDataStore.signInUser = nil
         } catch let signOutError as NSError {
             print("Error signing out: %@", signOutError)
+        }
+    }
+    
+    static func deleteAccount(success: @escaping () -> Void, failure: @escaping () -> Void) async {
+        do {
+            try await Auth.auth().currentUser?.delete()
+            success()
+        } catch {
+            print(error)
+            failure()
         }
     }
     

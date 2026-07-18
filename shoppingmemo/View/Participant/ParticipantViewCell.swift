@@ -32,6 +32,7 @@ struct ParticipantViewCell: View {
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .contentShape(Rectangle())
         .task {
             email = await UserRepository.getUserData(userId: userId)?.email ?? "----"
         }
