@@ -12,11 +12,11 @@ struct ContentView: View {
     
     var body: some View {
         if watchDataStore.isConnect {
-            MemoView()
+            MemosView()
         } else if watchDataStore.isReachable {
-            IconLabelView(iconString: "iphone.gen3.radiowaves.left.and.right", labelText: "接続準備完了")
+            IconLabelView(iconString: "iphone.gen3.radiowaves.left.and.right", labelText: "WatchApp.IconLabelView.labelText")
         } else {
-            IconLabelView(iconString: "iphone.gen3.slash", labelText: "接続が切れています")
+            IconLabelView(iconString: "iphone.gen3.slash", labelText: "WatchApp.IconLabelView.labelText")
         }
     }
 }

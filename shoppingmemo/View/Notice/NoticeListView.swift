@@ -16,8 +16,9 @@ struct NoticeListView: View {
                 List(noticeDataStore.noticeArray, id: \.noticeId) { notice in
                     NoticeListViewCell(notice: notice)
                 }
+                .listRowSpacing(35)
             } emptyContent: {
-                Text("通知がありません")
+                Text("NoticeListsView.emptyContent.Text")
             }
         }
         .toolbar {
@@ -25,7 +26,7 @@ struct NoticeListView: View {
                 HelpButton()
             }
         }
-        .navigationTitle("通知一覧")
+        .navigationTitle("NoticeListsView.navigationTitle")
         .onAppear() {
             noticeDataStore.isLoading = true
             NoticeRepository.clearNotices()

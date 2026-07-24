@@ -20,7 +20,7 @@ struct ClearTextField: View {
     
     var body: some View {
         VStack {
-            TextField("アイテムを追加", text: $text, onCommit: action)
+            TextField("ClearTextField.TextField.title", text: $text, onCommit: action)
                 .padding()
                 .glassEffect(.regular.tint(.accentColor))
                 .tint(.blue)

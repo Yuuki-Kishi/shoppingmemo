@@ -52,13 +52,15 @@ class AuthRepository {
         }
     }
     
-    static func deleteAccount(success: @escaping () -> Void, failure: @escaping () -> Void) async {
-        do {
-            try await Auth.auth().currentUser?.delete()
-            success()
-        } catch {
-            print(error)
-            failure()
+    static func deleteAccount(success: @escaping () -> Void, failure: @escaping () -> Void) {
+        Task {
+            do {
+                try await Auth.auth().currentUser?.delete()
+                success()
+            } catch {
+                print(error)
+                failure()
+            }
         }
     }
     

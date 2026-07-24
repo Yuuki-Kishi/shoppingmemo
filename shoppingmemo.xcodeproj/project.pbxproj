@@ -14,7 +14,8 @@
 		DE2DB48A3003E1F30060B7D4 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB4893003E1F30060B7D4 /* FirebaseStorage */; };
 		DE2DB48C3003E2170060B7D4 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB48B3003E2170060B7D4 /* FirebaseCore */; };
 		DE2DB48E3003E21B0060B7D4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = DE2DB48D3003E21B0060B7D4 /* FirebaseFirestore */; };
-		DE3BF90B2FB5338E0094E2B1 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DE3BF90A2FB5338E0094E2B1 /* Localizable.xcstrings */; };
+		DE2DB666301397F20060B7D4 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DE2DB665301397F20060B7D4 /* Localizable.xcstrings */; };
+		DE2DB667301397F20060B7D4 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DE2DB665301397F20060B7D4 /* Localizable.xcstrings */; };
 		DEC8760A2E7998C60023AA0C /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = DEC876092E7998C60023AA0C /* GoogleSignIn */; };
 		DEC8760C2E7998C60023AA0C /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = DEC8760B2E7998C60023AA0C /* GoogleSignInSwift */; };
 		DEE77439300254540090AB49 /* shoppingmemoWatchApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DEE7742F300254520090AB49 /* shoppingmemoWatchApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -45,7 +46,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		DE3BF90A2FB5338E0094E2B1 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		DE2DB665301397F20060B7D4 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		DE48A8822E6365F7008C6FF2 /* shoppingmemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = shoppingmemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DEE7742F300254520090AB49 /* shoppingmemoWatchApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "shoppingmemoWatchApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -113,7 +114,7 @@
 		DE48A83B2E5B8956008C6FF2 = {
 			isa = PBXGroup;
 			children = (
-				DE3BF90A2FB5338E0094E2B1 /* Localizable.xcstrings */,
+				DE2DB665301397F20060B7D4 /* Localizable.xcstrings */,
 				DE48A8462E5B8956008C6FF2 /* shoppingmemo */,
 				DE48A8822E6365F7008C6FF2 /* shoppingmemo.app */,
 				DEE7742F300254520090AB49 /* shoppingmemoWatchApp Watch App.app */,
@@ -199,12 +200,12 @@
 				};
 			};
 			buildConfigurationList = DE48A83F2E5B8956008C6FF2 /* Build configuration list for PBXProject "shoppingmemo" */;
-			developmentRegion = ja;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 				ja,
+				Base,
 			);
 			mainGroup = DE48A83B2E5B8956008C6FF2;
 			minimizedProjectReferenceProxies = 1;
@@ -228,7 +229,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE3BF90B2FB5338E0094E2B1 /* Localizable.xcstrings in Resources */,
+				DE2DB666301397F20060B7D4 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +237,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE2DB667301397F20060B7D4 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +404,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = shoppingmemo/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "画像をダウンロードします。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -433,6 +436,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = shoppingmemo/Info.plist;
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "画像をダウンロードします。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

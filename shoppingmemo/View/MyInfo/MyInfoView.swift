@@ -21,13 +21,13 @@ struct MyInfoView: View {
                 MyInfoViewCell(itemType: .lastSignInDate)
                 MyInfoViewCell(itemType: .useDays)
             } header: {
-                Text("自分の情報")
+                Text("MyInfoView.List.Section.header.Text")
             }
             Section {
                 MyInfoViewCell(itemType: .deleteAccount)
             }
         }
-        .navigationTitle("マイページ")
+        .navigationTitle("MyInfoView.navigationTitle")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             UserRepository.observeMyUserData()

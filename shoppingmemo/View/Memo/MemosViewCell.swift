@@ -38,6 +38,7 @@ struct MemosViewCell: View {
                     .font(.system(size: 25))
                     .foregroundStyle(Color.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             Button {
@@ -51,20 +52,18 @@ struct MemosViewCell: View {
             }
             .buttonStyle(.plain)
         }
-        .alert("メモの変更", isPresented: $renameMemoNameAlertIsPresented) {
-            TextField("メモを入力", text: $newMemoNameText)
-            Button(role: .cancel) {
+        .alert("MemosViewCell.Alert.title", isPresented: $renameMemoNameAlertIsPresented) {
+            TextField("MemosViewCell.Alert.TextField.title", text: $newMemoNameText)
+            CancelButton {
                 newMemoNameText = memo.memoName
-            } label: {
-                Text("キャンセル")
             }
             Button(role: .confirm) {
                 Task { await MemoRepository.updateMemoName(memoId: memo.memoId, newMemoName: newMemoNameText) }
             } label: {
-                Text("変更")
+                Text("MemosViewCell.Alert.Button.title")
             }
         } message: {
-            Text("変更後のメモを入力してください。")
+            Text("MemosViewCell.Alert.message")
         }
 
     }

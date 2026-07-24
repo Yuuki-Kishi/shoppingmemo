@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct ToggleLabel: View {
-    private let title: String
+    private let title: LocalizedStringKey
     private let systemImage: String
     private let get: () -> Bool
     
-    init(title: String, systemImage: String, get: @escaping () -> Bool) {
+    init(title: LocalizedStringKey, systemImage: String, get: @escaping () -> Bool) {
         self.title = title
         self.systemImage = systemImage
         self.get = get

@@ -9,9 +9,9 @@ import SwiftUI
 
 struct IconLabelView: View {
     private let iconString: String
-    private let labelText: String
+    private let labelText: LocalizedStringKey
     
-    init(iconString: String, labelText: String) {
+    init(iconString: String, labelText: LocalizedStringKey) {
         self.iconString = iconString
         self.labelText = labelText
     }

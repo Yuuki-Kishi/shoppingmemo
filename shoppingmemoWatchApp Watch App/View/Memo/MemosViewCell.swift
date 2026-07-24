@@ -1,5 +1,5 @@
 //
-//  MemoViewCell.swift
+//  MemosViewCell.swift
 //  shoppingmemoWatchApp Watch App
 //
 //  Created by 岸　優樹 on 2026/07/13.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MemoViewCell: View {
+struct MemosViewCell: View {
     private let memo: Memo
     
     init(memo: Memo) {
@@ -41,5 +41,5 @@ struct MemoViewCell: View {
 }
 
 #Preview {
-    MemoViewCell(memo: Memo())
+    MemosViewCell(memo: Memo())
 }

@@ -58,6 +58,20 @@ class CustomImageRepository {
         }
     }
     
+    static func downloadImage(completion: @escaping () -> Void, failure: @escaping () -> Void) async {
+        do {
+            guard let imageData = imageDataStore.attachedImage?.imageData else { failure(); return }
+            guard let uiImage = UIImage(data: imageData) else { failure(); return }
+            try await PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.creationRequestForAsset(from: uiImage)
+                completion()
+            }
+        } catch {
+            print(error.localizedDescription)
+            failure()
+        }
+    }
+    
     //delete
     static func clearImage() {
         imageDataStore.attachedImage = nil

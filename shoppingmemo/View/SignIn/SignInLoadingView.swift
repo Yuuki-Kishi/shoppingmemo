@@ -19,7 +19,7 @@ struct SignInLoadingView: View {
                     .frame(width: height, height: height)
                     .clipShape(RoundedRectangle(cornerRadius: height / 10))
                 Spacer()
-                Text("ログインデータを確認中...")
+                Text("SignInLoadingView.Text")
                 Spacer()
                 HStack {
                     Spacer()

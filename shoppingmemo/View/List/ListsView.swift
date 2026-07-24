@@ -15,7 +15,7 @@ struct ListsView: View {
     @State private var newListNameText: String = ""
     @State private var newRoomNameText: String = ""
     @State private var createNewListAlertIsPresent: Bool = false
-    @State private var updateRoomNameAlertIsPresent: Bool = false
+    @State private var renameRoomNameAlertIsPresent: Bool = false
     @State private var deleteRoomAlertIsPresent: Bool = false
     
     var body: some View {
@@ -25,7 +25,7 @@ struct ListsView: View {
                     ForEach(listDataStore.listArray, id: \.listId) { list in
                         ListsViewCell(list: list)
                             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                DeleteButton {
+                                DeleteIconButton {
                                     listDataStore.selectedListId = list.listId
                                     Task { await CustomListRepository.deleteList() }
                                 }
@@ -35,7 +35,7 @@ struct ListsView: View {
                 }
                 .listRowSpacing(35)
             } emptyContent: {
-                Text("リストがありません")
+                Text("ListsView.enptyContent.Text")
             }
             PlusButton() {
                 newListNameText = ""
@@ -51,22 +51,22 @@ struct ListsView: View {
                 toolBarMenu()
             }
         }
-        .alert("リストを追加", isPresented: $createNewListAlertIsPresent) {
+        .alert("ListsView.createNewListAlert.title", isPresented: $createNewListAlertIsPresent) {
             createNewListAlertActions()
         } message: {
-            Text("追加するリストの名前を入力してください。")
+            Text("ListsView.createNewListAlert.message")
         }
-        .alert("ルーム名を変更", isPresented: $updateRoomNameAlertIsPresent) {
-            updateRoomNameAlertActions()
+        .alert("ListsView.renameRoomNameAlert.title", isPresented: $renameRoomNameAlertIsPresent) {
+            renameRoomNameAlertActions()
         } message: {
-            Text("新しく設定するルーム名を入力してください。")
+            Text("ListsView.updateRoomNameAlert.message")
         }
-        .alert("本当に\(roomDataStore.roomArray.selected?.roomName ?? "このルーム")を削除しますか？", isPresented: $deleteRoomAlertIsPresent) {
+        .alert("ListsView.deleteRoomAlert.title\(roomDataStore.roomArray.selected?.roomName ?? "ListsView.deleteRoomAlert.unknownRoomName")", isPresented: $deleteRoomAlertIsPresent) {
             deleteRoomAlertActions()
         } message: {
-            Text("このルームに含まれる全てのリスト、メモも削除されます。\nこの操作は取り消すことができません。")
+            Text("ListsView.deleteRoomAlert.message")
         }
-        .navigationTitle(roomDataStore.roomArray.selected?.roomName ?? "不明なルーム")
+        .navigationTitle(roomDataStore.roomArray.selected?.roomName ?? "ListsView.navigationTitle.unknownRoomName")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             listDataStore.isLoading = true
@@ -81,53 +81,53 @@ struct ListsView: View {
         Menu {
             Button {
                 newRoomNameText = roomDataStore.roomArray.selected?.roomName ?? ""
-                updateRoomNameAlertIsPresent = true
+                renameRoomNameAlertIsPresent = true
             } label: {
-                Label("ルーム名を変更", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
+                Label("ListsView.toolBarMenu.renameRoom", systemImage: "arrow.trianglehead.2.clockwise.rotate.90")
             }
             Button {
                 pathDataStore.navigationPath.append(.participant)
             } label: {
-                Label("メンバーリスト", systemImage: "person.2")
+                Label("ListsView.toolBarMenu.participant", systemImage: "person.2")
             }
             Menu {
                 Button {
                     CustomListRepository.sortLists(basedOn: .ascending)
                 } label: {
-                    ToggleLabel(title: "タイトル昇順", systemImage: "a.circle") {
+                    ToggleLabel(title: "ListsView.toolBarMenu.sort.ToggleLabel.A-Z", systemImage: "a.circle") {
                         listDataStore.listSort == .ascending
                     }
                 }
                 Button {
                     CustomListRepository.sortLists(basedOn: .descending)
                 } label: {
-                    ToggleLabel(title: "タイトル降順", systemImage: "z.circle") {
+                    ToggleLabel(title: "ListsView.toolBarMenu.sort.ToggleLabel.Z-A", systemImage: "z.circle") {
                         listDataStore.listSort == .descending
                     }
                 }
                 Button {
                     CustomListRepository.sortLists(basedOn: .newest)
                 } label: {
-                    ToggleLabel(title: "更新日時", systemImage: "clock") {
+                    ToggleLabel(title: "ListsView.toolBarMenu.sort.ToggleLabel.newest", systemImage: "clock") {
                         listDataStore.listSort == .newest
                     }
                 }
                 Button {
                     CustomListRepository.sortLists(basedOn: .custom)
                 } label: {
-                    ToggleLabel(title: "カスタム", systemImage: "hand.point.up") {
+                    ToggleLabel(title: "ListsView.toolBarMenu.sort.ToggleLabel.custom", systemImage: "hand.point.up") {
                         listDataStore.listSort == .custom
                     }
                 }
             } label: {
-                Label("並び替え", systemImage: "arrow.up.arrow.down")
+                Label("ListsView.toolBarMenu.sort.Label.title", systemImage: "arrow.up.arrow.down")
             }
             Divider()
             if roomDataStore.roomArray.selected?.authorities.myAuthority == .administrator {
                 Button(role: .destructive) {
                     deleteRoomAlertIsPresent = true
                 } label: {
-                    Label("ルーム削除", systemImage: "trash")
+                    Label("ListsView.toolBarMenu.deleteRoom.Label.title", systemImage: "trash")
                 }
             }
         } label: {
@@ -136,42 +136,34 @@ struct ListsView: View {
     }
     @ViewBuilder
     func createNewListAlertActions() -> some View {
-        TextField("リストの名前を入力", text: $newListNameText)
-        Button(role: .cancel) {
+        TextField("ListsView.createNewAlertActions.textField.title", text: $newListNameText)
+        CancelButton {
             newListNameText = ""
-        } label: {
-            Text("キャンセル")
         }
         Button {
             Task { await CustomListRepository.createList(listName: newListNameText) }
         } label: {
-            Text("追加")
+            Text("ListsView.createNewAlertActions.Button.Text")
         }
     }
     @ViewBuilder
-    func updateRoomNameAlertActions() -> some View {
-        TextField("新しいルーム名を入力", text: $newRoomNameText)
-        Button(role: .cancel) {
+    func renameRoomNameAlertActions() -> some View {
+        TextField("ListsView.updateRoomNameAlertActions.TextField.title", text: $newRoomNameText)
+        CancelButton {
             newRoomNameText = roomDataStore.roomArray.selected?.roomName ?? ""
-        } label: {
-            Text("キャンセル")
         }
         Button(role: .confirm) {
             Task { await RoomRepository.updateRoomName(newName: newRoomNameText) }
         } label: {
-            Text("変更")
+            Text("ListsView.updateRoomNameAlertActions.Button.Text")
         }
     }
     @ViewBuilder
     func deleteRoomAlertActions() -> some View {
-        Button(role: .cancel) {} label: {
-            Text("キャンセル")
-        }
-        Button(role: .destructive) {
+        CancelButton()
+        DeleteButton {
             listDataStore.isLoading = true
             Task { await RoomRepository.deleteRoom() }
-        } label: {
-            Text("削除")
         }
     }
 }

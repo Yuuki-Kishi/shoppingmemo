@@ -41,17 +41,15 @@ struct ParticipantViewCell: View {
             guard userDataStore.signInUser?.userId != userId else { return }
             transferAuthorityAlertIsPresented = true
         }
-        .alert("管理者権限を譲渡しますか？", isPresented: $transferAuthorityAlertIsPresented) {
-            Button(role: .cancel) {} label: {
-                Text("キャンセル")
-            }
+        .alert("ParticipantViewCell.Alert.title", isPresented: $transferAuthorityAlertIsPresented) {
+            CancelButton()
             Button(role: .destructive) {
                 Task { await RoomRepository.transferAuthority(newAdministratorUserId: userId) }
             } label: {
-                Text("譲渡")
+                Text("ParticipantViewCell.Alert.Button")
             }
         } message: {
-            Text("この操作は取り消すことができません。")
+            Text("ParticipantViewCell.Alert.message")
         }
         .onAppear() {
             UserRepository.observeUserName(userId: userId) { userName in

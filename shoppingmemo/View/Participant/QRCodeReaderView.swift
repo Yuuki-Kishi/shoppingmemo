@@ -22,10 +22,10 @@ struct QRCodeReaderView: View {
                     }
                 }
             } else {
-                Text("カメラが使えません")
+                Text("QRCodeReaderView.notSupported.Text")
             }
         }
-        .navigationTitle("QRコードリーダー")
+        .navigationTitle("QRCodeReaderView.navigationTitle")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

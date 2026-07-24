@@ -25,7 +25,7 @@ struct ParticipantView: View {
                             ParticipantViewCell(userId: userId)
                         }
                     } header: {
-                        Text("管理者")
+                        Text("ParticipantView.List.administratorSection.header.Text")
                     }
                     BoolSwitchView(isEmpty: room.authorities.members.isEmpty) {
                         Section {
@@ -33,7 +33,7 @@ struct ParticipantView: View {
                                 if room.authorities.myAuthority == .administrator {
                                     ParticipantViewCell(userId: userId)
                                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                            DeleteButton {
+                                            DeleteIconButton {
                                                 Task { await RoomRepository.removeAuthority(userId: userId, roomId: room.roomId) }
                                             }
                                         }
@@ -42,7 +42,7 @@ struct ParticipantView: View {
                                 }
                             }
                         } header: {
-                            Text("メンバー")
+                            Text("ParticipantView.List.memberSection.header.Text")
                         }
                     } emptyContent: {}
                     BoolSwitchView(isEmpty: room.authorities.guests.isEmpty) {
@@ -50,13 +50,13 @@ struct ParticipantView: View {
                             ForEach(room.authorities.guests, id: \.self) { userId in
                                 ParticipantViewCell(userId: userId)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        DeleteButton {
+                                        DeleteIconButton {
                                             Task { await RoomRepository.removeAuthority(userId: userId, roomId: room.roomId) }
                                         }
                                     }
                             }
                         } header: {
-                            Text("招待中")
+                            Text("ParticipantView.List.guestSection.header.Text")
                         }
                     } emptyContent: {}
                 }
@@ -71,63 +71,62 @@ struct ParticipantView: View {
                 }
             }
         } nilContent: {
-            Text("ルームを選択してください")
+            Text("ParticipantView.nilContent.Text")
         }
-        .alert("メンバーを追加", isPresented: $addParticipantAlertIsPresented) {
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                HelpButton()
+            }
+        }
+        .alert("ParticipantView.addParticipantAlert.title", isPresented: $addParticipantAlertIsPresented) {
             addParticipantAlertActions()
         } message: {
-            Text("メンバーを追加する方法を選択してください。")
+            Text("ParticipantView.addParticipantAlert.message")
         }
-        .alert("ユーザーIDで追加", isPresented: $addParticipantByUserIdAlertIsPresented) {
+        .alert("ParticipantView.addParticipantsByUserIdAlert.title", isPresented: $addParticipantByUserIdAlertIsPresented) {
             addParicipantByUserIdAlertActions()
         } message: {
-            Text("追加するメンバーのユーザーIDを入力してください。")
+            Text("ParticipantView.addParticipantsByUserIdAlert.message")
         }
-        .alert("本当に脱退しますか？", isPresented: $leaveGroupAlertIsPresented) {
+        .alert("ParticipantView.leaveGroupAlert.title", isPresented: $leaveGroupAlertIsPresented) {
             leaveGroupAlertActions()
         } message: {
-            Text("この操作は取り消すことができません。")
+            Text("ParticipantView.leaveGroupAlert.message")
         }
-        .navigationTitle("メンバーリスト")
+        .navigationTitle("ParticipantView.navigationTitle")
         .navigationBarTitleDisplayMode(.inline)
     }
     @ViewBuilder
     func addParticipantAlertActions() -> some View {
+        CancelButton()
         Button(role: .confirm) {
             pathDataStore.navigationPath.append(.QRreader)
         } label: {
-            Text("QRコード")
+            Text("ParticipantView.addParticipantAlertActions.QRButton.Text")
         }
         Button(role: .confirm) {
             addParticipantByUserIdAlertIsPresented = true
         } label: {
-            Text("ユーザーID")
-        }
-        Button(role: .cancel) {} label: {
-            Text("キャンセル")
+            Text("ParticipantView.addParticipantAlertActions.userIdButton.Text")
         }
     }
     @ViewBuilder
     func addParicipantByUserIdAlertActions() -> some View {
-        TextField("ユーザーID", text: $addUserIdText)
+        CancelButton {
+            addUserIdText = ""
+        }
+        TextField("ParticipantView.addParticipantByUserIdAlertActions.TextField.title", text: $addUserIdText)
         Button(role: .confirm) {
             participantDataStore.addUserId = addUserIdText
             addUserIdText = ""
             pathDataStore.navigationPath.append(.addParicipant)
         } label: {
-            Text("追加")
-        }
-        Button(role: .cancel) {
-            addUserIdText = ""
-        } label: {
-            Text("キャンセル")
+            Text("ParticipantView.addParticipantByUserIdAlertActions.Button.Text")
         }
     }
     @ViewBuilder
     func leaveGroupAlertActions() -> some View {
-        Button(role: .cancel) {} label: {
-            Text("キャンセル")
-        }
+        CancelButton()
         Button(role: .destructive) {
             Task {
                 guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
@@ -135,7 +134,7 @@ struct ParticipantView: View {
                 NavigationRepository.removeAllViews()
             }
         } label: {
-            Text("脱退")
+            Text("ParticipantView.leaveGroupAlertActions.Button.Text")
         }
     }
 }

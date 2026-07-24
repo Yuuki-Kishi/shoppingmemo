@@ -20,7 +20,7 @@ struct AddParticipantView: View {
                         AddParticipantViewCell(itemType: .userName)
                         AddParticipantViewCell(itemType: .email)
                     } header: {
-                        Text("ユーザ情報")
+                        Text("AddParticipantView.List.Section.header.Text")
                     }
                 }
                 VStack {
@@ -31,7 +31,7 @@ struct AddParticipantView: View {
                             NavigationRepository.removeViews(dest: .participant)
                         }
                     } label: {
-                        Text("追加")
+                        Text("AddParticipantView.addParticipantButton.Text")
                             .frame(width: geometry.size.width * 0.6, height: 40)
                     }
                     .foregroundStyle(.primary)
@@ -40,7 +40,7 @@ struct AddParticipantView: View {
                     Button {
                         NavigationRepository.removeViews(dest: .participant)
                     } label: {
-                        Text("キャンセル")
+                        Text("AddParticipantView.cancelButton.Text")
                             .frame(width: geometry.size.width * 0.6, height: 30)
                     }
                     .foregroundStyle(.primary)
@@ -51,7 +51,7 @@ struct AddParticipantView: View {
                 )
             } emptyContent: {
                 ZStack {
-                    Text("ユーザが見つかりません")
+                    Text("AddParticipantView.emptyContent.Text")
                         .position(
                             x: geometry.size.width / 2,
                             y: geometry.size.height / 2
@@ -59,7 +59,7 @@ struct AddParticipantView: View {
                     Button {
                         NavigationRepository.removeViews(dest: .participant)
                     } label: {
-                        Text("キャンセル")
+                        Text("AddParticipantView.emptyContent.Button.Text")
                             .frame(width: geometry.size.width * 0.6, height: 30)
                     }
                     .foregroundStyle(.primary)
@@ -70,7 +70,7 @@ struct AddParticipantView: View {
                 }
             }
         }
-        .navigationTitle("ユーザを追加")
+        .navigationTitle("AddParticipantView.navigationTitle")
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .onAppear() {

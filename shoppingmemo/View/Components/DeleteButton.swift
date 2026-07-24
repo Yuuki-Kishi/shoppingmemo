@@ -16,7 +16,7 @@ struct DeleteButton: View {
     
     var body: some View {
         Button(role: .destructive, action: action) {
-            Image(systemName: "trash")
+            Text("DeleteButton.label")
         }
     }
 }

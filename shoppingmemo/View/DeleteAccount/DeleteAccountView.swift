@@ -21,13 +21,13 @@ struct DeleteAccountView: View {
                         DeleteAccountViewCell(itemType: .userName)
                         DeleteAccountViewCell(itemType: .email)
                     } header: {
-                        Text("ユーザ情報")
+                        Text("DeleteAccountView.List.Section.header")
                     }
                 }
                 Button(role: .destructive) {
                     deleteAccountAlertIsPresented = true
                 } label: {
-                    Text("削除")
+                    Text("DeleteAccountView.deleteButton")
                         .frame(width: geometry.size.width * 0.6, height: 40)
                 }
                 .foregroundStyle(.red)
@@ -38,19 +38,19 @@ struct DeleteAccountView: View {
                     y: geometry.size.height * 4 / 5
                 )
             } emptyContent: {
-                Text("アカウントが見つかりません")
+                Text("DeleteAccountView.emptyContent.Text")
                     .position(
                         x: geometry.size.width / 2,
                         y: geometry.size.height / 2
                     )
             }
         }
-        .alert("本当に削除しますか？", isPresented: $deleteAccountAlertIsPresented) {
+        .alert("DeleteAccountView.Alert.title", isPresented: $deleteAccountAlertIsPresented) {
             deleteAccountAlertAction()
         } message: {
-            Text("この操作は取り消すことができません。")
+            Text("DeleteAccountView.Alert.message")
         }
-        .navigationTitle("アカウント削除")
+        .navigationTitle("DeleteAccountView.navigationTitle")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             reauthenticate()
@@ -58,20 +58,13 @@ struct DeleteAccountView: View {
     }
     @ViewBuilder
     func deleteAccountAlertAction() -> some View {
-        Button(role: .destructive) {
-            Task {
-                await AuthRepository.deleteAccount {
-                    pathDataStore.navigationPath.removeAll()
-                } failure: {
-                    reauthenticate()
-                }
-
+        CancelButton()
+        DeleteButton {
+            AuthRepository.deleteAccount {
+                pathDataStore.navigationPath.removeAll()
+            } failure: {
+                reauthenticate()
             }
-        } label: {
-            Text("削除")
-        }
-        Button(role: .cancel) {} label: {
-            Text("キャンセル")
         }
     }
     func reauthenticate() {

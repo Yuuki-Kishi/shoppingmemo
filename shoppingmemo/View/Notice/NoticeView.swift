@@ -35,7 +35,7 @@ struct NoticeView: View {
         return formatter.string(from: selectedNoticeCreationDate)
     }
     func noticeTitleString() -> String {
-        guard let selectedNoticeTitle = noticeDataStore.noticeArray.selected?.noticeTitle else { return "通知" }
+        guard let selectedNoticeTitle = noticeDataStore.noticeArray.selected?.noticeTitle else { return "NoticeView.navigationTitle.unknownNoticeTitle" }
         return selectedNoticeTitle
     }
 }

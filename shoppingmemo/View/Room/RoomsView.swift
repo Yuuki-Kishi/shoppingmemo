@@ -23,7 +23,7 @@ struct RoomsView: View {
                     }
                     .listRowSpacing(35)
                 } emptyContent: {
-                    Text("ルームがありません")
+                    Text("RoomsView.emptyContent.Text")
                 }
                 PlusButton() {
                     newRoomNameText = ""
@@ -39,20 +39,20 @@ struct RoomsView: View {
                     toolBarMenu()
                 }
             }
-            .alert("ルームを新規作成", isPresented: $newRoomCreateAlertIsPresented) {
+            .alert("RoomsView.newRoomCreateAlert.title", isPresented: $newRoomCreateAlertIsPresented) {
                 newRoomCreateAlertActions()
             } message: {
-                Text("新規作成するルームの名前を入力してください。")
+                Text("RoomsView.newRoomCreateAlert.message")
             }
-            .alert("本当にサインアウトしますか？", isPresented: $signOutAlertIsPresented) {
+            .alert("RoomsView.signOutAlert.title", isPresented: $signOutAlertIsPresented) {
                 signOutAlertActions()
             } message: {
-                Text("サインアウトすると、再度利用する際にサインインが必要になります。")
+                Text("RoomsView.signOutAlert.message")
             }
             .navigationDestination(for: PathDataStore.path.self) { path in
                 destination(path: path)
             }
-            .navigationTitle("ホーム")
+            .navigationTitle("RoomsView.navigationTitle")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear() {
                 roomDataStore.isLoading = true
@@ -96,7 +96,7 @@ struct RoomsView: View {
             Button {
                 pathDataStore.navigationPath.append(.myInfo)
             } label: {
-                Label("マイページ", systemImage: "info.circle")
+                Label("RoomsView.toolBarMenu.myInfo.Label.title", systemImage: "info.circle")
             }
 //            Button {
 //                
@@ -106,13 +106,13 @@ struct RoomsView: View {
             Button {
                 pathDataStore.navigationPath.append(.noticeList)
             } label: {
-                Label("通知一覧", systemImage: "bell")
+                Label("RoomsView.toolBarMenu.notice.Label.title", systemImage: "bell")
             }
             Divider()
             Button(role: .destructive) {
                 signOutAlertIsPresented = true
             } label: {
-                Text("サインアウト")
+                Text("RoomsView.toolBarMenu.signOut.Text")
             }
         } label: {
             Image(systemName: "ellipsis.circle")
@@ -121,25 +121,21 @@ struct RoomsView: View {
     }
     @ViewBuilder
     func newRoomCreateAlertActions() -> some View {
-        TextField("ルームの名前を入力", text: $newRoomNameText)
-        Button(role: .cancel) {} label: {
-            Text("キャンセル")
-        }
+        TextField("RoomsView.newRoomCreateAlert.TextField.title", text: $newRoomNameText)
+        CancelButton()
         Button(role: .confirm) {
             Task { await RoomRepository.createRoom(roomName: newRoomNameText) }
         } label: {
-            Text("作成")
+            Text("RoomsView.newRoomCreateAlert.Button.Text")
         }
     }
     @ViewBuilder
     func signOutAlertActions() -> some View {
-        Button(role: .cancel) {} label: {
-            Text("キャンセル")
-        }
+        CancelButton()
         Button(role: .destructive) {
             Task { await AuthRepository.signOut() }
         } label: {
-            Text("サインアウト")
+            Text("RoomsView.signOutAlert.Button.Text")
         }
     }
 }

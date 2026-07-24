@@ -21,7 +21,7 @@ struct RoomsViewCell: View {
     var body: some View {
         HStack {
             VStack {
-                Text(roomName())
+                Text(room.roomName)
                     .font(.system(size: 25))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .lineLimit(1)
@@ -41,22 +41,22 @@ struct RoomsViewCell: View {
         }
         .contentShape(Rectangle())
         .listRowBackground(cellColor())
-        .alert("\(room.roomName)に加入しますか？", isPresented: $enterRoomAlertIsPresented) {
+        .alert("\(room.roomName)RoomsViewCell.Alert.title", isPresented: $enterRoomAlertIsPresented) {
             Button(role: .cancel) {} label: {
-                Text("保留")
+                Text("RoomsViewCell.Alert.holdButton.Text")
             }
             Button(role: .confirm) {
                 Task { await RoomRepository.updateMyAuthority(roomId: room.roomId) }
             } label: {
-                Text("加入")
+                Text("RoomsViewCell.Alert.joinButton.Text")
             }
             Button(role: .destructive) {
                 Task { await RoomRepository.removeMyAuthority(roomId: room.roomId) }
             } label: {
-                Text("拒否")
+                Text("RoomsViewCell.Alert.rejectButton.Text")
             }
         } message: {
-            Text("後から自分で脱退することができます。")
+            Text("RoomsViewCell.Alert.message")
         }
         .onTapGesture {
             if room.authorities.myAuthority == .guest {
@@ -70,13 +70,6 @@ struct RoomsViewCell: View {
             UserRepository.observeUserName(userId: room.lastUpdateUserId) { userName in
                 lastUpdateUserName = userName ?? "----"
             }
-        }
-    }
-    func roomName() -> String {
-        if room.authorities.myAuthority == .guest {
-            return room.roomName + " (招待されています)"
-        } else {
-            return room.roomName
         }
     }
     func lastUpdateTime() -> String {

@@ -10,7 +10,7 @@ import SwiftUI
 struct ImageInfoViewCell: View {
     @EnvironmentObject private var imageDataStore: ImageDataStore
     @State var cellContent: CellContentEnum
-    @State var userName: String = "取得中..."
+    @State var userName: String = "----"
     
     enum CellContentEnum: String {
         case userName, imageSize, uploadTime
@@ -27,14 +27,14 @@ struct ImageInfoViewCell: View {
             onAppear()
         }
     }
-    func keyString() -> String {
+    func keyString() -> LocalizedStringKey {
         switch cellContent {
         case .userName:
-            return "登録ユーザー"
+            return "ImageInfoViewCell.Text.userName"
         case .imageSize:
-            return "サイズ"
+            return "ImageInfoViewCell.Text.imageSize"
         case .uploadTime:
-            return "登録日時"
+            return "ImageInfoViewCell.Text.uploadTime"
         }
     }
     func valueString() -> String {
@@ -42,7 +42,7 @@ struct ImageInfoViewCell: View {
         case .userName:
             return userName
         case .imageSize:
-            return imageDataStore.attachedImage?.imageData.count.fileSizeString ?? "--MB"
+            return imageDataStore.attachedImage?.imageData.count.fileSizeString ?? "---MB"
         case .uploadTime:
             return uploadTime()
         }

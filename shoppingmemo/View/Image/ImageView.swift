@@ -12,10 +12,11 @@ struct ImageView: View {
     @EnvironmentObject private var memoDataStore: MemoDataStore
     @EnvironmentObject private var imageDataStore: ImageDataStore
     @State private var selectedImage: PhotosPickerItem?
-//    @State private var uiImage: UIImage?
     @State private var photosPickerIsPresented: Bool = false
     @State private var imageInfoViewIsPresented: Bool = false
     @State private var isShowCameraView: Bool = false
+    @State private var downloadImageCompleteAlertIsPresented: Bool = false
+    @State private var downloadImageFailedAlertIsPresented: Bool = false
     @State private var deleteImageAlertIsPresented: Bool = false
     
     var body: some View {
@@ -25,7 +26,7 @@ struct ImageView: View {
                 .scaledToFit()
                 .zoomable(maxScale: 5)
         } nilContent: {
-            Text("画像がありません")
+            Text("ImageView.nilContent.Text")
         }
         .onChange(of: memoDataStore.selectedMemo()?.imageUrl) { _, imageUrl in
             Task { await loadImage(imageUrl: memoDataStore.selectedMemo()?.imageUrl ?? "default") }
@@ -53,12 +54,22 @@ struct ImageView: View {
                 toolBarMenu()
             }
         }
-        .alert("画像を削除しますか？", isPresented: $deleteImageAlertIsPresented) {
+        .alert("ImageView.downloadCompleteAlert.title", isPresented: $downloadImageCompleteAlertIsPresented) {
+            OKButton()
+        } message: {
+            Text("ImageView.downloadCompleteAlert.message")
+        }
+        .alert("ImageView.downloadFailedAlert.title", isPresented: $downloadImageFailedAlertIsPresented) {
+            OKButton()
+        } message: {
+            Text("ImageView.downloadFailedAlert.message")
+        }
+        .alert("ImageView.deleteImageAlert.title", isPresented: $deleteImageAlertIsPresented) {
             deleteImageAlertActions()
         } message: {
-            Text("この操作は取り消すことができません。")
+            Text("ImageView.deleteImageAlert.message")
         }
-        .navigationTitle(memoDataStore.selectedMemo()?.memoName ?? "不明なメモ")
+        .navigationTitle(memoDataStore.selectedMemo()?.memoName ?? "ImageView.navigationTitle.unknownMemoName")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear() {
             Task { await loadImage(imageUrl: memoDataStore.selectedMemo()?.imageUrl ?? "default") }
@@ -85,12 +96,12 @@ struct ImageView: View {
                     Button {
                         photosPickerIsPresented = true
                     } label: {
-                        Label("アルバムから追加", systemImage: "photo.stack")
+                        Label("ImageView.toolBarMenu.addImageFromAlbum.title", systemImage: "photo.stack")
                     }
                     Button {
                         isShowCameraView = true
                     } label: {
-                        Label("撮影して追加", systemImage: "camera")
+                        Label("ImageView.toolBarMenu.addImageFromCamera.title", systemImage: "camera")
                     }
                 } label: {
                     Image(systemName: "plus")
@@ -100,23 +111,28 @@ struct ImageView: View {
                     Button {
                         imageInfoViewIsPresented = true
                     } label: {
-                        Label("情報", systemImage: "info.circle")
+                        Label("ImageView.toolBarMenu.imageInfo.title", systemImage: "info.circle")
                     }
                     Button {
                         photosPickerIsPresented = true
                     } label: {
-                        Label("アルバムから変更", systemImage: "photo.on.rectangle.angled")
+                        Label("ImageView.toolBarMenu.changeImageFromAlbum.title", systemImage: "photo.on.rectangle.angled")
                     }
                     Button {
                         isShowCameraView = true
                     } label: {
-                        Label("撮影して変更", systemImage: "camera")
+                        Label("ImageView.toolBarMenu.changeImageFromCamera.title", systemImage: "camera")
+                    }
+                    Button {
+                        downloadImage()
+                    } label: {
+                        Label("ImageView.toolBarMenu.downloadImage.title", systemImage: "square.and.arrow.down")
                     }
                     Divider()
                     Button(role: .destructive) {
                         deleteImageAlertIsPresented = true
                     } label: {
-                        Label("画像を削除", systemImage: "trash")
+                        Label("ImageView.toolBarMenu.deleteImage.title", systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -126,13 +142,18 @@ struct ImageView: View {
     }
     @ViewBuilder
     func deleteImageAlertActions() -> some View {
-        Button(role: .cancel) {} label: {
-            Text("キャンセル")
-        }
-        Button(role: .destructive) {
+        CancelButton()
+        DeleteButton {
             Task { await CustomImageRepository.deleteImage() }
-        } label: {
-            Text("削除")
+        }
+    }
+    func downloadImage() {
+        Task {
+            await CustomImageRepository.downloadImage {
+                downloadImageCompleteAlertIsPresented = true
+            } failure: {
+                downloadImageFailedAlertIsPresented = true
+            }
         }
     }
 }

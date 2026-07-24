@@ -15,7 +15,7 @@ struct ImageInfoView: View {
                 ImageInfoViewCell(cellContent: .imageSize)
                 ImageInfoViewCell(cellContent: .uploadTime)
             } header: {
-                Text("画像の情報")
+                Text("ImageInfoView.List.Section.header")
             }
         }
     }

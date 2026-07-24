@@ -25,7 +25,7 @@ struct AddParticipantViewCell: View {
         switch itemType {
         case .userId:
             HStack {
-                Text("ユーザID")
+                Text("AddParticipantViewCell.userId.Text")
                 Spacer()
                 Text(participantDataStore.addUserId ?? "----")
                     .font(.system(size: 15))
@@ -34,7 +34,7 @@ struct AddParticipantViewCell: View {
             }
         case .userName:
             HStack {
-                Text("ユーザネーム")
+                Text("AddParticipantViewCell.userName.Text")
                 Spacer()
                 Text(userName)
                     .lineLimit(1)
@@ -48,7 +48,7 @@ struct AddParticipantViewCell: View {
             }
         case .email:
             HStack {
-                Text("メールアドレス")
+                Text("AddParticipantViewCell.email.Text")
                 Spacer()
                 Text(email)
                     .lineLimit(1)

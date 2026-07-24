@@ -26,7 +26,7 @@ struct DeleteAccountViewCell: View {
         switch itemType {
         case .userId:
             HStack {
-                Text("ユーザID")
+                Text("DeleteAccountViewCell.Text.userId")
                 Spacer()
                 Text(userId)
                     .font(.system(size: 15))
@@ -39,7 +39,7 @@ struct DeleteAccountViewCell: View {
             }
         case .userName:
             HStack {
-                Text("ユーザネーム")
+                Text("DeleteAccountViewCell.Text.userName")
                 Spacer()
                 Text(userName)
                     .lineLimit(1)
@@ -53,7 +53,7 @@ struct DeleteAccountViewCell: View {
             }
         case .email:
             HStack {
-                Text("メールアドレス")
+                Text("DeleteAccountViewCell.Text.email")
                 Spacer()
                 Text(email)
                     .lineLimit(1)

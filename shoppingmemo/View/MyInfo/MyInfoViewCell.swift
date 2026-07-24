@@ -36,10 +36,10 @@ struct MyInfoViewCell: View {
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .alert("ユーザーネームを変更", isPresented: $renameUserNameAlertIsPresent) {
+            .alert("MyInfoViewCell.renameUserNameAlert.title", isPresented: $renameUserNameAlertIsPresent) {
                 renameUserNameAlertActions()
             } message: {
-                Text("新しいユーザーネームを入力してください。")
+                Text("MyInfoViewCell.renameUserNameAlert.message")
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -65,12 +65,10 @@ struct MyInfoViewCell: View {
                     .font(.system(size: 15))
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
-            .alert("コピー完了", isPresented: $copiedUserIdAlertIsPresent) {
-                Button(role: .close) {} label: {
-                    Text("OK")
-                }
+            .alert("MyInfoViewCell.copiedUserIdAlert.title", isPresented: $copiedUserIdAlertIsPresent) {
+                OKButton()
             } message: {
-                Text("ユーザーIDをクリップボードにコピーしました。")
+                Text("MyInfoViewCell.copiedUserIdAlert.message")
             }
             .contentShape(Rectangle())
             .onTapGesture {
@@ -125,7 +123,7 @@ struct MyInfoViewCell: View {
             HStack {
                 Text(itemString())
                     .foregroundStyle(.primary)
-                Text(useDays() + "日")
+                Text("\(useDays())MyInfoViewCell.useDays.Text")
                     .lineLimit(1)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -137,52 +135,48 @@ struct MyInfoViewCell: View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }
             .contentShape(Rectangle())
-            .alert("再度ログインを求められます", isPresented: $myInfoDataStore.deleteAccountAlertIsPresented) {
-                Button {
+            .alert("MyInfoViewCell.deleteAccountAlert.title", isPresented: $myInfoDataStore.deleteAccountAlertIsPresented) {
+                OKButton {
                     pathDataStore.navigationPath.append(.deleteAccount)
-                } label: {
-                    Text("OK")
                 }
             } message: {
-                Text("重要な操作のため、一度ログインしてください。")
+                Text("MyInfoViewCell.deleteAccountAlert.message")
             }
             .onTapGesture {
                 myInfoDataStore.deleteAccountAlertIsPresented = true
             }
         }
     }
-    func itemString() -> String {
+    func itemString() -> LocalizedStringKey {
         switch itemType {
         case .name:
-            return "ユーザーネーム"
+            return "MyInfoViewCell.itemString.name"
         case .email:
-            return "メールアドレス"
+            return "MyInfoViewCell.itemString.email"
         case .userId:
-            return "ユーザーID"
+            return "MyInfoViewCell.itemString.userId"
         case .QR:
-            return "マイQRコード"
+            return "MyInfoViewCell.itemString.QR"
         case .creationDate:
-            return "アカウント作成日"
+            return "MyInfoViewCell.itemString.creationDate"
         case .lastSignInDate:
-            return "最終ログイン日"
+            return "MyInfoViewCell.itemString.lastSignInDate"
         case .useDays:
-            return "利用日数"
+            return "MyInfoViewCell.itemString.useDays"
         case .deleteAccount:
-            return "アカウント削除"
+            return "MyInfoViewCell.itemString.deleteAccount"
         }
     }
     @ViewBuilder
     func renameUserNameAlertActions() -> some View {
-        TextField("ユーザーネームを入力", text: $myInfoDataStore.newUserName)
-        Button(role: .cancel) {
+        TextField("MyInfoViewCell.renameUserNameAlertActions.TextField.title", text: $myInfoDataStore.newUserName)
+        CancelButton {
             myInfoDataStore.newUserName = ""
-        } label: {
-            Text("キャンセル")
         }
         Button(role: .confirm) {
             Task { await UserRepository.updateUserName(newName: myInfoDataStore.newUserName) }
         } label: {
-            Text("変更")
+            Text("MyInfoViewCell.renameUserNameAlertActions.Button.title")
         }
     }
     func getQRImage() -> UIImage? {
@@ -202,7 +196,7 @@ struct MyInfoViewCell: View {
     }
     func useDays() -> String {
         guard let creationTime = userDataStore.signInUser?.creationTime else { return "----" }
-        guard let useDays = Calendar.current.dateComponents([.day], from: creationTime, to: Date()).day else { return "---日"}
+        guard let useDays = Calendar.current.dateComponents([.day], from: creationTime, to: Date()).day else { return "----"}
         return String(useDays)
     }
 }
