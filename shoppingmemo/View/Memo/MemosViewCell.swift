@@ -68,7 +68,7 @@ struct MemosViewCell: View {
 
     }
     func checkMarkImageName() -> String {
-        memo.isChecked ? "checkmark.square" : "square"
+        memo.isChecked ? "checkmark.circle" : "circle"
     }
     func imageMarkImageName() -> String {
         if memo.imageUrl == "default" || memo.imageUrl == "unknown" {

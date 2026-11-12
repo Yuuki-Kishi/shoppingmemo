@@ -20,7 +20,7 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
     var checkedTime: Date
     var nonCheckOrder: Int
     var checkedOrder: Int
-    var imageUrl: String
+    var imageUrl: String?
     var lastUpdateUserId: String
     var lastUpdateTime: Date
     
@@ -48,7 +48,7 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
         }
         self.nonCheckOrder = try container.decode(Int.self, forKey: .nonCheckOrder)
         self.checkedOrder = try container.decode(Int.self, forKey: .checkedOrder)
-        self.imageUrl = try container.decode(String.self, forKey: .imageUrl)
+        self.imageUrl = try container.decodeIfPresent(String.self, forKey: .imageUrl)
         self.lastUpdateUserId = try container.decode(String.self, forKey: .lastUpdateUserId)
         let lastUpdateTimeString = try container.decode(String.self, forKey: .lastUpdateTime)
         if let date = formatter.date(from: lastUpdateTimeString) {
@@ -70,13 +70,13 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
         try container.encode(checkedTimeString, forKey: .checkedTime)
         try container.encode(self.nonCheckOrder, forKey: .nonCheckOrder)
         try container.encode(self.checkedOrder, forKey: .checkedOrder)
-        try container.encode(self.imageUrl, forKey: .imageUrl)
+        try container.encodeIfPresent(self.imageUrl, forKey: .imageUrl)
         try container.encode(self.lastUpdateUserId, forKey: .lastUpdateUserId)
         let lastUpdateTimeString = formatter.string(from: self.lastUpdateTime)
         try container.encode(lastUpdateTimeString, forKey: .lastUpdateTime)
     }
     
-    init(memoId: String, memoName: String, isChecked: Bool, creationTime: Date, checkedTime: Date, nonCheckOrder: Int, checkedOrder: Int, imageUrl: String, lastUpdateUserId: String, lastUpdateTime: Date) {
+    init(memoId: String, memoName: String, isChecked: Bool, creationTime: Date, checkedTime: Date, nonCheckOrder: Int, checkedOrder: Int, imageUrl: String?, lastUpdateUserId: String, lastUpdateTime: Date) {
         self.memoId = memoId
         self.memoName = memoName
         self.isChecked = isChecked
@@ -97,7 +97,7 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
         self.checkedTime = Date()
         self.nonCheckOrder = 0
         self.checkedOrder = 0
-        self.imageUrl = "default"
+        self.imageUrl = nil
         self.lastUpdateUserId = lastUpdateUserId
         self.lastUpdateTime = Date()
     }
@@ -110,7 +110,7 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
         self.checkedTime = Date()
         self.nonCheckOrder = 0
         self.checkedOrder = 0
-        self.imageUrl = "default"
+        self.imageUrl = nil
         self.lastUpdateUserId = "unknownUserId"
         self.lastUpdateTime = Date()
     }
@@ -120,7 +120,7 @@ struct Memo: Codable, Hashable, Identifiable, Equatable {
 extension Array where Element == Memo {
     var selected: Element? {
         guard let selectedMemoId = MemoDataStore.shared.selectedMemoId else { return nil }
-        return self.first(where: { $0.memoId == selectedMemoId })
+        return self.first { $0.memoId == selectedMemoId }
     }
     mutating func append(noDuplicate memo: Element) {
         if let index = self.firstIndex(of: memo) {

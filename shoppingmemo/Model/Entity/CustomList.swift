@@ -93,7 +93,7 @@ struct CustomList: Codable, Hashable, Identifiable, Equatable {
 extension Array where Element == CustomList {
     var selected: Element? {
         guard let selectedListId = ListDataStore.shared.selectedListId else { return nil }
-        return self.first(where: { $0.listId == selectedListId })
+        return self.first { $0.listId == selectedListId }
     }
     mutating func append(noDuplicate list: Element) {
         if let index = self.firstIndex(of: list) {

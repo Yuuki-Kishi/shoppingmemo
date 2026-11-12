@@ -22,7 +22,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
     var authorities: [String: AuthorityEnum]
     
     enum AuthorityEnum: String, Codable {
-        case administrator, member, guest, unknown
+        case administrator, editor, viewer, guest, unknown
     }
     
     enum CodingKeys: String, CodingKey {
@@ -101,7 +101,7 @@ struct Room: Codable, Hashable, Identifiable, Equatable {
 extension Array where Element == Room {
     var selected: Element? {
         guard let selectedRoomId = RoomDataStore.shared.selectedRoomId else { return nil }
-        return self.first(where: { $0.roomId == selectedRoomId })
+        return self.first { $0.roomId == selectedRoomId }
     }
     mutating func append(noDuplicate room: Element) {
         if let index = self.firstIndex(of: room) {
@@ -126,8 +126,11 @@ extension Dictionary where Key == String, Value == Room.AuthorityEnum {
     var administrators: [Key] {
         self.filter { $0.value == .administrator }.map { $0.key }
     }
-    var members: [Key] {
-        self.filter { $0.value == .member }.map { $0.key }
+    var editors: [Key] {
+        self.filter { $0.value == .editor }.map { $0.key }
+    }
+    var viewers: [Key] {
+        self.filter { $0.value == .viewer }.map { $0.key }
     }
     var guests: [Key] {
         self.filter { $0.value == .guest }.map { $0.key }

@@ -27,9 +27,9 @@ struct ParticipantView: View {
                     } header: {
                         Text("ParticipantView.List.administratorSection.header.Text")
                     }
-                    BoolSwitchView(isEmpty: room.authorities.members.isEmpty) {
+                    BoolSwitchView(isEmpty: room.authorities.editors.isEmpty) {
                         Section {
-                            ForEach(room.authorities.members, id: \.self) { userId in
+                            ForEach(room.authorities.editors, id: \.self) { userId in
                                 if room.authorities.myAuthority == .administrator {
                                     ParticipantViewCell(userId: userId)
                                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {

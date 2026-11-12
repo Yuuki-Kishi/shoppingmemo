@@ -56,7 +56,7 @@ class RoomRepository {
     static func updateMyAuthority(roomId: String) async {
         do {
             guard let userId = userDataStore.signInUser?.userId else { return }
-            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.member.rawValue])
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.editor.rawValue])
         } catch {
             print(error.localizedDescription)
         }
@@ -75,7 +75,7 @@ class RoomRepository {
         do {
             guard let userId = userDataStore.signInUser?.userId else { return }
             guard let roomId = roomDataStore.roomArray.selected?.roomId else { return }
-            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.member.rawValue, "authorities.\(newAdministratorUserId)": Room.AuthorityEnum.administrator.rawValue])
+            try await Firestore.firestore().collection("Rooms").document(roomId).updateData(["authorities.\(userId)": Room.AuthorityEnum.editor.rawValue, "authorities.\(newAdministratorUserId)": Room.AuthorityEnum.administrator.rawValue])
         } catch {
             print(error.localizedDescription)
         }

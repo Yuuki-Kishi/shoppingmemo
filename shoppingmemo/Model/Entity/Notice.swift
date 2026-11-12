@@ -54,7 +54,7 @@ struct Notice: Codable, Hashable, Identifiable {
 extension Array where Element == Notice {
     var selected: Element? {
         guard let selectedNoticeId = NoticeDataStore.shared.selectedNoticeId else { return nil }
-        return self.first(where: { $0.noticeId == selectedNoticeId })
+        return self.first { $0.noticeId == selectedNoticeId }
     }
     mutating func append(noDuplicate notice: Element) {
         if let index = self.firstIndex(of: notice) {
